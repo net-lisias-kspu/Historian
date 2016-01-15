@@ -16,8 +16,10 @@
  **/
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace KSEA.Historian
@@ -25,15 +27,22 @@ namespace KSEA.Historian
 
     public class Text : Element
     {
-        private Color m_Color = Color.white;
-        private string m_Text = "";
-        private TextAnchor m_TextAnchor = TextAnchor.MiddleCenter;
-        private int m_FontSize = 10;
-        private FontStyle m_FontStyle = FontStyle.Normal;
-        private string m_pilotColor, m_engineerColor, m_scientistColor, m_touristColor;
-        private int m_baseYear;
-        private string m_dateFormat;
-        private bool m_isKerbincalendar;
+        Color m_Color = Color.white;
+        string m_Text = "";
+        TextAnchor m_TextAnchor = TextAnchor.MiddleCenter;
+        int m_FontSize = 10;
+        FontStyle m_FontStyle = FontStyle.Normal;
+        string m_pilotColor, m_engineerColor, m_scientistColor, m_touristColor;
+        int m_baseYear;
+        string m_dateFormat;
+        bool m_isKerbincalendar;
+
+        readonly Dictionary<string, Func<Vessel, double, int[], Orbit, string>> m_parsers = new Dictionary<string, Func<Vessel, double, int[], Orbit, string>>();
+
+        public Text()
+        {
+            InitializeParameterDictionary();
+        }
 
         protected void SetText(string text)
         {
@@ -58,7 +67,7 @@ namespace KSEA.Historian
 
         protected override void OnLoad(ConfigNode node)
         {
-            
+
             m_Color = node.GetColor("Color", Color.white);
             m_Text = node.GetString("Text", "");
             m_TextAnchor = node.GetEnum("TextAnchor", TextAnchor.MiddleCenter);
@@ -72,20 +81,180 @@ namespace KSEA.Historian
 
             m_isKerbincalendar = GameSettings.KERBIN_TIME;
 
-            m_baseYear = node.GetInteger("BaseYear", m_isKerbincalendar ? 1 : 1940 );
+            m_baseYear = node.GetInteger("BaseYear", m_isKerbincalendar ? 1 : 1940);
             m_dateFormat = node.GetString("DateFormat", CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern);
         }
 
+        void InitializeParameterDictionary()
+        {
+            m_parsers.Add("N", NewLineParser);
+            m_parsers.Add("Custom", CustomParser);
+            m_parsers.Add("Date", DateParser);
+            m_parsers.Add("UT", UTParser);
+            m_parsers.Add("Year", YearParser);
+            m_parsers.Add("Day", DayParser);
+            m_parsers.Add("Hour", HourParser);
+            m_parsers.Add("Minute", MinuteParser);
+            m_parsers.Add("Second", SecondParser);
+            m_parsers.Add("Vessel", VesselParser);
+            m_parsers.Add("Body", BodyParser);
+            m_parsers.Add("Biome", BiomeParser);
+            m_parsers.Add("Situation", SituationParser);
+            m_parsers.Add("LandingZone", LandingZoneParser);
+            m_parsers.Add("Latitude", LatitudeParser);
+            m_parsers.Add("Longitude", LongitudeParser);
+            m_parsers.Add("Heading", HeadingParser);
+            m_parsers.Add("Mach", MachParser);
+            m_parsers.Add("Speed", SpeedParser);
+            m_parsers.Add("Ap", ApParser);
+            m_parsers.Add("Pe", PeParser);
+            m_parsers.Add("Inc", IncParser);
+        }
+
+        string NewLineParser(Vessel vessel, double ut, int[] time, Orbit orbit) => Environment.NewLine;
+
+        string CustomParser(Vessel vessel, double ut, int[] time, Orbit orbit) => Parse(Historian.Instance.GetConfiguration().CustomText.Replace("<Custom>", "")); // avoid recurssion.
+
+        string DateParser(Vessel vessel, double ut, int[] time, Orbit orbit) =>
+            m_isKerbincalendar ? time.FormattedDate(m_dateFormat, m_baseYear) : new DateTime(time[4] + m_baseYear, 1, 1, time[2], time[1], time[0]).AddDays(time[3]).ToString(m_dateFormat);
+
+        string UTParser(Vessel vessel, double ut, int[] time, Orbit orbit) => $"Y{time[4] + m_baseYear}, D{(time[3] + 1):D3}, {time[2]}:{time[1]:D2}:{time[0]:D2}";
+
+        string YearParser(Vessel vessel, double ut, int[] time, Orbit orbit) => (time[4] + m_baseYear).ToString();
+
+        string DayParser(Vessel vessel, double ut, int[] time, Orbit orbit) => (time[3] + 1).ToString();
+
+        string HourParser(Vessel vessel, double ut, int[] time, Orbit orbit) => time[2].ToString();
+
+        string MinuteParser(Vessel vessel, double ut, int[] time, Orbit orbit) => time[1].ToString();
+
+        string SecondParser(Vessel vessel, double ut, int[] time, Orbit orbit) => time[0].ToString();
+
+        string TPlusParser(Vessel vessel, double ut, int[] time, Orbit orbit)
+        {
+            if (vessel != null)
+            {
+                var t = KSPUtil.GetKerbinDateFromUT((int)vessel.missionTime);
+                return (t[4] > 0)
+                    ? $"T+ {t[4] + 1}y, {t[3] + 1}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
+                    : (t[3] > 0)
+                        ? $"T+ {t[3] + 1}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
+                        : $"T+ {t[2]:D2}:{t[1]:D2}:{t[0]:D2}";
+            }
+            return "";
+        }
+
+        string VesselParser(Vessel vessel, double ut, int[] time, Orbit orbit) => vessel?.vesselName;
+
+        string BodyParser(Vessel vessel, double ut, int[] time, Orbit orbit) => vessel != null ? Planetarium.fetch.CurrentMainBody.bodyName : "";
+
+        string SituationParser(Vessel vessel, double ut, int[] time, Orbit orbit)
+            => (vessel == null) ? "" : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(vessel.situation.ToString().Replace("_", "-").ToLower());
+
+        string BiomeParser(Vessel vessel, double ut, int[] time, Orbit orbit)
+            => (vessel == null) ? "" : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(ScienceUtil.GetExperimentBiome(vessel.mainBody, vessel.latitude, vessel.longitude).ToLower());
+
+        string LandingZoneParser(Vessel vessel, double ut, int[] time, Orbit orbit)
+        {
+            if (vessel == null)
+                return "";
+            var landedAt = (string.IsNullOrEmpty(vessel.landedAt))
+                ? ScienceUtil.GetExperimentBiome(vessel.mainBody, vessel.latitude, vessel.longitude)
+                : Vessel.GetLandedAtString(vessel.landedAt); // http://forum.kerbalspaceprogram.com/threads/123896-Human-Friendly-Landing-Zone-Title
+            return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(landedAt.ToLower());
+        }
+
+        string LatitudeParser(Vessel vessel, double ut, int[] time, Orbit orbit) => vessel == null ? "" : vessel.latitude.ToString("F3");
+
+        string LongitudeParser(Vessel vessel, double ut, int[] time, Orbit orbit) => vessel == null ? "" : vessel.longitude.ToString("F3");
+
+        string HeadingParser(Vessel vessel, double ut, int[] time, Orbit orbit) => FlightGlobals.ship_heading.ToString("F1");
+
+        string AltitudeParser(Vessel vessel, double ut, int[] time, Orbit orbit) => vessel == null ? "" : SimplifyDistance(vessel.altitude);
+
+        string MachParser(Vessel vessel, double ut, int[] time, Orbit orbit) => vessel == null ? "" : vessel.mach.ToString("F1");
+
+        string SpeedParser(Vessel vessel, double ut, int[] time, Orbit orbit) => vessel == null ? "" : SimplifyDistance(vessel.srfSpeed) + @"/s";
+
+        string ApParser(Vessel vessel, double ut, int[] time, Orbit orbit) => orbit == null ? "" : SimplifyDistance(orbit.ApA);
+
+        string PeParser(Vessel vessel, double ut, int[] time, Orbit orbit) => orbit == null ? "" : SimplifyDistance(orbit.PeA);
+
+        string IncParser(Vessel vessel, double ut, int[] time, Orbit orbit) => orbit == null ? "" : orbit.inclination.ToString("F1") + "°";
+
         protected string Parse(string text)
+        {
+            var result = new StringBuilder();
+
+            // get common data sources
+            var ut = Planetarium.GetUniversalTime();
+            var time = m_isKerbincalendar ? KSPUtil.GetKerbinDateFromUT((int)ut) : KSPUtil.GetEarthDateFromUT((int)ut);
+            var vessel = FlightGlobals.ActiveVessel;
+            var orbit = vessel?.GetOrbit();
+
+            // scan template text string for parameter tokens
+            int i = 0, tokenLen;
+            while (i < text.Length)
+            {
+                char ch = text[i];
+                if (ch == '<')
+                {
+                    // possible token found
+                    tokenLen = GetTokenLength(text, i);
+                    if (tokenLen >= 0)
+                    {
+                        // extract token
+                        var token = text.Substring(i + 1, tokenLen);
+                        // check if recognised
+                        if (m_parsers.ContainsKey(token))
+                        {
+                            // run parser for matching token
+                            result.Append(m_parsers[token](vessel, ut, time, orbit));
+                        }
+                        else
+                        {
+                            // token not found copy as literal
+                            result.Append("<");
+                            result.Append(token);
+                            result.Append(">");
+                        }
+                        // include < and > in counted tokenlength
+                        tokenLen += 2;
+                    }
+                    else
+                    {
+                        // no end token found treat as literal
+                        tokenLen = 1;
+                        result.Append(ch);
+                    }
+                }
+                else
+                {
+                    // literal
+                    tokenLen = 1;
+                    result.Append(ch);
+                }
+                i += tokenLen;
+            }
+
+            return result.ToString();
+        }
+
+        private int GetTokenLength(string text, int pos)
+        {
+            return text.IndexOf('>', pos) - pos - 1;
+        }
+
+        private string OldParse(string text)
         {
             var ut = Planetarium.GetUniversalTime();
             int[] time;
 
-            if (m_isKerbincalendar) 
+            if (m_isKerbincalendar)
             {
                 time = KSPUtil.GetKerbinDateFromUT((int)ut);
             }
-            else 
+            else
             {
                 time = KSPUtil.GetEarthDateFromUT((int)ut);
             }
@@ -97,7 +266,8 @@ namespace KSEA.Historian
                 text = text.Replace("<N>", Environment.NewLine);
             }
 
-            if (text.Contains("<Date>")) {
+            if (text.Contains("<Date>"))
+            {
                 if (m_isKerbincalendar)
                 {
                     // use custom date formatter for Kerbin time
@@ -111,7 +281,7 @@ namespace KSEA.Historian
                 }
             }
 
-            
+
 
             if (text.Contains("<UT>"))
             {
@@ -151,7 +321,7 @@ namespace KSEA.Historian
 
                 if (vessel != null)
                 {
-                    var t = KSPUtil.GetKerbinDateFromUT((int) vessel.missionTime);
+                    var t = KSPUtil.GetKerbinDateFromUT((int)vessel.missionTime);
 
                     if (t[4] > 0)
                     {
@@ -199,7 +369,7 @@ namespace KSEA.Historian
                 var value = "";
                 if (vessel != null)
                 {
-                    value = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(vessel.situation.ToString().Replace("_","-").ToLower());
+                    value = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(vessel.situation.ToString().Replace("_", "-").ToLower());
                 }
                 text = text.Replace("<Situation>", value);
             }
@@ -496,7 +666,7 @@ namespace KSEA.Historian
                 {
                     var orbit = vessel.GetOrbit();
                     var period = orbit.period;
-                    int[] t; 
+                    int[] t;
 
                     if (m_isKerbincalendar)
                     {
@@ -615,6 +785,20 @@ namespace KSEA.Historian
 
             result = d;
             unit = m_units[i];
+        }
+
+        protected static string SimplifyDistance(double meters)
+        {
+            double d = meters;
+            int i = 0;
+
+            while (d > 1000.0)
+            {
+                d /= 1000.0f;
+                ++i;
+            }
+
+            return $"{d:F1} {m_units[i]}";
         }
     }
 }
