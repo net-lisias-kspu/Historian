@@ -67,7 +67,6 @@ namespace KSEA.Historian
             while (i < format.Length)
             {
                 char ch = format[i];
-                int nextChar;
                 switch (ch)
                 {
                     case 'h':
@@ -125,10 +124,6 @@ namespace KSEA.Historian
                         tokenLen = 1;
                         break;
                     default:
-                        // NOTENOTE : we can remove this rule if we enforce the enforced quote
-                        // character rule.
-                        // That is, if we ask everyone to use single quote or double quote to insert characters,
-                        // then we can remove this default block.
                         result.Append(ch);
                         tokenLen = 1;
                         break;
