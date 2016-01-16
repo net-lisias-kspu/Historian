@@ -25,6 +25,21 @@ using UnityEngine;
 namespace KSEA.Historian
 {
 
+    public struct CommonInfo
+    {
+        public Vessel Vessel;
+        public Orbit Orbit;
+        public double UT;
+        public int[] Time;
+        public ITargetable Target;
+
+        public int Year { get { return Time[4]; } }
+        public int Day { get { return Time[3] + 1; } }
+        public int Hour { get { return Time[2]; } }
+        public int Minute {  get { return Time[1]; } }
+        public int Second { get { return Time[0]; } }
+    }
+
     public class Text : Element
     {
         Color m_Color = Color.white;
@@ -37,14 +52,16 @@ namespace KSEA.Historian
         string m_dateFormat;
         bool m_isKerbincalendar;
 
-        readonly Dictionary<string, Func<Vessel, double, int[], Orbit, string>> m_parsers = new Dictionary<string, Func<Vessel, double, int[], Orbit, string>>();
+        readonly Dictionary<string, Func<CommonInfo, string>> m_parsers = new Dictionary<string, Func<CommonInfo, string>>();
+
+        readonly static string[] m_AllTraits = { "Pilot", "Engineer", "Scientist", "Tourist" };
 
         public Text()
         {
             InitializeParameterDictionary();
         }
 
-        protected void SetText(string text)
+        public void SetText(string text)
         {
             m_Text = text;
         }
@@ -91,6 +108,7 @@ namespace KSEA.Historian
             m_parsers.Add("Custom", CustomParser);
             m_parsers.Add("Date", DateParser);
             m_parsers.Add("UT", UTParser);
+            m_parsers.Add("T+", TPlusParser);
             m_parsers.Add("Year", YearParser);
             m_parsers.Add("Day", DayParser);
             m_parsers.Add("Hour", HourParser);
@@ -106,81 +124,33 @@ namespace KSEA.Historian
             m_parsers.Add("Heading", HeadingParser);
             m_parsers.Add("Mach", MachParser);
             m_parsers.Add("Speed", SpeedParser);
+            m_parsers.Add("SrfSpeed", SurfaceSpeedParser);
+            m_parsers.Add("OrbSpeed", OrbitalSpeedParser);
             m_parsers.Add("Ap", ApParser);
             m_parsers.Add("Pe", PeParser);
             m_parsers.Add("Inc", IncParser);
+            m_parsers.Add("Ecc", EccParser);
+            m_parsers.Add("LAN", LanParser);
+            m_parsers.Add("ArgPe", ArgPeParser);
+            m_parsers.Add("Period", PeriodParser);
+            m_parsers.Add("Orbit", OrbitParser);
+            m_parsers.Add("Crew", CrewParser);
+            m_parsers.Add("CrewShort", CrewShortParser);
+            m_parsers.Add("CrewList", CrewListParser);
+            m_parsers.Add("Pilots", PilotsParser);
+            m_parsers.Add("PilotsShort", PilotsShortParser);
+            m_parsers.Add("PilotsList", PilotsListParser);
+            m_parsers.Add("Engineers", EngineersParser);
+            m_parsers.Add("EngineersShort", EngineersShortParser);
+            m_parsers.Add("EngineersList", EngineersListParser);
+            m_parsers.Add("Scientists", ScientistsParser);
+            m_parsers.Add("ScientistsShort", ScientistsShortParser);
+            m_parsers.Add("ScientistsList", ScientistsListParser);
+            m_parsers.Add("Tourists", TouristsParser);
+            m_parsers.Add("TouristsShort", TouristsShortParser);
+            m_parsers.Add("TouristsList", TouristsListParser);
+            m_parsers.Add("Target", TargetParser);
         }
-
-        string NewLineParser(Vessel vessel, double ut, int[] time, Orbit orbit) => Environment.NewLine;
-
-        string CustomParser(Vessel vessel, double ut, int[] time, Orbit orbit) => Parse(Historian.Instance.GetConfiguration().CustomText.Replace("<Custom>", "")); // avoid recurssion.
-
-        string DateParser(Vessel vessel, double ut, int[] time, Orbit orbit) =>
-            m_isKerbincalendar ? time.FormattedDate(m_dateFormat, m_baseYear) : new DateTime(time[4] + m_baseYear, 1, 1, time[2], time[1], time[0]).AddDays(time[3]).ToString(m_dateFormat);
-
-        string UTParser(Vessel vessel, double ut, int[] time, Orbit orbit) => $"Y{time[4] + m_baseYear}, D{(time[3] + 1):D3}, {time[2]}:{time[1]:D2}:{time[0]:D2}";
-
-        string YearParser(Vessel vessel, double ut, int[] time, Orbit orbit) => (time[4] + m_baseYear).ToString();
-
-        string DayParser(Vessel vessel, double ut, int[] time, Orbit orbit) => (time[3] + 1).ToString();
-
-        string HourParser(Vessel vessel, double ut, int[] time, Orbit orbit) => time[2].ToString();
-
-        string MinuteParser(Vessel vessel, double ut, int[] time, Orbit orbit) => time[1].ToString();
-
-        string SecondParser(Vessel vessel, double ut, int[] time, Orbit orbit) => time[0].ToString();
-
-        string TPlusParser(Vessel vessel, double ut, int[] time, Orbit orbit)
-        {
-            if (vessel != null)
-            {
-                var t = KSPUtil.GetKerbinDateFromUT((int)vessel.missionTime);
-                return (t[4] > 0)
-                    ? $"T+ {t[4] + 1}y, {t[3] + 1}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
-                    : (t[3] > 0)
-                        ? $"T+ {t[3] + 1}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
-                        : $"T+ {t[2]:D2}:{t[1]:D2}:{t[0]:D2}";
-            }
-            return "";
-        }
-
-        string VesselParser(Vessel vessel, double ut, int[] time, Orbit orbit) => vessel?.vesselName;
-
-        string BodyParser(Vessel vessel, double ut, int[] time, Orbit orbit) => vessel != null ? Planetarium.fetch.CurrentMainBody.bodyName : "";
-
-        string SituationParser(Vessel vessel, double ut, int[] time, Orbit orbit)
-            => (vessel == null) ? "" : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(vessel.situation.ToString().Replace("_", "-").ToLower());
-
-        string BiomeParser(Vessel vessel, double ut, int[] time, Orbit orbit)
-            => (vessel == null) ? "" : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(ScienceUtil.GetExperimentBiome(vessel.mainBody, vessel.latitude, vessel.longitude).ToLower());
-
-        string LandingZoneParser(Vessel vessel, double ut, int[] time, Orbit orbit)
-        {
-            if (vessel == null)
-                return "";
-            var landedAt = (string.IsNullOrEmpty(vessel.landedAt))
-                ? ScienceUtil.GetExperimentBiome(vessel.mainBody, vessel.latitude, vessel.longitude)
-                : Vessel.GetLandedAtString(vessel.landedAt); // http://forum.kerbalspaceprogram.com/threads/123896-Human-Friendly-Landing-Zone-Title
-            return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(landedAt.ToLower());
-        }
-
-        string LatitudeParser(Vessel vessel, double ut, int[] time, Orbit orbit) => vessel == null ? "" : vessel.latitude.ToString("F3");
-
-        string LongitudeParser(Vessel vessel, double ut, int[] time, Orbit orbit) => vessel == null ? "" : vessel.longitude.ToString("F3");
-
-        string HeadingParser(Vessel vessel, double ut, int[] time, Orbit orbit) => FlightGlobals.ship_heading.ToString("F1");
-
-        string AltitudeParser(Vessel vessel, double ut, int[] time, Orbit orbit) => vessel == null ? "" : SimplifyDistance(vessel.altitude);
-
-        string MachParser(Vessel vessel, double ut, int[] time, Orbit orbit) => vessel == null ? "" : vessel.mach.ToString("F1");
-
-        string SpeedParser(Vessel vessel, double ut, int[] time, Orbit orbit) => vessel == null ? "" : SimplifyDistance(vessel.srfSpeed) + @"/s";
-
-        string ApParser(Vessel vessel, double ut, int[] time, Orbit orbit) => orbit == null ? "" : SimplifyDistance(orbit.ApA);
-
-        string PeParser(Vessel vessel, double ut, int[] time, Orbit orbit) => orbit == null ? "" : SimplifyDistance(orbit.PeA);
-
-        string IncParser(Vessel vessel, double ut, int[] time, Orbit orbit) => orbit == null ? "" : orbit.inclination.ToString("F1") + "°";
 
         protected string Parse(string text)
         {
@@ -191,6 +161,16 @@ namespace KSEA.Historian
             var time = m_isKerbincalendar ? KSPUtil.GetKerbinDateFromUT((int)ut) : KSPUtil.GetEarthDateFromUT((int)ut);
             var vessel = FlightGlobals.ActiveVessel;
             var orbit = vessel?.GetOrbit();
+            var target = vessel?.targetObject;
+
+            var info = new CommonInfo
+            {
+                Vessel = vessel,
+                Orbit = orbit,
+                Time = time,
+                UT = ut,
+                Target = target
+            };
 
             // scan template text string for parameter tokens
             int i = 0, tokenLen;
@@ -209,7 +189,7 @@ namespace KSEA.Historian
                         if (m_parsers.ContainsKey(token))
                         {
                             // run parser for matching token
-                            result.Append(m_parsers[token](vessel, ut, time, orbit));
+                            result.Append(m_parsers[token](info));
                         }
                         else
                         {
@@ -245,513 +225,185 @@ namespace KSEA.Historian
             return text.IndexOf('>', pos) - pos - 1;
         }
 
-        private string OldParse(string text)
+
+        string NewLineParser(CommonInfo info) => Environment.NewLine;
+
+        string CustomParser(CommonInfo info) => Parse(Historian.Instance.GetConfiguration().CustomText.Replace("<Custom>", "")); // avoid recurssion.
+
+        string DateParser(CommonInfo info) =>
+            m_isKerbincalendar
+                ? info.Time.FormattedDate(m_dateFormat, m_baseYear)
+                : new DateTime(info.Year + m_baseYear, 1, 1, info.Hour, info.Minute, info.Second).AddDays(info.Day - 1).ToString(m_dateFormat);
+
+        string UTParser(CommonInfo info) => $"Y{info.Year + m_baseYear}, D{(info.Day):D3}, {info.Hour}:{info.Minute:D2}:{info.Second:D2}";
+
+        string YearParser(CommonInfo info) => (info.Year + m_baseYear).ToString();
+
+        string DayParser(CommonInfo info) => info.Day.ToString();
+
+        string HourParser(CommonInfo info) => info.Hour.ToString();
+
+        string MinuteParser(CommonInfo info) => info.Minute.ToString();
+
+        string SecondParser(CommonInfo info) => info.Second.ToString();
+
+        string TPlusParser(CommonInfo info)
         {
-            var ut = Planetarium.GetUniversalTime();
-            int[] time;
-
-            if (m_isKerbincalendar)
+            if (info.Vessel != null)
             {
-                time = KSPUtil.GetKerbinDateFromUT((int)ut);
+                var t = KSPUtil.GetKerbinDateFromUT((int)info.Vessel.missionTime);
+                return (t[4] > 0)
+                    ? $"T+ {t[4] + 1}y, {t[3] + 1}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
+                    : (t[3] > 0)
+                        ? $"T+ {t[3] + 1}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
+                        : $"T+ {t[2]:D2}:{t[1]:D2}:{t[0]:D2}";
             }
-            else
-            {
-                time = KSPUtil.GetEarthDateFromUT((int)ut);
-            }
-
-            var vessel = FlightGlobals.ActiveVessel;
-
-            if (text.Contains("<N>"))
-            {
-                text = text.Replace("<N>", Environment.NewLine);
-            }
-
-            if (text.Contains("<Date>"))
-            {
-                if (m_isKerbincalendar)
-                {
-                    // use custom date formatter for Kerbin time
-                    text = text.Replace("<Date>", time.FormattedDate(m_dateFormat, m_baseYear));
-                }
-                else
-                {
-                    // create date object including time in case user wants to specify time format as well as date
-                    var dt = new DateTime(time[4] + m_baseYear, 1, 1, time[2], time[1], time[0]).AddDays(time[3]);
-                    text = text.Replace("<Date>", dt.ToString(m_dateFormat));
-                }
-            }
-
-
-
-            if (text.Contains("<UT>"))
-            {
-                var value = string.Format("Y{0}, D{1:D2}, {2}:{3:D2}:{4:D2}", time[4] + m_baseYear, time[3] + 1, time[2], time[1], time[0]);
-
-                text = text.Replace("<UT>", value);
-            }
-
-            if (text.Contains("<Year>"))
-            {
-                text = text.Replace("<Year>", (time[4] + m_baseYear).ToString());
-            }
-
-            if (text.Contains("<Day>"))
-            {
-                text = text.Replace("<Day>", time[3].ToString());
-            }
-
-            if (text.Contains("<Hour>"))
-            {
-                text = text.Replace("<Hour>", time[2].ToString());
-            }
-
-            if (text.Contains("<Minute>"))
-            {
-                text = text.Replace("<Minute>", time[1].ToString());
-            }
-
-            if (text.Contains("<Second>"))
-            {
-                text = text.Replace("<Second>", time[0].ToString());
-            }
-
-            if (text.Contains("<T+>"))
-            {
-                var value = "";
-
-                if (vessel != null)
-                {
-                    var t = KSPUtil.GetKerbinDateFromUT((int)vessel.missionTime);
-
-                    if (t[4] > 0)
-                    {
-                        value = string.Format("T+ {0}y, {1}d, {2:D2}:{3:D2}:{4:D2}", t[4] + 1, t[3] + 1, t[2], t[1], t[0]);
-                    }
-                    else if (t[3] > 0)
-                    {
-                        value = string.Format("T+ {1}d, {2:D2}:{3:D2}:{4:D2}", t[4] + 1, t[3] + 1, t[2], t[1], t[0]);
-                    }
-                    else
-                    {
-                        value = string.Format("T+ {2:D2}:{3:D2}:{4:D2}", t[4] + 1, t[3] + 1, t[2], t[1], t[0]);
-                    }
-                }
-
-                text = text.Replace("<T+>", value);
-            }
-
-            if (text.Contains("<Vessel>"))
-            {
-                var value = "";
-
-                if (vessel != null)
-                {
-                    value = vessel.vesselName;
-                }
-
-                text = text.Replace("<Vessel>", value);
-            }
-
-            if (text.Contains("<Body>"))
-            {
-                var value = "";
-
-                if (vessel != null)
-                {
-                    value = Planetarium.fetch.CurrentMainBody.bodyName;
-                }
-
-                text = text.Replace("<Body>", value);
-            }
-
-            if (text.Contains("<Situation>"))
-            {
-                var value = "";
-                if (vessel != null)
-                {
-                    value = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(vessel.situation.ToString().Replace("_", "-").ToLower());
-                }
-                text = text.Replace("<Situation>", value);
-            }
-
-            if (text.Contains("<Biome>"))
-            {
-                var value = "";
-
-                if (vessel != null)
-                {
-                    var biome = ScienceUtil.GetExperimentBiome(vessel.mainBody, vessel.latitude, vessel.longitude);
-                    value = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(biome.ToLower());
-                }
-
-                text = text.Replace("<Biome>", value);
-            }
-
-            if (text.Contains("<Latitude>"))
-            {
-                var value = "";
-
-                if (vessel != null)
-                {
-                    value = vessel.latitude.ToString("F3");
-                }
-
-                text = text.Replace("<Latitude>", value);
-            }
-
-            if (text.Contains("<Longitude>"))
-            {
-                var value = "";
-
-                if (vessel != null)
-                {
-                    value = vessel.longitude.ToString("F3");
-                }
-
-                text = text.Replace("<Longitude>", value);
-            }
-
-            if (text.Contains("<Altitude>"))
-            {
-                var value = "";
-
-                if (vessel != null)
-                {
-                    double altitude;
-                    string unit;
-                    ShortenDistance(vessel.altitude, out altitude, out unit);
-
-                    value = string.Format("{0:F1} {1}", altitude, unit);
-                }
-
-                text = text.Replace("<Altitude>", value);
-            }
-
-            if (text.Contains("<Mach>"))
-            {
-                var value = "";
-
-                if (vessel != null)
-                {
-                    value = vessel.mach.ToString("F1");
-                }
-
-                text = text.Replace("<Mach>", value);
-            }
-
-            if (text.Contains("<Heading>"))
-            {
-                text = text.Replace("<Heading>", FlightGlobals.ship_heading.ToString("F1"));
-            }
-
-            if (text.Contains("<LandingZone>"))
-            {
-                var value = "";
-
-                if (vessel != null)
-                {
-                    value = vessel.landedAt;
-
-                    if (string.IsNullOrEmpty(value))
-                    {
-                        value = ScienceUtil.GetExperimentBiome(vessel.mainBody, vessel.latitude, vessel.longitude);
-                    }
-                    else
-                    {
-                        // http://forum.kerbalspaceprogram.com/threads/123896-Human-Friendly-Landing-Zone-Title
-                        value = Vessel.GetLandedAtString(vessel.landedAt);
-                    }
-
-                    value = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(value.ToLower());
-                }
-
-                text = text.Replace("<LandingZone>", value);
-            }
-
-            if (text.Contains("<Speed>"))
-            {
-                var value = "";
-
-                if (vessel != null)
-                {
-                    double speed;
-                    string unit;
-                    ShortenDistance(vessel.srfSpeed, out speed, out unit);
-
-                    value = string.Format("{0:F1} {1}/s", speed, unit);
-                }
-
-                text = text.Replace("<Speed>", value);
-            }
-
-            if (text.Contains("<Crew>"))
-            {
-                var value = "";
-
-                if (vessel != null && !vessel.isEVA)
-                {
-                    if (vessel.GetCrewCount() > 0)
-                    {
-                        value = string.Join(", ", vessel.GetVesselCrew().Select(item => TraitColor(item.trait) + item.name + "</color>").ToArray());
-                    }
-                    else {
-                        if (vessel.isCommandable)
-                        {
-                            value = "Unmanned";
-                        }
-                        else {
-                            value = "N/A";
-                        }
-                    }
-                }
-
-                text = text.Replace("<Crew>", value);
-            }
-
-            if (text.Contains("<CrewShort>"))
-            {
-                var value = "";
-
-                if (vessel != null && !vessel.isEVA)
-                {
-                    if (vessel.GetCrewCount() > 0)
-                    {
-                        value = string.Join(", ", vessel.GetVesselCrew().Select(item => TraitColor(item.trait) + item.name.Replace(" Kerman", "") + "</color>").ToArray()) + " Kerman";
-                    }
-                    else {
-                        if (vessel.isCommandable)
-                        {
-                            value = "Unmanned";
-                        }
-                        else {
-                            value = "N/A";
-                        }
-                    }
-                }
-
-                text = text.Replace("<CrewShort>", value);
-            }
-
-            if (text.Contains("<Pilots>"))
-                text = text.Replace("<Pilots>", TraitColor("Pilot") + CrewByTrait(vessel, "Pilot", false, false) + "</color>");
-
-            if (text.Contains("<Engineers>"))
-                text = text.Replace("<Engineers>", TraitColor("Engineer") + CrewByTrait(vessel, "Engineer", false, false) + "</color>");
-
-            if (text.Contains("<Scientists>"))
-                text = text.Replace("<Scientists>", TraitColor("Scientist") + CrewByTrait(vessel, "Scientist", false, false) + "</color>");
-
-            if (text.Contains("<Tourists>"))
-                text = text.Replace("<Tourists>", TraitColor("Tourist") + CrewByTrait(vessel, "Tourist", false, false) + "</color>");
-
-            if (text.Contains("<PilotsList>"))
-                text = text.Replace("<PilotsList>", TraitColor("Pilot") + CrewByTrait(vessel, "Pilot", false, true) + "</color>");
-
-            if (text.Contains("<EngineersList>"))
-                text = text.Replace("<EngineersList>", TraitColor("Engineer") + CrewByTrait(vessel, "Engineer", false, true) + "</color>");
-
-            if (text.Contains("<ScientistsList>"))
-                text = text.Replace("<ScientistsList>", TraitColor("Scientist") + CrewByTrait(vessel, "Scientist", false, true) + "</color>");
-
-            if (text.Contains("<TouristsList>"))
-                text = text.Replace("<TouristsList>", TraitColor("Tourist") + CrewByTrait(vessel, "Tourist", false, true) + "</color>");
-
-
-            if (text.Contains("<Custom>"))
-            {
-                var value = Historian.Instance.GetConfiguration().CustomText;
-
-                // No infinite recursion for you.
-                value = value.Replace("<Custom>", "");
-                value = Parse(value);
-
-                text = text.Replace("<Custom>", value);
-            }
-
-            if (text.Contains("<Ap>"))
-            {
-                var value = "";
-
-                if (vessel != null)
-                {
-                    var orbit = vessel.GetOrbit();
-                    double ap;
-                    string unit;
-                    ShortenDistance(orbit.ApA, out ap, out unit);
-
-                    value = string.Format("{0:F1} {1}", ap, unit);
-                }
-
-                text = text.Replace("<Ap>", value);
-            }
-
-            if (text.Contains("<Pe>"))
-            {
-                var value = "";
-
-                if (vessel != null)
-                {
-                    var orbit = vessel.GetOrbit();
-                    double pe;
-                    string unit;
-                    ShortenDistance(orbit.PeA, out pe, out unit);
-
-                    value = string.Format("{0:F1} {1}", pe, unit);
-                }
-
-                text = text.Replace("<Pe>", value);
-            }
-
-            if (text.Contains("<Inc>"))
-            {
-                var value = "";
-
-                if (vessel != null)
-                {
-                    var orbit = vessel.GetOrbit();
-                    double inc = orbit.inclination;
-
-                    value = string.Format("{0:F1}°", inc);
-                }
-
-                text = text.Replace("<Inc>", value);
-            }
-
-            if (text.Contains("<LAN>"))
-            {
-                var value = "";
-                if (vessel != null)
-                {
-                    var orbit = vessel.GetOrbit();
-                    double lan = orbit.LAN;
-
-                    value = string.Format("{0:F1}°", lan);
-                }
-
-                text = text.Replace("<LAN>", value);
-            }
-
-            if (text.Contains("<ArgPe>"))
-            {
-                var value = "";
-                if (vessel != null)
-                {
-                    var orbit = vessel.GetOrbit();
-                    double argPe = orbit.argumentOfPeriapsis;
-
-                    value = string.Format("{0:F1}°", argPe);
-                }
-
-                text = text.Replace("<ArgPe>", value);
-            }
-
-            if (text.Contains("<Ecc>"))
-            {
-                var value = "";
-                if (vessel != null)
-                {
-                    var orbit = vessel.GetOrbit();
-                    double ecc = orbit.eccentricity;
-
-                    value = string.Format("{0:F3}", ecc);
-                }
-
-                text = text.Replace("<Ecc>", value);
-            }
-
-            if (text.Contains("<Period>"))
-            {
-                var value = "";
-                if (vessel != null)
-                {
-                    var orbit = vessel.GetOrbit();
-                    var period = orbit.period;
-                    int[] t;
-
-                    if (m_isKerbincalendar)
-                    {
-                        t = KSPUtil.GetKerbinDateFromUT((int)period);
-                    }
-                    else
-                    {
-                        t = KSPUtil.GetEarthDateFromUT((int)period);
-                    }
-                    if (t[4] > 0)
-                    {
-                        value = string.Format("{0}y, {1}d, {2:D2}:{3:D2}:{4:D2}", t[4] + 1, t[3] + 1, t[2], t[1], t[0]);
-                    }
-                    else if (t[3] > 0)
-                    {
-                        value = string.Format("{1}d, {2:D2}:{3:D2}:{4:D2}", t[4] + 1, t[3] + 1, t[2], t[1], t[0]);
-                    }
-                    else
-                    {
-                        value = string.Format("{2:D2}:{3:D2}:{4:D2}", t[4] + 1, t[3] + 1, t[2], t[1], t[0]);
-                    }
-                }
-
-                text = text.Replace("<Period>", value);
-            }
-
-
-            if (text.Contains("<Orbit>"))
-            {
-                var value = "";
-
-                if (vessel != null)
-                {
-                    var orbit = vessel.GetOrbit();
-                    double ap;
-                    double pe;
-                    string unitAp, unitPe;
-                    ShortenDistance(orbit.ApA, out ap, out unitAp);
-                    ShortenDistance(orbit.PeA, out pe, out unitPe);
-
-                    value = string.Format("{0:F1} {1} x {2:F1} {3}", ap, unitAp, pe, unitPe);
-                }
-
-                text = text.Replace("<Orbit>", value);
-            }
-
-            return text;
+            return "";
         }
 
-        protected string CrewByTrait(Vessel vessel, string trait, bool isShort, bool isList)
+        string VesselParser(CommonInfo info) => info.Vessel?.vesselName;
+
+        string BodyParser(CommonInfo info) => info.Vessel != null ? Planetarium.fetch.CurrentMainBody.bodyName : "";
+
+        string SituationParser(CommonInfo info)
+            => (info.Vessel == null) 
+                    ? "" 
+                    : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(info.Vessel.situation.ToString().Replace("_", "-").ToLower());
+
+        string BiomeParser(CommonInfo info)
+            => (info.Vessel == null) 
+                    ? "" 
+                    : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(ScienceUtil.GetExperimentBiome(info.Vessel.mainBody, info.Vessel.latitude, info.Vessel.longitude).ToLower());
+
+        string LandingZoneParser(CommonInfo info)
         {
-            var value = "";
-
-            if (vessel != null && !vessel.isEVA)
-            {
-
-                var crewMembers = vessel.GetVesselCrew()
-                    .Where(member => member.trait == trait)
-                    .Select(member => (isShort) ? member.name.Replace(" Kerman", "") : member.name)
-                    .ToArray();
-
-                if (crewMembers.Length > 0)
-                {
-                    if (isList)
-                    {
-                        value = "• " + string.Join(Environment.NewLine + "• ", crewMembers);
-                    }
-                    else
-                    {
-                        value = string.Join(", ", crewMembers) + (isShort ? " Kerman" : "");
-                    }
-                }
-                else {
-                    if (vessel.isCommandable)
-                    {
-                        value = "None";
-                    }
-                    else {
-                        value = "N/A";
-                    }
-                }
-            }
-
-            return value;
+            if (info.Vessel == null)
+                return "";
+            var landedAt = (string.IsNullOrEmpty(info.Vessel.landedAt))
+                ? ScienceUtil.GetExperimentBiome(info.Vessel.mainBody, info.Vessel.latitude, info.Vessel.longitude)
+                : Vessel.GetLandedAtString(info.Vessel.landedAt); // http://forum.kerbalspaceprogram.com/threads/123896-Human-Friendly-Landing-Zone-Title
+            return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(landedAt.ToLower());
         }
+
+        string LatitudeParser(CommonInfo info) => info.Vessel == null ? "" : info.Vessel.latitude.ToString("F3");
+
+        string LongitudeParser(CommonInfo info) => info.Vessel == null ? "" : info.Vessel.longitude.ToString("F3");
+
+        string HeadingParser(CommonInfo info) => FlightGlobals.ship_heading.ToString("F1");
+
+        string AltitudeParser(CommonInfo info) => info.Vessel == null ? "" : SimplifyDistance(info.Vessel.altitude);
+
+        string MachParser(CommonInfo info) => info.Vessel == null ? "" : info.Vessel.mach.ToString("F1");
+
+        string SpeedParser(CommonInfo info) => info.Vessel == null ? "" : SimplifyDistance(info.Vessel.srfSpeed) + @"/s";
+
+        string SurfaceSpeedParser(CommonInfo info) => info.Vessel == null ? "" : SimplifyDistance(info.Vessel.srfSpeed) + @"/s";
+
+        string OrbitalSpeedParser(CommonInfo info) => info.Orbit == null ? "" : SimplifyDistance(info.Orbit.orbitalSpeed) + @"/s";
+
+        string ApParser(CommonInfo info) => info.Orbit == null ? "" : SimplifyDistance(info.Orbit.ApA);
+
+        string PeParser(CommonInfo info) => info.Orbit == null ? "" : SimplifyDistance(info.Orbit.PeA);
+
+        string IncParser(CommonInfo info) => info.Orbit == null ? "" : info.Orbit.inclination.ToString("F2") + "°";
+
+        string EccParser(CommonInfo info) => info.Orbit == null ? "" : info.Orbit.eccentricity.ToString("F3");
+
+        string LanParser(CommonInfo info) => info.Orbit == null ? "" : info.Orbit.LAN.ToString("F1") + "°";
+
+        string ArgPeParser(CommonInfo info) => info.Orbit == null ? "" : info.Orbit.argumentOfPeriapsis.ToString("F1") + "°";
+
+        string PeriodParser(CommonInfo info)
+        {
+            if (info.Orbit == null)
+                return "";
+
+            var period = info.Orbit.period;
+            var t = m_isKerbincalendar
+                ? KSPUtil.GetKerbinDateFromUT((int)period)
+                : KSPUtil.GetEarthDateFromUT((int)period);
+            return (t[4] > 0)
+                     ? $"{t[4] + 1}y, {t[3] + 1}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
+                     : (t[3] > 0)
+                         ? $"{t[3] + 1}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
+                         : $"{t[2]:D2}:{t[1]:D2}:{t[0]:D2}";
+        }
+
+        string OrbitParser(CommonInfo info)
+            => info.Orbit == null ? "" : $"{SimplifyDistance(info.Orbit.ApA)} x {SimplifyDistance(info.Orbit.PeA)}";
+
+        string CrewParser(CommonInfo info)
+            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: m_AllTraits);
+
+        string CrewShortParser(CommonInfo info)
+            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: m_AllTraits);
+
+        string CrewListParser(CommonInfo info)
+            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: m_AllTraits);
+
+        string PilotsParser(CommonInfo info)
+            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: new string[] { "Pilot" });
+
+        string PilotsShortParser(CommonInfo info)
+            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: new string[] { "Pilot" });
+
+        string PilotsListParser(CommonInfo info)
+            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: new string[] { "Pilot" });
+
+        string EngineersParser(CommonInfo info)
+            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: new string[] { "Engineer" });
+
+        string EngineersShortParser(CommonInfo info)
+            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: new string[] { "Engineer" });
+
+        string EngineersListParser(CommonInfo info)
+            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: new string[] { "Engineer" });
+
+        string ScientistsParser(CommonInfo info)
+            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: new string[] { "Scientist" });
+
+        string ScientistsShortParser(CommonInfo info)
+            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: new string[] { "Scientist" });
+
+        string ScientistsListParser(CommonInfo info)
+            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: new string[] { "Scientist" });
+
+        string TouristsParser(CommonInfo info)
+            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: new string[] { "Tourist" });
+
+        string TouristsShortParser(CommonInfo info)
+            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: new string[] { "Tourist" });
+
+        string TouristsListParser(CommonInfo info)
+            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: new string[] { "Tourist" });
+
+        string TargetParser(CommonInfo info) => info.Target == null ? "" : info.Target.GetName();
+
+
+        string GenericCrewParser(Vessel vessel, bool isList, bool isShort, string[] traits)
+        {
+            if (vessel == null || vessel.isEVA || !vessel.isCommandable)
+                return "";
+
+            var isSingleTrait = traits.Length == 1;
+
+            Func<string, string> nameFilter = x => x;
+            if (isShort) nameFilter = x => x.Replace(" Kerman", "");
+
+            var crew = vessel.GetVesselCrew()
+                .Where(c => traits.Contains(c.trait))
+                .Select(c => TraitColor(c.trait) + nameFilter(c.name) + "</color>")
+                .ToArray();
+
+            if (crew.Length <= 0)
+                return isSingleTrait ? "None" : "Unmanned";
+
+            if (isList)
+                return "• " + string.Join(Environment.NewLine + "• ", crew);
+
+            return string.Join(", ", crew) + (isShort ? (isSingleTrait ? TraitColor(traits[0]) + " Kerman</color>" : " Kerman") : "");
+        }
+
 
         protected string TraitColor(string trait)
         {
@@ -772,21 +424,6 @@ namespace KSEA.Historian
 
         static readonly string[] m_units = { "m", "km", "Mm", "Gm", "Tm", "Pm" };
 
-        protected static void ShortenDistance(double meters, out double result, out string unit)
-        {
-            double d = meters;
-            int i = 0;
-
-            while (d > 1000.0)
-            {
-                d /= 1000.0f;
-                ++i;
-            }
-
-            result = d;
-            unit = m_units[i];
-        }
-
         protected static string SimplifyDistance(double meters)
         {
             double d = meters;
@@ -800,5 +437,6 @@ namespace KSEA.Historian
 
             return $"{d:F1} {m_units[i]}";
         }
+
     }
 }
