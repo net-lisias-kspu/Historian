@@ -119,6 +119,7 @@ namespace KSEA.Historian
             m_parsers.Add("Biome", BiomeParser);
             m_parsers.Add("Situation", SituationParser);
             m_parsers.Add("LandingZone", LandingZoneParser);
+            m_parsers.Add("Altitude", AltitudeParser);
             m_parsers.Add("Latitude", LatitudeParser);
             m_parsers.Add("Longitude", LongitudeParser);
             m_parsers.Add("Heading", HeadingParser);
