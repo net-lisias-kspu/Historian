@@ -121,7 +121,9 @@ namespace KSEA.Historian
             m_parsers.Add("LandingZone", LandingZoneParser);
             m_parsers.Add("Altitude", AltitudeParser);
             m_parsers.Add("Latitude", LatitudeParser);
+            m_parsers.Add("LatitudeDMS", LatitudeDMSParser);
             m_parsers.Add("Longitude", LongitudeParser);
+            m_parsers.Add("LongitudeDMS", LongitudeDMSParser);
             m_parsers.Add("Heading", HeadingParser);
             m_parsers.Add("Mach", MachParser);
             m_parsers.Add("Speed", SpeedParser);
@@ -231,8 +233,8 @@ namespace KSEA.Historian
 
         string CustomParser(CommonInfo info) => Parse(Historian.Instance.GetConfiguration().CustomText.Replace("<Custom>", "")); // avoid recurssion.
 
-        string DateParser(CommonInfo info) =>
-            m_isKerbincalendar
+        string DateParser(CommonInfo info) 
+            => m_isKerbincalendar
                 ? info.Time.FormattedDate(m_dateFormat, m_baseYear)
                 : new DateTime(info.Year + m_baseYear, 1, 1, info.Hour, info.Minute, info.Second).AddDays(info.Day - 1).ToString(m_dateFormat);
 
@@ -278,8 +280,7 @@ namespace KSEA.Historian
 
         string LandingZoneParser(CommonInfo info)
         {
-            if (info.Vessel == null)
-                return "";
+            if (info.Vessel == null) return "";
             var landedAt = (string.IsNullOrEmpty(info.Vessel.landedAt))
                 ? ScienceUtil.GetExperimentBiome(info.Vessel.mainBody, info.Vessel.latitude, info.Vessel.longitude)
                 : Vessel.GetLandedAtString(info.Vessel.landedAt); // http://forum.kerbalspaceprogram.com/threads/123896-Human-Friendly-Landing-Zone-Title
@@ -288,7 +289,21 @@ namespace KSEA.Historian
 
         string LatitudeParser(CommonInfo info) => info.Vessel == null ? "" : info.Vessel.latitude.ToString("F3");
 
-        string LongitudeParser(CommonInfo info) => info.Vessel == null ? "" : info.Vessel.longitude.ToString("F3");
+        string LatitudeDMSParser(CommonInfo info) 
+            => info.Vessel == null ? "" : AngleToDMS(info.Vessel.latitude) + (info.Vessel.latitude > 0 ? " N" : " S");
+
+        string LongitudeParser(CommonInfo info)
+        {
+            if (info.Vessel == null) return "";
+            return ClampTo180(info.Vessel.longitude).ToString("F3");
+        }
+
+        string LongitudeDMSParser(CommonInfo info)
+        {
+            if (info.Vessel == null)return "";
+            var longitude = ClampTo180(info.Vessel.longitude);
+            return AngleToDMS(longitude) + (longitude > 0 ? " E" : " W");
+        }
 
         string HeadingParser(CommonInfo info) => FlightGlobals.ship_heading.ToString("F1");
 
@@ -300,7 +315,7 @@ namespace KSEA.Historian
 
         string SurfaceSpeedParser(CommonInfo info) => info.Vessel == null ? "" : SimplifyDistance(info.Vessel.srfSpeed) + @"/s";
 
-        string OrbitalSpeedParser(CommonInfo info) => info.Orbit == null ? "" : SimplifyDistance(info.Orbit.orbitalSpeed) + @"/s";
+        string OrbitalSpeedParser(CommonInfo info) => info.Orbit == null ? "" : SimplifyDistance(info.Vessel.obt_speed) + @"/s";
 
         string ApParser(CommonInfo info) => info.Orbit == null ? "" : SimplifyDistance(info.Orbit.ApA);
 
@@ -439,5 +454,22 @@ namespace KSEA.Historian
             return $"{d:F1} {m_units[i]}";
         }
 
+        public static string AngleToDMS(double angle)
+        {
+            var degrees = (int)Math.Floor(Math.Abs(angle));
+            var minutes = (int)Math.Floor(60 * (Math.Abs(angle) - degrees));
+            var seconds = (int)Math.Floor(3600 * (Math.Abs(angle) - degrees - minutes / 60.0));
+
+            return $"{degrees:0}° {minutes:00}' {seconds:00}\"";
+        }
+
+        public static double ClampTo180(double angle)
+        {
+            // clamp to 360 then 180
+            angle = angle % 360.0;
+            if (angle < 0) angle += 360.0;
+            if (angle > 180) angle -= 360;
+            return angle;
+        }
     }
 }

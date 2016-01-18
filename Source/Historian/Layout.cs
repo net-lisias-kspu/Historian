@@ -22,8 +22,8 @@ namespace KSEA.Historian
     public class Layout
     {
         public static readonly Layout Empty = new Layout();
-        private List<IElement> m_Elements = new List<IElement>();
-        private string m_Name = "";
+        readonly List<IElement> m_Elements = new List<IElement>();
+        string m_Name = "";
 
         public static Layout Load(string name, ConfigNode node)
         {

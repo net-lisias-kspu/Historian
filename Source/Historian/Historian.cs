@@ -145,10 +145,7 @@ namespace KSEA.Historian
             {
                 if (!m_Active)
                 {
-                    if (GameSettings.TAKE_SCREENSHOT.GetKeyDown())
-                    {
-                        m_Active = true;
-                    }
+                    m_Active |= GameSettings.TAKE_SCREENSHOT.GetKeyDown();
                 }
                 else
                 {
@@ -179,10 +176,7 @@ namespace KSEA.Historian
 
         private void Game_OnHideGUI()
         {
-            if (!m_Configuration.PersistentConfigurationWindow)
-            {
-                m_SuppressEditorWindow = true;
-            }
+            m_SuppressEditorWindow |= !m_Configuration.PersistentConfigurationWindow;
         }
 
         private void Game_OnShowGUI()

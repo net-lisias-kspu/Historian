@@ -23,14 +23,16 @@ namespace KSEA.Historian
 {
     public class Flag : Element
     {
-        private Vector2 m_Scale = Vector2.zero;
-        private Texture m_Texture = null;
-        private Texture m_DefaultTexture = null;
+        Vector2 m_Scale = Vector2.zero;
+        Texture m_Texture = null;
+        Texture m_DefaultTexture = null;
+        Texture2D m_BackgroundTexture;
 
         protected override void OnDraw(Rect bounds)
         {
             UpdateTexture();
 
+            GUI.DrawTexture(bounds, m_BackgroundTexture);
             GUI.DrawTexture(bounds, m_Texture);
         }
 
@@ -38,6 +40,7 @@ namespace KSEA.Historian
         {
             m_Scale = node.GetVector2("Scale", Vector2.one);
             m_DefaultTexture = GameDatabase.Instance.GetTexture(node.GetString("DefaultTexture", ""), false);
+            m_BackgroundTexture = GameDatabase.Instance.GetTexture(node.GetString("BackgroundTexture", ""), false);
 
             if (Size == Vector2.zero)
             {
@@ -49,31 +52,20 @@ namespace KSEA.Historian
             }
         }
 
-        private void UpdateTexture()
+        void UpdateTexture()
         {
             var vessel = FlightGlobals.ActiveVessel;
 
             if (vessel != null)
             {
-                List<string> flags = new List<string>();
-
-                foreach (var part in vessel.Parts)
-                {
-                    flags.Add(part.flagURL);
-                }
+                var flags = new List<string>();
+                flags.AddRange(vessel.Parts.Select(p => p.flagURL));
 
                 // Find the flag with the highest occurrance in the entire vessel
 
                 var url = flags.GroupBy(item => item).OrderByDescending(item => item.Count()).First().Key;
 
-                if (string.IsNullOrEmpty(url))
-                {
-                    m_Texture = m_DefaultTexture;
-                }
-                else
-                {
-                    m_Texture = GameDatabase.Instance.GetTexture(url, false);
-                }
+                m_Texture = (string.IsNullOrEmpty(url)) ? m_DefaultTexture : GameDatabase.Instance.GetTexture(url, false);
             }
             else
             {

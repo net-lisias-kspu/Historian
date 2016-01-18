@@ -64,7 +64,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetDir)Historian.dll"  "C:\Games\KSP Installs\DEV-1.0.5\KSP\GameData\KSEA\Historian" /Y
-copy "$(TargetDir)Historian.dll"  "C:\Games\KSP Installs\DEV-1.0.5\Historian\GameData\KSEA\Historian" /Y</PostBuildEvent>
+(robocopy "C:\Games\KSP Installs\DEV-1.0.5\KSP\GameData\KSEA\Historian"  "C:\Games\KSP Installs\DEV-1.0.5\Historian\GameData\KSEA\Historian" /E /V) ^&amp; exit 0</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

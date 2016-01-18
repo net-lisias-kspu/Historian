@@ -33,8 +33,8 @@ namespace KSEA.Historian
         {
             m_Color = node.GetColor("Color", Color.black);
 
-            int width = (int) (Screen.width * Size.x);
-            int height = (int) (Screen.height * Size.y);
+            var width = (int) (Screen.width * Size.x);
+            var height = (int) (Screen.height * Size.y);
 
             var texture = new Texture2D(width, height);
             var pixels = texture.GetPixels();

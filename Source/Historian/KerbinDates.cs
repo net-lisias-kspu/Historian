@@ -58,7 +58,7 @@ namespace KSEA.Historian
 
         public static string FormattedDate(this int[] kerbinDate, string format, int baseYear = 1)
         {
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
 
             int i = 0;
             int tokenLen;
@@ -156,7 +156,7 @@ namespace KSEA.Historian
                     return month.ToString("00");
                 case 3:
                     return KerbinMonthNames[month - 1].Substring(0, 3);
-                case 4:
+                // case 4:
                 default:
                     return KerbinMonthNames[month - 1];
             }
