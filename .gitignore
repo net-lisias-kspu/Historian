@@ -83,3 +83,8 @@ FakesAssemblies/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# project specific
+Source/obj/Release/Historian.dll
+GameData/KSEA/Historian/Layouts/Aelfheim.layout
+GameData/KSEA/Historian/Historian.cfg
