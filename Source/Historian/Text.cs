@@ -454,6 +454,8 @@ namespace KSEA.Historian
             return $"{d:F1} {m_units[i]}";
         }
 
+        // AngleToDMS and ClanpTo180 converted from MechJeb at https://github.com/MuMech/MechJeb2/blob/master/MechJeb2/MuUtils.cs
+        // and https://github.com/MuMech/MechJeb2/blob/master/MechJeb2/GuiUtils.cs
         public static string AngleToDMS(double angle)
         {
             var degrees = (int)Math.Floor(Math.Abs(angle));
