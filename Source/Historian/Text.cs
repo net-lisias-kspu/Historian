@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -153,6 +154,7 @@ namespace KSEA.Historian
             m_parsers.Add("TouristsShort", TouristsShortParser);
             m_parsers.Add("TouristsList", TouristsListParser);
             m_parsers.Add("Target", TargetParser);
+            m_parsers.Add("LaunchSite", LaunchSiteParser);
         }
 
         protected string Parse(string text)
@@ -223,7 +225,7 @@ namespace KSEA.Historian
             return result.ToString();
         }
 
-        private int GetTokenLength(string text, int pos)
+        int GetTokenLength(string text, int pos)
         {
             return text.IndexOf('>', pos) - pos - 1;
         }
@@ -395,6 +397,36 @@ namespace KSEA.Historian
 
         string TargetParser(CommonInfo info) => info.Target == null ? "" : info.Target.GetName();
 
+        string LaunchSiteParser(CommonInfo info)
+        {
+            var switcher = Historian.Instance.KscSwitcherLoader;
+
+            if (switcher == null) return "KSC";
+
+            try
+            {
+                var instance = Reflect.GetStaticProperty(switcher, "instance");
+                var siteManager = Reflect.GetFieldValue(instance, "Sites");
+                var lastSite = (string)Reflect.GetFieldValue(siteManager, "lastSite");
+                var node = (ConfigNode)Reflect.GetMethodResult(siteManager, "getSiteByName", lastSite);
+
+                //var node = (ConfigNode)siteManager.GetType()
+                //    .GetMethod("getSiteByName")
+                //    .Invoke(siteManager, new object[] { lastSite });
+                if (node == null)
+                    return lastSite;
+
+                return node.GetValue("displayName");
+            }
+            catch { Historian.Print("Exception getting launchsite"); }
+
+            return "[LaunchSite]: ERROR";
+
+       }
+
+
+
+        // ############# Helper functions
 
         string GenericCrewParser(Vessel vessel, bool isList, bool isShort, string[] traits)
         {
