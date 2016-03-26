@@ -22,14 +22,14 @@ namespace KSEA.Historian
 {
     public class Configuration
     {
-        private static readonly Version CurrentVersion = new Version("1.0.5");
-        
+        static readonly Version CurrentVersion = new Version("1.0.5");
+
         private string m_Layout = "";
-        private bool m_EnableLauncherButton = true;
-        private bool m_EnableToolbarButton = true;
-        private string m_CustomText = "";
-        private bool m_PersistentCustomText = false;
-        private bool m_PersistentConfigurationWindow = true;
+        bool m_EnableLauncherButton = true;
+        bool m_EnableToolbarButton = true;
+        string m_CustomText = "";
+        bool m_PersistentCustomText = false;
+        bool m_PersistentConfigurationWindow = true;
 
         public string Layout
         {

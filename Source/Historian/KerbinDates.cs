@@ -134,19 +134,19 @@ namespace KSEA.Historian
 
         }
 
-        private static string FormatDigits(int value, int tokenLen, int maxPadding)
+        static string FormatDigits(int value, int tokenLen, int maxPadding)
         {
             if (tokenLen > maxPadding)
                 tokenLen = maxPadding;
             return value.ToString(DigitFormat[tokenLen]);
         }
 
-        private static string FormatYear(int year, int tokenLen)
+        static string FormatYear(int year, int tokenLen)
         {
             return year.ToString(new string('0', tokenLen));
         }
 
-        private static string FormatMonth(int month, int tokenLen)
+        static string FormatMonth(int month, int tokenLen)
         {
             switch (tokenLen)
             {
@@ -162,7 +162,7 @@ namespace KSEA.Historian
             }
         }
 
-        private static string FormatDayOfWeek(int dayOfWeek, int tokenLen)
+        static string FormatDayOfWeek(int dayOfWeek, int tokenLen)
         {
             switch (tokenLen)
             {

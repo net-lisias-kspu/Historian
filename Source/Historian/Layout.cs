@@ -81,7 +81,7 @@ namespace KSEA.Historian
             }
         }
 
-        private void AddElement(IElement element)
+        void AddElement(IElement element)
         {
             m_Elements.Add(element);
         }

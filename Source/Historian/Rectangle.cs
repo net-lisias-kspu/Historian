@@ -21,8 +21,8 @@ namespace KSEA.Historian
 {
     public class Rectangle : Element
     {
-        private Color m_Color = Color.black;
-        private Texture m_Texture = null;
+        Color m_Color = Color.black;
+        Texture m_Texture = null;
 
         protected override void OnDraw(Rect bounds)
         {

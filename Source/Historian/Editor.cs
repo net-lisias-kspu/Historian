@@ -21,14 +21,14 @@ namespace KSEA.Historian
 {
     public class Editor
     {
-        private bool m_Open = false;
-        private LauncherButton m_LauncherButton = null;
-        private ToolbarButton m_ToolbarButton = null;
-        private Rect m_Position;
-        private Texture m_NextButtonTexture = null;
-        private Texture m_PreviousButtonTexture = null;
-        private bool m_EnableLauncherButton = true;
-        private bool m_EnableToolberButton = true;
+        bool m_Open = false;
+        LauncherButton m_LauncherButton = null;
+        ToolbarButton m_ToolbarButton = null;
+        Rect m_Position;
+        Texture m_NextButtonTexture = null;
+        Texture m_PreviousButtonTexture = null;
+        bool m_EnableLauncherButton = true;
+        bool m_EnableToolberButton = true;
 
         public Editor(Configuration configuration)
         {
@@ -89,7 +89,7 @@ namespace KSEA.Historian
             }
         }
 
-        private void OnWindowGUI(int id)
+        void OnWindowGUI(int id)
         {
             GUI.skin = HighLogic.Skin;
             var historian = Historian.Instance;
@@ -194,17 +194,17 @@ namespace KSEA.Historian
             GUI.DragWindow();
         }
 
-        private void Button_OnTrue()
+        void Button_OnTrue()
         {
             Open();
         }
 
-        private void Button_OnFalse()
+        void Button_OnFalse()
         {
             Close();
         }
 
-        private void Button_OnAlternateClick()
+        void Button_OnAlternateClick()
         {
             var historian = Historian.Instance;
 
