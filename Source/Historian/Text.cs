@@ -408,7 +408,7 @@ namespace KSEA.Historian
             if (switcher == null) return "KSC";
             try
             {
-                var instance = Reflect.GetStaticProperty(switcher, "instance");
+                var instance = Reflect.GetStaticField(switcher, "instance");
                 var siteManager = Reflect.GetFieldValue(instance, "Sites");
                 var lastSite = (string)Reflect.GetFieldValue(siteManager, "lastSite");
                 var node = (ConfigNode)Reflect.GetMethodResult(siteManager, "getSiteByName", lastSite);

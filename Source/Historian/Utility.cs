@@ -32,13 +32,23 @@ namespace KSEA.Historian
                 .SingleOrDefault(t => t.FullName == typeName);
         }
 
-        public static object GetStaticProperty(Type type, string fieldName)
+        public static object GetStaticField(Type type, string fieldName)
         {
             return type.GetField(fieldName, BindingFlags.Public | BindingFlags.Static).GetValue(null);
         }
 
+        public static object GetStaticPropery(Type type, string propName)
+        {
+            return type.GetProperty(propName, BindingFlags.Public | BindingFlags.Static).GetValue(null, null);
+        }
+
         public static object GetFieldValue(object parent, string fieldName) {
             return parent.GetType().GetField(fieldName).GetValue(parent);
+        }
+
+        public static object GetPropertyValue(object parent, string propName)
+        {
+            return parent.GetType().GetProperty(propName).GetValue(parent, null);
         }
 
         public static object GetMethodResult(object parent, string methodName, params object[] parameters)
