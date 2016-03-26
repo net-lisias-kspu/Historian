@@ -32,7 +32,7 @@ namespace KSEA.Historian
         {
             UpdateTexture();
 
-            GUI.DrawTexture(bounds, m_BackgroundTexture);
+            if (m_BackgroundTexture != null) GUI.DrawTexture(bounds, m_BackgroundTexture);
             GUI.DrawTexture(bounds, m_Texture);
         }
 
