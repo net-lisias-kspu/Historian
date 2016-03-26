@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -160,6 +161,8 @@ namespace KSEA.Historian
         protected string Parse(string text)
         {
             var result = new StringBuilder();
+            //var timer = new Stopwatch();
+            //timer.Start();
 
             // get common data sources
             var ut = Planetarium.GetUniversalTime();
@@ -221,6 +224,8 @@ namespace KSEA.Historian
                 }
                 i += tokenLen;
             }
+            //timer.Stop();
+            //Historian.Print($"Parsing took: {timer.ElapsedMilliseconds} ms");
 
             return result.ToString();
         }
@@ -400,9 +405,7 @@ namespace KSEA.Historian
         string LaunchSiteParser(CommonInfo info)
         {
             var switcher = Historian.Instance.KscSwitcherLoader;
-
             if (switcher == null) return "KSC";
-
             try
             {
                 var instance = Reflect.GetStaticProperty(switcher, "instance");
@@ -410,18 +413,16 @@ namespace KSEA.Historian
                 var lastSite = (string)Reflect.GetFieldValue(siteManager, "lastSite");
                 var node = (ConfigNode)Reflect.GetMethodResult(siteManager, "getSiteByName", lastSite);
 
-                //var node = (ConfigNode)siteManager.GetType()
-                //    .GetMethod("getSiteByName")
-                //    .Invoke(siteManager, new object[] { lastSite });
                 if (node == null)
                     return lastSite;
 
                 return node.GetValue("displayName");
             }
-            catch { Historian.Print("Exception getting launchsite"); }
-
-            return "[LaunchSite]: ERROR";
-
+            catch
+            {
+                Historian.Print("Exception getting launchsite");
+                return "ERROR";
+            }
        }
 
 
