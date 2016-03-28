@@ -28,7 +28,7 @@ KSEA_HISTORIAN_LAYOUT
 		FontSize = 12
 		FontStyle = Normal
 		
-		BaseYear = 3000
+		BaseYear = 1951
 		
 		PilotColor = red
 		EngineerColor = yellow
