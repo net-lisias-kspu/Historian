@@ -62,7 +62,7 @@ namespace KSEA.Historian
 
             int i = 0;
             int tokenLen;
-            int kerbinDay = kerbinDate[(int)TimePart.Day];
+            int kerbinDay = kerbinDate[(int)TimePart.Day] + 1;
 
             while (i < format.Length)
             {
@@ -114,7 +114,7 @@ namespace KSEA.Historian
                         result.Append(FormatMonth(month, tokenLen));
                         break;
                     case 'y':
-                        int year = kerbinDate[(int)TimePart.Year] + baseYear;
+                        int year = kerbinDate[(int)TimePart.Year] + baseYear + 1;
                         tokenLen = ParseRepeatPattern(format, i, ch);
                         result.Append(FormatYear(year, tokenLen));
                         break;

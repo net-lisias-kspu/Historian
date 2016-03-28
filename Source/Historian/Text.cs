@@ -109,8 +109,11 @@ namespace KSEA.Historian
             m_parsers.Add("N", NewLineParser);
             m_parsers.Add("Custom", CustomParser);
             m_parsers.Add("Date", DateParser);
+            m_parsers.Add("DateKAC", DateParserKAC);
+
             m_parsers.Add("UT", UTParser);
-            m_parsers.Add("T+", TPlusParser);
+            m_parsers.Add("T+", METParser);
+            m_parsers.Add("MET", METParser);
             m_parsers.Add("Year", YearParser);
             m_parsers.Add("Day", DayParser);
             m_parsers.Add("Hour", HourParser);
@@ -245,6 +248,11 @@ namespace KSEA.Historian
                 ? info.Time.FormattedDate(m_dateFormat, m_baseYear)
                 : new DateTime(info.Year + m_baseYear, 1, 1, info.Hour, info.Minute, info.Second).AddDays(info.Day - 1).ToString(m_dateFormat);
 
+        string DateParserKAC(CommonInfo info)
+            => m_isKerbincalendar
+                ? info.Time.FormattedDate(m_dateFormat, m_baseYear)
+                : new DateTime(m_baseYear, 1, 1).AddSeconds(info.UT).ToString(m_dateFormat);
+
         string UTParser(CommonInfo info) => $"Y{info.Year + m_baseYear}, D{(info.Day):D3}, {info.Hour}:{info.Minute:D2}:{info.Second:D2}";
 
         string YearParser(CommonInfo info) => (info.Year + m_baseYear).ToString();
@@ -257,7 +265,7 @@ namespace KSEA.Historian
 
         string SecondParser(CommonInfo info) => info.Second.ToString();
 
-        string TPlusParser(CommonInfo info)
+        string METParser(CommonInfo info)
         {
             if (info.Vessel != null)
             {
@@ -267,9 +275,9 @@ namespace KSEA.Historian
                 else
                     t = KSPUtil.GetEarthDateFromUT((int)info.Vessel.missionTime);
                 return (t[4] > 0)
-                    ? $"T+ {t[4] + 1}y, {t[3] + 1}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
+                    ? $"T+ {t[4]}y, {t[3]}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
                     : (t[3] > 0)
-                        ? $"T+ {t[3] + 1}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
+                        ? $"T+ {t[3]}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
                         : $"T+ {t[2]:D2}:{t[1]:D2}:{t[0]:D2}";
             }
             return "";
