@@ -261,7 +261,11 @@ namespace KSEA.Historian
         {
             if (info.Vessel != null)
             {
-                var t = KSPUtil.GetKerbinDateFromUT((int)info.Vessel.missionTime);
+                int[] t;
+                if (m_isKerbincalendar)
+                    t = KSPUtil.GetKerbinDateFromUT((int)info.Vessel.missionTime);
+                else
+                    t = KSPUtil.GetEarthDateFromUT((int)info.Vessel.missionTime);
                 return (t[4] > 0)
                     ? $"T+ {t[4] + 1}y, {t[3] + 1}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
                     : (t[3] > 0)
