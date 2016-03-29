@@ -5,15 +5,18 @@
 * Add text node parameters for date support:
   * DateKAC - formatted date calculated based on number of seconds (UT) since base start date. This date includes leap years.
   * YearKAC - the current year of the variable length date. At start and end of year may not match the Yx Dx display shown in game.
-  * DayKAC - the current day of the variable length date. At start and end of year may not match the Yx Dx display shown in game. Some years will have 366 days.  
+  * DayKAC - the current day of the variable length date. At start and end of year may not match the Yx Dx display shown in game. Some years will have 366 days.
+  * MET - an alias for T+. The mission ellapsed time.
+* Fix: MET was incorrectly calculated for periods > 1 day.
+* Fix: MET always showed Kerbin based periods even when calendarmode is set to Earth.
 
 #### 1.1.6a
 * Add text node parameters:
   * Target - name of currently targeted vessel or body (if any)
   * LaunchSite - shows 'KSC' unless KSCSwitcher is installed then it will show the active launch site's name (e.g. Cape Canaveral)
   
-#### 1.1.5a
-* minor bug fixes.
+#### 1.1.5a - not released
+* minor refactoring of situation text.
 
 #### 1.1.4
 
