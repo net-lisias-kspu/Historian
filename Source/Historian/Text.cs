@@ -110,12 +110,13 @@ namespace KSEA.Historian
             m_parsers.Add("Custom", CustomParser);
             m_parsers.Add("Date", DateParser);
             m_parsers.Add("DateKAC", DateParserKAC);
-
             m_parsers.Add("UT", UTParser);
             m_parsers.Add("T+", METParser);
             m_parsers.Add("MET", METParser);
             m_parsers.Add("Year", YearParser);
+            m_parsers.Add("YearKAC", YearParserKAC);
             m_parsers.Add("Day", DayParser);
+            m_parsers.Add("DayKAC", DayParserKAC);
             m_parsers.Add("Hour", HourParser);
             m_parsers.Add("Minute", MinuteParser);
             m_parsers.Add("Second", SecondParser);
@@ -257,7 +258,17 @@ namespace KSEA.Historian
 
         string YearParser(CommonInfo info) => (info.Year + m_baseYear).ToString();
 
+        string YearParserKAC(CommonInfo info)
+            => (m_isKerbincalendar)
+                ? (info.Year + m_baseYear).ToString()
+                : new DateTime(m_baseYear, 1, 1).AddSeconds(info.UT).ToString("yyyy");
+
         string DayParser(CommonInfo info) => info.Day.ToString();
+
+        string DayParserKAC(CommonInfo info)
+            => (m_isKerbincalendar)
+                ? (info.Day.ToString())
+                : new DateTime(m_baseYear, 1, 1).AddSeconds(info.UT).DayOfYear.ToString();
 
         string HourParser(CommonInfo info) => info.Hour.ToString();
 
