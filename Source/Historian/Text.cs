@@ -23,6 +23,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using static KSPUtil;
 
 namespace KSEA.Historian
 {
@@ -54,13 +55,16 @@ namespace KSEA.Historian
         string m_dateFormat;
         bool m_isKerbincalendar;
 
-        readonly Dictionary<string, Func<CommonInfo, string>> m_parsers = new Dictionary<string, Func<CommonInfo, string>>();
+        static DefaultDateTimeFormatter m_dateFormatter = new DefaultDateTimeFormatter();
+
+        static readonly Dictionary<string, Func<CommonInfo, string>> m_parsers = new Dictionary<string, Func<CommonInfo, string>>();
 
         readonly static string[] m_AllTraits = { "Pilot", "Engineer", "Scientist", "Tourist" };
 
         public Text()
         {
-            InitializeParameterDictionary();
+            if (m_parsers.Count < 1)
+                InitializeParameterDictionary();
         }
 
         public void SetText(string text)
@@ -170,10 +174,14 @@ namespace KSEA.Historian
 
             // get common data sources
             var ut = Planetarium.GetUniversalTime();
-            var time = m_isKerbincalendar ? KSPUtil.GetKerbinDateFromUT((int)ut) : KSPUtil.GetEarthDateFromUT((int)ut);
+            var time = m_isKerbincalendar 
+                ? m_dateFormatter.GetKerbinDateFromUT((int)ut) 
+                : m_dateFormatter.GetEarthDateFromUT((int)ut);
             var vessel = FlightGlobals.ActiveVessel;
             var orbit = vessel?.GetOrbit();
             var target = vessel?.targetObject;
+
+            
 
             var info = new CommonInfo
             {
@@ -282,9 +290,9 @@ namespace KSEA.Historian
             {
                 int[] t;
                 if (m_isKerbincalendar)
-                    t = KSPUtil.GetKerbinDateFromUT((int)info.Vessel.missionTime);
+                    t = m_dateFormatter.GetKerbinDateFromUT((int)info.Vessel.missionTime);
                 else
-                    t = KSPUtil.GetEarthDateFromUT((int)info.Vessel.missionTime);
+                    t = m_dateFormatter.GetEarthDateFromUT((int)info.Vessel.missionTime);
                 return (t[4] > 0)
                     ? $"T+ {t[4]}y, {t[3]}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
                     : (t[3] > 0)
@@ -364,10 +372,13 @@ namespace KSEA.Historian
             if (info.Orbit == null)
                 return "";
 
-            var period = info.Orbit.period;
+            
+
+
+             var period = info.Orbit.period;
             var t = m_isKerbincalendar
-                ? KSPUtil.GetKerbinDateFromUT((int)period)
-                : KSPUtil.GetEarthDateFromUT((int)period);
+                ? m_dateFormatter.GetKerbinDateFromUT((int)period)
+                : m_dateFormatter.GetEarthDateFromUT((int)period);
             return (t[4] > 0)
                      ? $"{t[4] + 1}y, {t[3] + 1}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
                      : (t[3] > 0)
@@ -529,5 +540,6 @@ namespace KSEA.Historian
             if (angle > 180) angle -= 360;
             return angle;
         }
+
     }
 }
