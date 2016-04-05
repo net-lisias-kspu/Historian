@@ -64,10 +64,13 @@ namespace KSEA.Historian
 
         public void Unregister()
         {
-            IsRegistered = false;
-            var launcher = ApplicationLauncher.Instance;
-            launcher.RemoveModApplication(m_Button);
-            m_Button = null;
+            if (m_Button != null)
+            {
+                IsRegistered = false;
+                var launcher = ApplicationLauncher.Instance;
+                launcher.RemoveModApplication(m_Button);
+                m_Button = null;
+            }
         }
 
         public void Set(bool value, bool call = true)
@@ -85,6 +88,10 @@ namespace KSEA.Historian
         public void Update()
         {
             var historian = Historian.Instance;
+
+            if (m_Button == null) Historian.Print("in update m_button is null");
+            if (m_SuppressedTexture == null) Historian.Print("in update m_SuppressedTexture is null");
+            if (m_NormalTexture == null) Historian.Print("in update m_NormalTexture is null");
 
             if (historian.Suppressed)
             {

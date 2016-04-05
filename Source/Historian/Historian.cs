@@ -135,18 +135,35 @@ namespace KSEA.Historian
 
             m_CurrentLayoutIndex = FindLayoutIndex(m_Configuration.Layout);
             Print("Current Layout Index {0}", m_CurrentLayoutIndex);
-            m_Editor = new Editor(m_Configuration);
+            
 
             GameEvents.onHideUI.Add(Game_OnHideGUI);
             GameEvents.onShowUI.Add(Game_OnShowGUI);
             GameEvents.onGamePause.Add(Game_OnPause);
             GameEvents.onGameUnpause.Add(Game_OnUnpause);
 
+            GameEvents.onGUIApplicationLauncherReady.Add(AddButton);
+            GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveButton);
+
             // get reference to KSC switcher if installed
             m_KscSwitcher = Reflect.GetExternalType("regexKSP.LastKSC");
             m_KscSwitcherLoader = Reflect.GetExternalType("regexKSP.KSCLoader");
         }
-		public void set_m_Active()
+
+        private void RemoveButton()
+        {
+            if (m_Editor != null)
+            {
+                m_Editor.RemoveButton();
+            }
+        }
+
+        private void AddButton()
+        {
+            m_Editor = new Editor(m_Configuration);
+        }
+
+        public void set_m_Active()
 		{
 			m_Active = true;
 		}
@@ -180,7 +197,7 @@ namespace KSEA.Historian
                 layout.Draw();
             }
 
-            if (!m_SuppressEditorWindow)
+            if (!m_SuppressEditorWindow && m_Editor != null)
             {
                 m_Editor.Draw();
             }

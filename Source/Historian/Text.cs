@@ -164,6 +164,7 @@ namespace KSEA.Historian
             m_parsers.Add("TouristsList", TouristsListParser);
             m_parsers.Add("Target", TargetParser);
             m_parsers.Add("LaunchSite", LaunchSiteParser);
+            m_parsers.Add("PilotColor", PilotColorParser);
         }
 
         protected string Parse(string text)
@@ -459,7 +460,8 @@ namespace KSEA.Historian
             }
        }
 
-
+        // TESTING
+        string PilotColorParser(CommonInfo info) => m_pilotColor;
 
         // ############# Helper functions
 
