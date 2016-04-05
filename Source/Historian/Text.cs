@@ -90,22 +90,28 @@ namespace KSEA.Historian
 
         protected override void OnLoad(ConfigNode node)
         {
-
+            Historian.Print("Loading layout config.");
             m_Color = node.GetColor("Color", Color.white);
             m_Text = node.GetString("Text", "");
             m_TextAnchor = node.GetEnum("TextAnchor", TextAnchor.MiddleCenter);
             m_FontSize = node.GetInteger("FontSize", 10);
             m_FontStyle = node.GetEnum("FontStyle", FontStyle.Normal);
 
+            Historian.Print("Loading trait colours:");
             m_pilotColor = node.GetString("PilotColor", "clear");
+            Historian.Print($"Pilot colour: {m_pilotColor}");
             m_engineerColor = node.GetString("EngineerColor", "clear");
+            Historian.Print($"Engineer colour: {m_engineerColor}");
             m_scientistColor = node.GetString("ScientistColor", "clear");
+            Historian.Print($"Scientist colour: {m_scientistColor}");
             m_touristColor = node.GetString("TouristColor", "clear");
+            Historian.Print($"Tourist colour: {m_touristColor}");
 
             m_isKerbincalendar = GameSettings.KERBIN_TIME;
 
-            m_baseYear = node.GetInteger("BaseYear", m_isKerbincalendar ? 1 : 1940);
+            m_baseYear = node.GetInteger("BaseYear", m_isKerbincalendar ? 1 : 1951);
             m_dateFormat = node.GetString("DateFormat", CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern);
+            Historian.Print("Layout config load complete");
         }
 
         void InitializeParameterDictionary()
@@ -372,9 +378,6 @@ namespace KSEA.Historian
         {
             if (info.Orbit == null)
                 return "";
-
-            
-
 
              var period = info.Orbit.period;
             var t = m_isKerbincalendar
