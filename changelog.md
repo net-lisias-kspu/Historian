@@ -1,5 +1,15 @@
 # Changelog
 
+#### 1.2.0.38 - bug fixed
+* Fix: remove debug message from crew names.
+
+#### 1.2.0.37 - bug fixes
+* Fix: crew trait colours not showing correctly
+* Fix: `<UT>` incorrectly included base year now shows first year as Y1 etc.
+
+#### 1.2.0
+* initial recompile for KSP 1.1 Pre
+
 #### 1.1.7a
 * Earth dates can be specified in two formats. "Normal" fixed length 365d year used by game engine or "KAC compatible" variable length years. If using variable length years, the in-game day 1 of a year may not be 1 January.
 * Add text node parameters for date support:
