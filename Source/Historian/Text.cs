@@ -470,7 +470,7 @@ namespace KSEA.Historian
 
             var crew = vessel.GetVesselCrew()
                 .Where(c => traits.Contains(c.trait))
-                .Select(c => TraitColor(c.trait, traitColours) + nameFilter(c.name) + ": " + c.trait + "</color>")
+                .Select(c => TraitColor(c.trait, traitColours) + nameFilter(c.name) + "</color>")
                 .ToArray();
 
             if (crew.Length <= 0)

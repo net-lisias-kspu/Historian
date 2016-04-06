@@ -81,25 +81,33 @@ Refer to [Unity's Manual](http://docs.unity3d.com/Manual/StyledText.html) for de
 The following pre-defined placeholder values can be used inside a text element. These placeholders will be replaced with their corresponding values when a screenshot is taken.
 
 * `<N>` Inserts a new line.
-* `<Date>` Formatted date string. Standard Earth calendar dates if game settings is Earth time (24 hour days). "Fake" Kerbin dates based on 12 alternating 35 and 36 day months and six day week if game settings is Kerbin time (6 hour days). e.g. Wednesday 13 January 2016 or Esant 06 Trenam 001. __NOTE__: Kerbin day and month names are currently hardcoded (see below for list) but will be customisable in a future release. 
+* `<Date>` Formatted date string. Standard Earth calendar dates if game settings is Earth time (24 hour days). "Fake" Kerbin dates based on 12 alternating 35 and 36 day months and six day week if game settings is Kerbin time (6 hour days). e.g. Wednesday 13 January 2016 or Esant 06 Trenam 001. __NOTE__: Kerbin day and month names are currently hardcoded (see below for list) but will be customisable in a future release.
+* `<DateKAC>` Formatted date string using variable length year †
 * `<UT>` KSP Universal Time. Example: _Y12, D29, 2:02:12_
 * `<Year>` Current year in chosen `CalendarMode`
+* `<YearKAC>` Current year using variable length year †
 * `<Day>` Current day in chosen `CalendarMode`
+* `<DayKAC>` Current day using variable length year †
 * `<Hour>` Current hour in chosen `CalendarMode`
 * `<Minute>` Current minute in chosen `CalendarMode`
 * `<Second>` Current second in chosen `CalendarMode`
 * `<T+>` Current mission time for the active vessel, in chosen `CalendarMode` (Only available in Flight Mode). Example: _T+ 2y, 23d, 02:04:12_
+* `<MET>` Alias for `<T+>`
 * `<Vessel>` Name of the active vessel or Kerbal (Only available in Flight Mode). Example: _Jebediah Kerman_, _Kerbal X_
 * `<Body>` Name of the main body (Only available in Flight Mode). Example: _Kerbin_
 * `<Situation>` Current situation of the active vessel (Only available in Flight Mode). Example: _Flying_, _Orbiting_
 * `<Biome>` Current biome of the active vessel based on its location (Only available in Flight Mode). Example: _Shores_
-* `<Latitude>` Latitude of the active vessel relative to the main body (Only available in Flight Mode)
-* `<Longitude>` Longitude of the active vessel relative to the main body (Only available in Flight Mode)
+* `<Latitude>` Latitude of the active vessel relative to the main body expressed in decimal degrees e.g. _23.01245_ (Only available in Flight Mode)
+* `<LatitudeDMS>` Latitude of the active vessel relative to the main body expressed in degrees, minutes and seconds. e.g. _23° 05' 23" N_  (Only available in Flight Mode)
+* `<Longitude>` Longitude of the active vessel relative to the main body expressed in decimal degrees e.g. _-17.15_ (Only available in Flight Mode)
+* `<LongitudeDMS>`Longitude of the active vessel relative to the main body expressed in degrees, minutes and seconds e.g. _17° 21' 10" W_  (Only available in Flight Mode)
 * `<Altitude>` Altitude of the active vessel relative to the sea level of the main body in the most appropriate unit (Only available in Flight Mode). The unit is also included as of version 1.0.1.
 * `<Mach>` The current Mach number of the active vessel (Only available in Flight Mode).
 * `<Heading>` The current compass heading of the active vessel (Only available in Flight Mode).
 * `<LandingZone>` The name of the current location the vessel is landed at (Only available in Flight Mode). Example: _Launchpad_
 * `<Speed>` Surface speed of the active vessel in the most appropriate unit (Only available in Flight Mode). The unit is also included as of version 1.0.1.
+* `<SrfSpeed>` alias for `<Speed>`
+* `<OrbSpeed>` orbital speed of the active vessel in the most appropriate unit (only available in flight mode). The unit is also included.
 * `<Ap>` Apoapsis of current orbit (or sub-orbital trajectory) including unit. 
 * `<Pe>` Periapsis of current orbit (or sub-orbital trajectory) including unit. 
 * `<Inc>` Inclination of current orbit including `°` symbol.
@@ -115,11 +123,14 @@ The following pre-defined placeholder values can be used inside a text element. 
 * `<Scientists>` List of just the scientists in the current vessel's crew.
 * `<Tourists>` List of just the tourists in the current vessel's crew.
 * `<PilotsList>, <EngineersList>, <ScientistsList>, <ToursistsList>` As above but formatted as a vertical bullet list of names rather than comma separated.
+* `<PilotsShort>, <EngineersShort>, <ScientistsShort>, <TouristsShort>` As `<CrewShort>` but filtered to single trait.
 * `<Target>` Name of currently targeted vessel or body (if any)
 * `<LaunchSite>` If KSCSwitcher is installed will display the name of the current active space center (e.g. _Cape Canaveral_). If not then _KSC_ is displayed.
 * `<Custom>` The current value of the Custom Text. You can set this value using the configuration window. If custom text is not persistent (default), it will be cleared after the next screenshot.
 
 Note that all placeholder values are case-sensitive.
+
+† Note for Earth calendar dates the game calculates the displayed clock date using fixed 365 day years taking no account of leap years. Kerbal Alarm Clock calculates based on days since start date and takes account of leap years. RSS only shows the planets in the correct relative locations for an historical date if leap years are accounted for. The different `<Date>` and `<DateKAC>` tags allow you to choose which of these calendar schemes you wish to use.
 
 ##### Situation Text
 
@@ -153,6 +164,7 @@ If a `Size` property is not defined (or if the size is a zero vector), the size 
 A `FLAG` element can be used to render the current mission's flag onto the screen. It behaves very much like a `PICTURE` otherwise.
 
 * `DefaultTexture` Path to a default image file to show if no flag can be determined for the active vessel, or if there is no active vessel. Example: `Squad/Flags/default`
+* `BackgroundTexture` Optional path to a image file to show as background behind transparent flags. Default is none. Example: `Squad/Flags/Minimalistic`
 * `Scale` Scale of the image relative to itself. For example, a value of `2.0,2.0` doubles the size of the texture, while maintaining the aspect ratio. _Default: 1.0,1.0_
 
 If a `Size` property is not defined (or if the size is a zero vector), the size of the image is used automatically. Otherwise it denotes  the size of the image relative to screen dimensions. For example, a value of `1.0,1.0` ensures the image takes up the size of the entire screen. _Default: 0.0,0.0_
