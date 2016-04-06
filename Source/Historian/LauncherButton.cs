@@ -89,10 +89,6 @@ namespace KSEA.Historian
         {
             var historian = Historian.Instance;
 
-            if (m_Button == null) Historian.Print("in update m_button is null");
-            if (m_SuppressedTexture == null) Historian.Print("in update m_SuppressedTexture is null");
-            if (m_NormalTexture == null) Historian.Print("in update m_NormalTexture is null");
-
             if (historian.Suppressed)
             {
                 m_Button.SetTexture(m_SuppressedTexture);
