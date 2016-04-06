@@ -1,6 +1,5 @@
 ﻿
 
-using System;
 /**
 * This file is part of Historian.
 * 
@@ -17,7 +16,9 @@ using System;
 * You should have received a copy of the GNU General Public License
 * along with Historian. If not, see <http://www.gnu.org/licenses/>.
 **/
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -27,7 +28,7 @@ using UnityEngine;
 namespace KSEA.Historian
 {
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
-	public class Historian : Singleton<Historian>
+    public class Historian : Singleton<Historian>
     {
         List<Layout> m_Layouts = new List<Layout>();
         int m_CurrentLayoutIndex = -1;
@@ -39,6 +40,8 @@ namespace KSEA.Historian
         bool m_SuppressEditorWindow = false;
         Type m_KscSwitcher = null;
         Type m_KscSwitcherLoader = null;
+
+        bool m_screenshotRequested = false;
 
         public bool Suppressed
         {
@@ -146,10 +149,11 @@ namespace KSEA.Historian
             m_KscSwitcher = Reflect.GetExternalType("regexKSP.LastKSC");
             m_KscSwitcherLoader = Reflect.GetExternalType("regexKSP.KSCLoader");
         }
-		public void set_m_Active()
-		{
-			m_Active = true;
-		}
+        public void set_m_Active()
+        {
+            m_Active = true;
+            m_screenshotRequested = true;
+        }
 
         void Update()
         {
@@ -167,7 +171,7 @@ namespace KSEA.Historian
                         m_Configuration.Save(Path.Combine(PluginDirectory, "Historian.cfg"));
                     }
 
-                    m_Active = false;
+                    if (!m_screenshotRequested) m_Active = false;
                 }
             }
         }
@@ -178,6 +182,8 @@ namespace KSEA.Historian
             {
                 var layout = GetCurrentLayout();
                 layout.Draw();
+
+                if (m_screenshotRequested) m_screenshotRequested = false;
             }
 
             if (!m_SuppressEditorWindow)
@@ -278,7 +284,7 @@ namespace KSEA.Historian
 
         public static void Print(string message)
         {
-            Debug.Log("[KSEA.Historian] " + message);
+            UnityEngine.Debug.Log("[KSEA.Historian] " + message);
         }
     }
 }
