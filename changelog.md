@@ -1,5 +1,8 @@
 # Changelog
 
+#### 1.2.0.38 - bug fixed
+* Fix: remove debug message from crew names.
+
 #### 1.2.0.37 - bug fixes
 * Fix: crew trait colours not showing correctly
 * Fix: `<UT>` incorrectly included base year now shows first year as Y1 etc.
