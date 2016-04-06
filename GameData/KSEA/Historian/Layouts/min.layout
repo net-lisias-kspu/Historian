@@ -1,0 +1,35 @@
+KSEA_HISTORIAN_LAYOUT
+{
+	RECTANGLE
+	{
+		Anchor = 0.0,0.5
+		Size = 1.0,0.15
+		Position = 0.0,0.85
+		Color = 0.0,0.0,0.0,0.5
+	}
+
+	FLAG
+	{
+		Anchor = 0.5,0.5
+		Position = 0.1,0.85
+		Scale = 1,1
+		DefaultTexture = Squad/Flags/default
+	}
+
+	TEXT
+	{
+		Anchor = 0.0,0.5
+		Position = 0.25,0.85
+		Size = 0.5,0.125
+		Color = 1.0,1.0,1.0,1.0
+		Text = <size=22><CrewShort></size>
+		TextAnchor = MiddleLeft
+		FontSize = 12
+		FontStyle = Normal
+		
+		PilotColor = red
+		EngineerColor = yellow
+		ScientistColor = aqua
+		TouristColor = green
+	}
+}
