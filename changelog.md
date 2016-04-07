@@ -1,5 +1,8 @@
 # Changelog
 
+#### 1.1.8 for 1.0.5
+* Fix: Compatibility for Automatic Screenshots and Saves
+
 #### 1.2.0.38 - bug fixed
 * Fix: remove debug message from crew names.
 
