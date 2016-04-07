@@ -1,5 +1,11 @@
 # Changelog
 
+#### 1.2.0.40 for KSP 1.1 Pre
+* Fix: regression fix for missing "Flying" situation trigger.
+
+#### 1.1.8.1 for KSP 1.0.5a
+* Fix: regression fix for missing "Flying" situation trigger.
+
 #### 1.2.0.39 for KSP 1.1 Pre
 * Fix: Compatibility for Automatic Screenshots and Saves
 
