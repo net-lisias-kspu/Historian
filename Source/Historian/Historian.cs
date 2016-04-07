@@ -1,6 +1,5 @@
 ﻿
 
-using System;
 /**
 * This file is part of Historian.
 * 
@@ -17,12 +16,12 @@ using System;
 * You should have received a copy of the GNU General Public License
 * along with Historian. If not, see <http://www.gnu.org/licenses/>.
 **/
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
-
 
 namespace KSEA.Historian
 {
@@ -39,6 +38,7 @@ namespace KSEA.Historian
         bool m_SuppressEditorWindow = false;
         Type m_KscSwitcher = null;
         Type m_KscSwitcherLoader = null;
+        bool m_screenshotRequested = false;
 
         public bool Suppressed
         {
@@ -166,6 +166,7 @@ namespace KSEA.Historian
         public void set_m_Active()
 		{
 			m_Active = true;
+            m_screenshotRequested = true;
 		}
 
         void Update()
@@ -184,7 +185,7 @@ namespace KSEA.Historian
                         m_Configuration.Save(Path.Combine(PluginDirectory, "Historian.cfg"));
                     }
 
-                    m_Active = false;
+                    if (!m_screenshotRequested) m_Active = false;
                 }
             }
         }
@@ -195,6 +196,8 @@ namespace KSEA.Historian
             {
                 var layout = GetCurrentLayout();
                 layout.Draw();
+
+                if (m_screenshotRequested) m_screenshotRequested = false;
             }
 
             if (!m_SuppressEditorWindow && m_Editor != null)

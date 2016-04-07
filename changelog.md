@@ -1,13 +1,19 @@
 # Changelog
 
-#### 1.2.0.38 - bug fixed
+#### 1.2.0.39 for KSP 1.1 Pre
+* Fix: Compatibility for Automatic Screenshots and Saves
+
+#### 1.1.8 for KSP 1.0.5
+* Fix: Compatibility for Automatic Screenshots and Saves
+
+#### 1.2.0.38 for KSP 1.1 Pre - bug fixed
 * Fix: remove debug message from crew names.
 
-#### 1.2.0.37 - bug fixes
+#### 1.2.0.37 for KSP 1.1 Pre - bug fixes
 * Fix: crew trait colours not showing correctly
 * Fix: `<UT>` incorrectly included base year now shows first year as Y1 etc.
 
-#### 1.2.0
+#### 1.2.0 for KSP 1.1 Pre
 * initial recompile for KSP 1.1 Pre
 
 #### 1.1.7a

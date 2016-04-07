@@ -1,17 +1,25 @@
 {
-	"NAME":"Historian Extended",
-	"URL":"https://github.com/Aelfhe1m/Historian-Expanded/releases/download/v.1.2.0.38/Historian.1.2.0.38.zip",
-	"VERSION":
-	{
-		"MAJOR":1,
-		"MINOR":2,
-		"PATCH":0,
-		"BUILD":38
-	},
-	"KSP_VERSION":
-	{
-		"MAJOR":1,
-		"MINOR":1,
-		"PATCH":0
-	}
+    "NAME": "Historian (Extended)",
+    "DOWNLOAD": "https://github.com/Aelfhe1m/Historian-Expanded/releases/download/v.1.2.0.39/Historian-1.2.0.39.zip",
+    "VERSION": {
+        "MAJOR": 1,
+        "MINOR": 2,
+        "PATCH": 0,
+        "BUILD": 39
+    },
+    "KSP_VERSION": {
+        "MAJOR": 1,
+        "MINOR": 1,
+        "PATCH": 0
+    },
+    "KSP_VERSION_MIN": {
+        "MAJOR": 1,
+        "MINOR": 1,
+        "PATCH": 0
+    },
+    "KSP_VERSION_MAX": {
+        "MAJOR": 1,
+        "MINOR": 1,
+        "PATCH": 0
+    }
 }
