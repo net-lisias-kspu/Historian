@@ -115,6 +115,8 @@ The following pre-defined placeholder values can be used inside a text element. 
 * `<Scientists>` List of just the scientists in the current vessel's crew.
 * `<Tourists>` List of just the tourists in the current vessel's crew.
 * `<PilotsList>, <EngineersList>, <ScientistsList>, <ToursistsList>` As above but formatted as a vertical bullet list of names rather than comma separated.
+* `<Target>` Name of currently targeted vessel or body (if any)
+* `<LaunchSite>` If KSCSwitcher is installed will display the name of the current active space center (e.g. _Cape Canaveral_). If not then _KSC_ is displayed.
 * `<Custom>` The current value of the Custom Text. You can set this value using the configuration window. If custom text is not persistent (default), it will be cleared after the next screenshot.
 
 Note that all placeholder values are case-sensitive.

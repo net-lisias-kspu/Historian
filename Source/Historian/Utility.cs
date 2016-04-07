@@ -17,9 +17,47 @@
 
 using System;
 using UnityEngine;
+using System.Linq;
+using System.Reflection;
 
 namespace KSEA.Historian
 {
+
+    public static class Reflect
+    {
+        public static Type GetExternalType(string typeName)
+        {
+            return AssemblyLoader.loadedAssemblies
+                .SelectMany(a => a.assembly.GetExportedTypes())
+                .SingleOrDefault(t => t.FullName == typeName);
+        }
+
+        public static object GetStaticField(Type type, string fieldName)
+        {
+            return type.GetField(fieldName, BindingFlags.Public | BindingFlags.Static).GetValue(null);
+        }
+
+        public static object GetStaticPropery(Type type, string propName)
+        {
+            return type.GetProperty(propName, BindingFlags.Public | BindingFlags.Static).GetValue(null, null);
+        }
+
+        public static object GetFieldValue(object parent, string fieldName) {
+            return parent.GetType().GetField(fieldName).GetValue(parent);
+        }
+
+        public static object GetPropertyValue(object parent, string propName)
+        {
+            return parent.GetType().GetProperty(propName).GetValue(parent, null);
+        }
+
+        public static object GetMethodResult(object parent, string methodName, params object[] parameters)
+        {
+            return parent.GetType().GetMethod(methodName).Invoke(parent, parameters);
+        }
+
+    }
+
     public static class ConfigNodeExtension
     {
         public static Color GetColor(this ConfigNode self, string name, Color fallback)
@@ -155,7 +193,7 @@ namespace KSEA.Historian
                 try
                 {
                     var value = self.GetValue(name);
-                    return (T) (object) ConfigNode.ParseEnum(typeof(T), value);
+                    return (T)(object)ConfigNode.ParseEnum(typeof(T), value);
                 }
                 catch
                 {
@@ -166,4 +204,6 @@ namespace KSEA.Historian
             return fallback;
         }
     }
+
+
 }

@@ -21,8 +21,8 @@ namespace KSEA.Historian
 {
     public class Rectangle : Element
     {
-        private Color m_Color = Color.black;
-        private Texture m_Texture = null;
+        Color m_Color = Color.black;
+        Texture m_Texture = null;
 
         protected override void OnDraw(Rect bounds)
         {
@@ -33,8 +33,8 @@ namespace KSEA.Historian
         {
             m_Color = node.GetColor("Color", Color.black);
 
-            int width = (int) (Screen.width * Size.x);
-            int height = (int) (Screen.height * Size.y);
+            var width = (int) (Screen.width * Size.x);
+            var height = (int) (Screen.height * Size.y);
 
             var texture = new Texture2D(width, height);
             var pixels = texture.GetPixels();

@@ -58,11 +58,11 @@ namespace KSEA.Historian
 
         public static string FormattedDate(this int[] kerbinDate, string format, int baseYear = 1)
         {
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
 
             int i = 0;
             int tokenLen;
-            int kerbinDay = kerbinDate[(int)TimePart.Day];
+            int kerbinDay = kerbinDate[(int)TimePart.Day] + 1;
 
             while (i < format.Length)
             {
@@ -114,7 +114,7 @@ namespace KSEA.Historian
                         result.Append(FormatMonth(month, tokenLen));
                         break;
                     case 'y':
-                        int year = kerbinDate[(int)TimePart.Year] + baseYear;
+                        int year = kerbinDate[(int)TimePart.Year] + baseYear + 1;
                         tokenLen = ParseRepeatPattern(format, i, ch);
                         result.Append(FormatYear(year, tokenLen));
                         break;
@@ -134,19 +134,19 @@ namespace KSEA.Historian
 
         }
 
-        private static string FormatDigits(int value, int tokenLen, int maxPadding)
+        static string FormatDigits(int value, int tokenLen, int maxPadding)
         {
             if (tokenLen > maxPadding)
                 tokenLen = maxPadding;
             return value.ToString(DigitFormat[tokenLen]);
         }
 
-        private static string FormatYear(int year, int tokenLen)
+        static string FormatYear(int year, int tokenLen)
         {
             return year.ToString(new string('0', tokenLen));
         }
 
-        private static string FormatMonth(int month, int tokenLen)
+        static string FormatMonth(int month, int tokenLen)
         {
             switch (tokenLen)
             {
@@ -156,13 +156,13 @@ namespace KSEA.Historian
                     return month.ToString("00");
                 case 3:
                     return KerbinMonthNames[month - 1].Substring(0, 3);
-                case 4:
+                // case 4:
                 default:
                     return KerbinMonthNames[month - 1];
             }
         }
 
-        private static string FormatDayOfWeek(int dayOfWeek, int tokenLen)
+        static string FormatDayOfWeek(int dayOfWeek, int tokenLen)
         {
             switch (tokenLen)
             {

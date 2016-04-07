@@ -21,7 +21,7 @@ namespace KSEA.Historian
 {
     public class Singleton<T> : MonoBehaviour where T : Singleton<T>
     {
-        private static T s_Instance = null;
+        static T s_Instance = null;
 
         public static T Instance
         {

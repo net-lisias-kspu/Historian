@@ -4,8 +4,8 @@ namespace KSEA.Historian
 {
     public class ToolbarButton
     {
-        private IButton m_Button = null;
-        private bool m_State = false;
+        IButton m_Button = null;
+        bool m_State = false;
         public delegate void Callback();
 
         public event Callback OnTrue = delegate { };

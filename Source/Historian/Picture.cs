@@ -21,8 +21,8 @@ namespace KSEA.Historian
 {
     public class Picture : Element
     {
-        private Vector2 m_Scale = Vector2.zero;
-        private Texture m_Texture = null;
+        Vector2 m_Scale = Vector2.zero;
+        Texture m_Texture = null;
 
         protected override void OnDraw(Rect bounds)
         {

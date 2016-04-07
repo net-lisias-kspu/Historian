@@ -1,21 +1,24 @@
-﻿/**
- * This file is part of Historian.
- * 
- * Historian is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * Historian is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with Historian. If not, see <http://www.gnu.org/licenses/>.
- **/
+﻿
 
+/**
+* This file is part of Historian.
+* 
+* Historian is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+* 
+* Historian is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+* 
+* You should have received a copy of the GNU General Public License
+* along with Historian. If not, see <http://www.gnu.org/licenses/>.
+**/
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -25,16 +28,20 @@ using UnityEngine;
 namespace KSEA.Historian
 {
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
-	public class Historian : Singleton<Historian>
+    public class Historian : Singleton<Historian>
     {
-        private List<Layout> m_Layouts = new List<Layout>();
-        private int m_CurrentLayoutIndex = -1;
-        private bool m_Active = false;
-        private bool m_AlwaysActive = false;
-        private bool m_Suppressed = false;
-        private Configuration m_Configuration = null;
-        private Editor m_Editor = null;
-        private bool m_SuppressEditorWindow = false;
+        List<Layout> m_Layouts = new List<Layout>();
+        int m_CurrentLayoutIndex = -1;
+        bool m_Active = false;
+        bool m_AlwaysActive = false;
+        bool m_Suppressed = false;
+        Configuration m_Configuration = null;
+        Editor m_Editor = null;
+        bool m_SuppressEditorWindow = false;
+        Type m_KscSwitcher = null;
+        Type m_KscSwitcherLoader = null;
+
+        bool m_screenshotRequested = false;
 
         public bool Suppressed
         {
@@ -74,8 +81,12 @@ namespace KSEA.Historian
                 m_CurrentLayoutIndex = value;
             }
         }
-        
-        private string PluginDirectory
+
+        public Type KscSwitcher { get { return m_KscSwitcher; } }
+
+        public Type KscSwitcherLoader { get { return m_KscSwitcherLoader; } }
+
+        string PluginDirectory
         {
             get
             {
@@ -133,11 +144,16 @@ namespace KSEA.Historian
             GameEvents.onShowUI.Add(Game_OnShowGUI);
             GameEvents.onGamePause.Add(Game_OnPause);
             GameEvents.onGameUnpause.Add(Game_OnUnpause);
+
+            // get reference to KSC switcher if installed
+            m_KscSwitcher = Reflect.GetExternalType("regexKSP.LastKSC");
+            m_KscSwitcherLoader = Reflect.GetExternalType("regexKSP.KSCLoader");
         }
-		public void set_m_Active()
-		{
-			m_Active = true;
-		}
+        public void set_m_Active()
+        {
+            m_Active = true;
+            m_screenshotRequested = true;
+        }
 
         void Update()
         {
@@ -145,10 +161,7 @@ namespace KSEA.Historian
             {
                 if (!m_Active)
                 {
-                    if (GameSettings.TAKE_SCREENSHOT.GetKeyDown())
-                    {
-                        m_Active = true;
-                    }
+                    m_Active |= GameSettings.TAKE_SCREENSHOT.GetKeyDown();
                 }
                 else
                 {
@@ -158,7 +171,7 @@ namespace KSEA.Historian
                         m_Configuration.Save(Path.Combine(PluginDirectory, "Historian.cfg"));
                     }
 
-                    m_Active = false;
+                    if (!m_screenshotRequested) m_Active = false;
                 }
             }
         }
@@ -169,6 +182,8 @@ namespace KSEA.Historian
             {
                 var layout = GetCurrentLayout();
                 layout.Draw();
+
+                if (m_screenshotRequested) m_screenshotRequested = false;
             }
 
             if (!m_SuppressEditorWindow)
@@ -177,42 +192,39 @@ namespace KSEA.Historian
             }
         }
 
-        private void Game_OnHideGUI()
+        void Game_OnHideGUI()
         {
-            if (!m_Configuration.PersistentConfigurationWindow)
-            {
-                m_SuppressEditorWindow = true;
-            }
+            m_SuppressEditorWindow |= !m_Configuration.PersistentConfigurationWindow;
         }
 
-        private void Game_OnShowGUI()
+        void Game_OnShowGUI()
         {
             m_SuppressEditorWindow = false;
         }
 
-        private void Game_OnUnpause()
+        void Game_OnUnpause()
         {
             m_SuppressEditorWindow = false;
         }
 
-        private void Game_OnPause()
+        void Game_OnPause()
         {
             m_SuppressEditorWindow = true;
         }
 
-        private int FindLayoutIndex(string name)
+        int FindLayoutIndex(string name)
         {
             return m_Layouts.FindIndex(layout => layout.Name == name);
         }
 
-        private Layout FindLayout(string name)
+        Layout FindLayout(string name)
         {
             var index = FindLayoutIndex(name);
 
             return GetLayout(index);
         }
 
-        private void LoadLayouts()
+        void LoadLayouts()
         {
             Print("Searching for layouts ...");
 
@@ -225,7 +237,7 @@ namespace KSEA.Historian
             }
         }
 
-        private void LoadLayout(string file)
+        void LoadLayout(string file)
         {
             try
             {
@@ -250,7 +262,7 @@ namespace KSEA.Historian
             }
         }
 
-        private Layout GetLayout(int index)
+        Layout GetLayout(int index)
         {
             if (index >= 0 && index < m_Layouts.Count)
             {
@@ -260,7 +272,7 @@ namespace KSEA.Historian
             return Layout.Empty;
         }
 
-        private Layout GetCurrentLayout()
+        Layout GetCurrentLayout()
         {
             return GetLayout(m_CurrentLayoutIndex);
         }
@@ -272,7 +284,7 @@ namespace KSEA.Historian
 
         public static void Print(string message)
         {
-            Debug.Log("[KSEA.Historian] " + message);
+            UnityEngine.Debug.Log("[KSEA.Historian] " + message);
         }
     }
 }

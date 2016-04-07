@@ -21,9 +21,9 @@ namespace KSEA.Historian
 {
     public class LauncherButton
     {
-        private ApplicationLauncherButton m_Button = null;
-        private Texture m_NormalTexture = null;
-        private Texture m_SuppressedTexture = null;
+        ApplicationLauncherButton m_Button = null;
+        Texture m_NormalTexture = null;
+        Texture m_SuppressedTexture = null;
         public delegate void Callback();
 
         public event Callback OnTrue = delegate { };
@@ -94,12 +94,12 @@ namespace KSEA.Historian
             }
         }
 
-        private void Button_OnTrue()
+        void Button_OnTrue()
         {
             OnTrue();
         }
 
-        private void Button_OnFalse()
+        void Button_OnFalse()
         {
             OnFalse();
         }
