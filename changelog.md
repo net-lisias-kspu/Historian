@@ -1,6 +1,7 @@
 # Changelog
 
 #### 1.2.0.39 for KSP 1.1 Pre
+* Fix: Compatibility for Automatic Screenshots and Saves
 
 #### 1.1.8 for KSP 1.0.5
 * Fix: Compatibility for Automatic Screenshots and Saves
