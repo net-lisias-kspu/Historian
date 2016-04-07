@@ -254,7 +254,7 @@ namespace KSEA.Historian
                 ? info.Time.FormattedDate(m_dateFormat, m_baseYear)
                 : new DateTime(m_baseYear, 1, 1).AddSeconds(info.UT).ToString(m_dateFormat);
 
-        string UTParser(CommonInfo info) => $"Y{info.Year + m_baseYear}, D{(info.Day):D3}, {info.Hour}:{info.Minute:D2}:{info.Second:D2}";
+        string UTParser(CommonInfo info) => $"Y{info.Year + 1}, D{(info.Day):D3}, {info.Hour}:{info.Minute:D2}:{info.Second:D2}";
 
         string YearParser(CommonInfo info) => (info.Year + m_baseYear).ToString();
 
