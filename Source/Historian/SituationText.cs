@@ -12,10 +12,10 @@ namespace KSEA.Historian
         {
             base.OnLoad(node);
 
-
             m_Default = node.GetString("Default", "");
 
             m_situations.Add(Vessel.Situations.LANDED, node.GetString("Landed", ""));
+            m_situations.Add(Vessel.Situations.FLYING, node.GetString("Flying", ""));
             m_situations.Add(Vessel.Situations.SPLASHED, node.GetString("Splashed", ""));
             m_situations.Add(Vessel.Situations.PRELAUNCH, node.GetString("Prelaunch", ""));
             m_situations.Add(Vessel.Situations.SUB_ORBITAL, node.GetString("SubOrbital", ""));
