@@ -22,7 +22,7 @@ namespace KSEA.Historian
 {
     public class Configuration
     {
-        static readonly Version CurrentVersion = new Version("1.0.5");
+        static readonly Version CurrentVersion = new Version("1.1");
 
         private string m_Layout = "";
         bool m_EnableLauncherButton = true;
