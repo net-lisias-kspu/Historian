@@ -164,6 +164,7 @@ namespace KSEA.Historian
             m_parsers.Add("TouristsList", TouristsListParser);
             m_parsers.Add("Target", TargetParser);
             m_parsers.Add("LaunchSite", LaunchSiteParser);
+            m_parsers.Add("RealDate", RealDateParser);
         }
 
         protected string Parse(string text)
@@ -249,6 +250,9 @@ namespace KSEA.Historian
         string NewLineParser(CommonInfo info) => Environment.NewLine;
 
         string CustomParser(CommonInfo info) => Parse(Historian.Instance.GetConfiguration().CustomText.Replace("<Custom>", "")); // avoid recurssion.
+
+        string RealDateParser(CommonInfo info)
+            => DateTime.Now.ToString(m_dateFormat);
 
         string DateParser(CommonInfo info) 
             => m_isKerbincalendar

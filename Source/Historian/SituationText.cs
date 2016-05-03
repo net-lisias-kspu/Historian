@@ -12,7 +12,6 @@ namespace KSEA.Historian
         {
             base.OnLoad(node);
 
-
             m_Default = node.GetString("Default", "");
 
             m_situations.Add(Vessel.Situations.LANDED, node.GetString("Landed", ""));
