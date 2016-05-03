@@ -52,6 +52,7 @@ namespace KSEA.Historian
 
         public void Update()
         {
+            if (!IsRegistered) return;
             var historian = Historian.Instance;
 
             if (historian.Suppressed)

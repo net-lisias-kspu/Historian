@@ -18,17 +18,15 @@
 **/
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-
 namespace KSEA.Historian
 {
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
-    public class Historian : Singleton<Historian>
+	public class Historian : Singleton<Historian>
     {
         List<Layout> m_Layouts = new List<Layout>();
         int m_CurrentLayoutIndex = -1;
@@ -40,7 +38,6 @@ namespace KSEA.Historian
         bool m_SuppressEditorWindow = false;
         Type m_KscSwitcher = null;
         Type m_KscSwitcherLoader = null;
-
         bool m_screenshotRequested = false;
 
         public bool Suppressed
@@ -138,22 +135,39 @@ namespace KSEA.Historian
 
             m_CurrentLayoutIndex = FindLayoutIndex(m_Configuration.Layout);
             Print("Current Layout Index {0}", m_CurrentLayoutIndex);
-            m_Editor = new Editor(m_Configuration);
+            
 
             GameEvents.onHideUI.Add(Game_OnHideGUI);
             GameEvents.onShowUI.Add(Game_OnShowGUI);
             GameEvents.onGamePause.Add(Game_OnPause);
             GameEvents.onGameUnpause.Add(Game_OnUnpause);
 
+            GameEvents.onGUIApplicationLauncherReady.Add(AddButton);
+            GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveButton);
+
             // get reference to KSC switcher if installed
             m_KscSwitcher = Reflect.GetExternalType("regexKSP.LastKSC");
             m_KscSwitcherLoader = Reflect.GetExternalType("regexKSP.KSCLoader");
         }
-        public void set_m_Active()
+
+        private void RemoveButton()
         {
-            m_Active = true;
-            m_screenshotRequested = true;
+            if (m_Editor != null)
+            {
+                m_Editor.RemoveButton();
+            }
         }
+
+        private void AddButton()
+        {
+            m_Editor = new Editor(m_Configuration);
+        }
+
+        public void set_m_Active()
+		{
+			m_Active = true;
+            m_screenshotRequested = true;
+		}
 
         void Update()
         {
@@ -186,7 +200,7 @@ namespace KSEA.Historian
                 if (m_screenshotRequested) m_screenshotRequested = false;
             }
 
-            if (!m_SuppressEditorWindow)
+            if (!m_SuppressEditorWindow && m_Editor != null)
             {
                 m_Editor.Draw();
             }
@@ -284,7 +298,7 @@ namespace KSEA.Historian
 
         public static void Print(string message)
         {
-            UnityEngine.Debug.Log("[KSEA.Historian] " + message);
+            Debug.Log("[KSEA.Historian] " + message);
         }
     }
 }

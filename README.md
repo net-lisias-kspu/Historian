@@ -1,14 +1,12 @@
-# Historian
-
-![KSEA Logo](http://i.imgur.com/L7rpnwm.png)
+# Historian-Expanded
 
 Historian is a screenshot utility mod for Kerbal Space Program that adds fully configurable and dynamic captions and overlay graphics to screenshots to better describe the context of screenshots and record your Kerbal adventures.
 
-## Extended development version by Aelfhe1m
+Orignal mod by [Zenobit](https://github.com/Zeenobit/). Extended development version by Aelfhe1m
 
 ## Installation
 
-1. Download the latest version of Historian from either [Kerbal Stuff](https://kerbalstuff.com/mod/821/Historian) or [GitHub](https://github.com/Zeenobit/Historian/releases).
+1. Download the latest version of Historian from [GitHub](https://github.com/Aelfhe1m/Historian-Expanded/releases).
 2. Extract the archive into your KSP installation folder, and overwrite all existing files.
 3. Enjoy!
 
@@ -125,12 +123,12 @@ The following pre-defined placeholder values can be used inside a text element. 
 * `<PilotsList>, <EngineersList>, <ScientistsList>, <ToursistsList>` As above but formatted as a vertical bullet list of names rather than comma separated.
 * `<PilotsShort>, <EngineersShort>, <ScientistsShort>, <TouristsShort>` As `<CrewShort>` but filtered to single trait.
 * `<Target>` Name of currently targeted vessel or body (if any)
-* `<LaunchSite>` If KSCSwitcher is installed will display the name of the current active space center (e.g. _Cape Canaveral_). If not then _KSC_ is displayed.
+* `<LaunchSite>` If [KSCSwitcher](http://forum.kerbalspaceprogram.com/index.php?/topic/106206-105-regexs-useful-mod-emporium/) is installed will display the name of the current active space center (e.g. _Cape Canaveral_). If not then _KSC_ is displayed.
 * `<Custom>` The current value of the Custom Text. You can set this value using the configuration window. If custom text is not persistent (default), it will be cleared after the next screenshot.
 
 Note that all placeholder values are case-sensitive.
 
-† Note for Earth calendar dates the game calculates the displayed clock date using fixed 365 day years taking no account of leap years. Kerbal Alarm Clock calculates based on days since start date and takes account of leap years. RSS only shows the planets in the correct relative locations for an historical date if leap years are accounted for. The different `<Date>` and `<DateKAC>` tags allow you to choose which of these calendar schemes you wish to use.
+† Note for Earth calendar dates the game calculates the displayed clock date using fixed 365 day years taking no account of leap years. [Kerbal Alarm Clock](http://forum.kerbalspaceprogram.com/index.php?/topic/22809-11x-kerbal-alarm-clock-v3610-april-25/) calculates based on seconds since start date and takes account of leap years. [RSS](http://forum.kerbalspaceprogram.com/index.php?/topic/50471-112-real-solar-system-v1110-may-1/) only shows the planets in the correct relative locations for an historical date if leap years are accounted for. The different `<Date>` and `<DateKAC>` tags allow you to choose which of these calendar schemes you wish to use.
 
 ##### Situation Text
 
@@ -146,7 +144,7 @@ A `SITUATION_TEXT` element behaves similar to the `TEXT` element. It has all of 
 * `Escaping` Used when the vessel is escaping from a body.
 * `Docked` Used when the vessel is docked to another.
 
-When a screen shot is taken, the `SITUATION_TEXT` element uses only one of the above values for its text, depending on the situation. This is useful for making more descriptive captions such as: `Landed on <Body>'s <LandingZone>` or `Flying at Mach <Mach> (<Speed>) <Altitude> over <Body>'s <Biome>`.
+When a screen shot is taken, the `SITUATION_TEXT` element uses only one of the above values for its text, depending on the situation. This is useful for making more descriptive captions such as: `Preparing to launch from <LaunchSite>` or `Landed on <Body>'s <LandingZone>` or `Flying at Mach <Mach> (<Speed>) <Altitude> over <Body>'s <Biome>`.
 
 Note that just like `TEXT`, `SITUATION_TEXT` also supports rich text and placeholder values.
 

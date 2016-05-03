@@ -23,6 +23,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using static KSPUtil;
 
 namespace KSEA.Historian
 {
@@ -40,6 +41,8 @@ namespace KSEA.Historian
         public int Hour { get { return Time[2]; } }
         public int Minute {  get { return Time[1]; } }
         public int Second { get { return Time[0]; } }
+
+        public string[] TraitColours { get; set; }
     }
 
     public class Text : Element
@@ -54,13 +57,16 @@ namespace KSEA.Historian
         string m_dateFormat;
         bool m_isKerbincalendar;
 
-        readonly Dictionary<string, Func<CommonInfo, string>> m_parsers = new Dictionary<string, Func<CommonInfo, string>>();
+        static DefaultDateTimeFormatter m_dateFormatter = new DefaultDateTimeFormatter();
+
+        static readonly Dictionary<string, Func<CommonInfo, string>> m_parsers = new Dictionary<string, Func<CommonInfo, string>>();
 
         readonly static string[] m_AllTraits = { "Pilot", "Engineer", "Scientist", "Tourist" };
 
         public Text()
         {
-            InitializeParameterDictionary();
+            if (m_parsers.Count < 1)
+                InitializeParameterDictionary();
         }
 
         public void SetText(string text)
@@ -86,7 +92,6 @@ namespace KSEA.Historian
 
         protected override void OnLoad(ConfigNode node)
         {
-
             m_Color = node.GetColor("Color", Color.white);
             m_Text = node.GetString("Text", "");
             m_TextAnchor = node.GetEnum("TextAnchor", TextAnchor.MiddleCenter);
@@ -99,8 +104,7 @@ namespace KSEA.Historian
             m_touristColor = node.GetString("TouristColor", "clear");
 
             m_isKerbincalendar = GameSettings.KERBIN_TIME;
-
-            m_baseYear = node.GetInteger("BaseYear", m_isKerbincalendar ? 1 : 1940);
+            m_baseYear = node.GetInteger("BaseYear", m_isKerbincalendar ? 1 : 1951);
             m_dateFormat = node.GetString("DateFormat", CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern);
         }
 
@@ -166,12 +170,12 @@ namespace KSEA.Historian
         protected string Parse(string text)
         {
             var result = new StringBuilder();
-            //var timer = new Stopwatch();
-            //timer.Start();
 
             // get common data sources
             var ut = Planetarium.GetUniversalTime();
-            var time = m_isKerbincalendar ? KSPUtil.GetKerbinDateFromUT((int)ut) : KSPUtil.GetEarthDateFromUT((int)ut);
+            var time = m_isKerbincalendar 
+                ? m_dateFormatter.GetKerbinDateFromUT((int)ut) 
+                : m_dateFormatter.GetEarthDateFromUT((int)ut);
             var vessel = FlightGlobals.ActiveVessel;
             var orbit = vessel?.GetOrbit();
             var target = vessel?.targetObject;
@@ -182,7 +186,8 @@ namespace KSEA.Historian
                 Orbit = orbit,
                 Time = time,
                 UT = ut,
-                Target = target
+                Target = target,
+                TraitColours = new string[] { m_pilotColor, m_engineerColor, m_scientistColor, m_touristColor }
             };
 
             // scan template text string for parameter tokens
@@ -229,10 +234,10 @@ namespace KSEA.Historian
                 }
                 i += tokenLen;
             }
-            //timer.Stop();
-            //Historian.Print($"Parsing took: {timer.ElapsedMilliseconds} ms");
 
-            return result.ToString();
+            var output = result.ToString();
+
+            return output;
         }
 
         int GetTokenLength(string text, int pos)
@@ -240,6 +245,7 @@ namespace KSEA.Historian
             return text.IndexOf('>', pos) - pos - 1;
         }
 
+        #region Parsers
 
         string NewLineParser(CommonInfo info) => Environment.NewLine;
 
@@ -286,9 +292,9 @@ namespace KSEA.Historian
             {
                 int[] t;
                 if (m_isKerbincalendar)
-                    t = KSPUtil.GetKerbinDateFromUT((int)info.Vessel.missionTime);
+                    t = m_dateFormatter.GetKerbinDateFromUT((int)info.Vessel.missionTime);
                 else
-                    t = KSPUtil.GetEarthDateFromUT((int)info.Vessel.missionTime);
+                    t = m_dateFormatter.GetEarthDateFromUT((int)info.Vessel.missionTime);
                 return (t[4] > 0)
                     ? $"T+ {t[4]}y, {t[3]}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
                     : (t[3] > 0)
@@ -368,10 +374,10 @@ namespace KSEA.Historian
             if (info.Orbit == null)
                 return "";
 
-            var period = info.Orbit.period;
+             var period = info.Orbit.period;
             var t = m_isKerbincalendar
-                ? KSPUtil.GetKerbinDateFromUT((int)period)
-                : KSPUtil.GetEarthDateFromUT((int)period);
+                ? m_dateFormatter.GetKerbinDateFromUT((int)period)
+                : m_dateFormatter.GetEarthDateFromUT((int)period);
             return (t[4] > 0)
                      ? $"{t[4] + 1}y, {t[3] + 1}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
                      : (t[3] > 0)
@@ -383,49 +389,49 @@ namespace KSEA.Historian
             => info.Orbit == null ? "" : $"{SimplifyDistance(info.Orbit.ApA)} x {SimplifyDistance(info.Orbit.PeA)}";
 
         string CrewParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: m_AllTraits);
+            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: m_AllTraits, traitColours: info.TraitColours);
 
         string CrewShortParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: m_AllTraits);
+            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: m_AllTraits, traitColours: info.TraitColours);
 
         string CrewListParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: m_AllTraits);
+            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: m_AllTraits, traitColours: info.TraitColours);
 
         string PilotsParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: new string[] { "Pilot" });
+            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: new string[] { "Pilot" }, traitColours: info.TraitColours);
 
         string PilotsShortParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: new string[] { "Pilot" });
+            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: new string[] { "Pilot" }, traitColours: info.TraitColours);
 
         string PilotsListParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: new string[] { "Pilot" });
+            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: new string[] { "Pilot" }, traitColours: info.TraitColours);
 
         string EngineersParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: new string[] { "Engineer" });
+            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: new string[] { "Engineer" }, traitColours: info.TraitColours);
 
         string EngineersShortParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: new string[] { "Engineer" });
+            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: new string[] { "Engineer" }, traitColours: info.TraitColours);
 
         string EngineersListParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: new string[] { "Engineer" });
+            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: new string[] { "Engineer" }, traitColours: info.TraitColours);
 
         string ScientistsParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: new string[] { "Scientist" });
+            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: new string[] { "Scientist" }, traitColours: info.TraitColours);
 
         string ScientistsShortParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: new string[] { "Scientist" });
+            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: new string[] { "Scientist" }, traitColours: info.TraitColours);
 
         string ScientistsListParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: new string[] { "Scientist" });
+            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: new string[] { "Scientist" }, traitColours: info.TraitColours);
 
         string TouristsParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: new string[] { "Tourist" });
+            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: new string[] { "Tourist" }, traitColours: info.TraitColours);
 
         string TouristsShortParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: new string[] { "Tourist" });
+            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: new string[] { "Tourist" }, traitColours: info.TraitColours);
 
         string TouristsListParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: new string[] { "Tourist" });
+            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: new string[] { "Tourist" }, traitColours: info.TraitColours);
 
         string TargetParser(CommonInfo info) => info.Target == null ? "" : info.Target.GetName();
 
@@ -452,11 +458,11 @@ namespace KSEA.Historian
             }
        }
 
-
+        #endregion
 
         // ############# Helper functions
 
-        string GenericCrewParser(Vessel vessel, bool isList, bool isShort, string[] traits)
+        string GenericCrewParser(Vessel vessel, bool isList, bool isShort, string[] traits, string[] traitColours)
         {
             if (vessel == null || vessel.isEVA || !vessel.isCommandable)
                 return "";
@@ -468,7 +474,7 @@ namespace KSEA.Historian
 
             var crew = vessel.GetVesselCrew()
                 .Where(c => traits.Contains(c.trait))
-                .Select(c => TraitColor(c.trait) + nameFilter(c.name) + "</color>")
+                .Select(c => TraitColor(c.trait, traitColours) + nameFilter(c.name) + "</color>")
                 .ToArray();
 
             if (crew.Length <= 0)
@@ -477,22 +483,22 @@ namespace KSEA.Historian
             if (isList)
                 return "• " + string.Join(Environment.NewLine + "• ", crew);
 
-            return string.Join(", ", crew) + (isShort ? (isSingleTrait ? TraitColor(traits[0]) + " Kerman</color>" : " Kerman") : "");
+            return string.Join(", ", crew) + (isShort ? (isSingleTrait ? TraitColor(traits[0], traitColours) + " Kerman</color>" : " Kerman") : "");
         }
 
 
-        protected string TraitColor(string trait)
+        string TraitColor(string trait, string[] traitColours)
         {
             switch (trait)
             {
                 case "Pilot":
-                    return "<color=" + m_pilotColor + ">";
+                    return "<color=" + traitColours[0] + ">";
                 case "Engineer":
-                    return "<color=" + m_engineerColor + ">";
+                    return "<color=" + traitColours[1] + ">";
                 case "Scientist":
-                    return "<color=" + m_scientistColor + ">";
+                    return "<color=" + traitColours[2] + ">";
                 case "Tourist":
-                    return "<color=" + m_touristColor + ">";
+                    return "<color=" + traitColours[3] + ">";
                 default:
                     return "<color=clear>";
             }
@@ -533,5 +539,6 @@ namespace KSEA.Historian
             if (angle > 180) angle -= 360;
             return angle;
         }
+
     }
 }

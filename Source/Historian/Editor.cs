@@ -1,20 +1,22 @@
-/**
- * This file is part of Historian.
- * 
- * Historian is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * Historian is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with Historian. If not, see <http://www.gnu.org/licenses/>.
- **/
 
+
+using System;
+/**
+* This file is part of Historian.
+* 
+* Historian is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+* 
+* Historian is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+* 
+* You should have received a copy of the GNU General Public License
+* along with Historian. If not, see <http://www.gnu.org/licenses/>.
+**/
 using UnityEngine;
 
 namespace KSEA.Historian
@@ -22,7 +24,7 @@ namespace KSEA.Historian
     public class Editor
     {
         bool m_Open = false;
-        LauncherButton m_LauncherButton = null;
+        static LauncherButton m_LauncherButton = new LauncherButton();
         ToolbarButton m_ToolbarButton = null;
         Rect m_Position;
         Texture m_NextButtonTexture = null;
@@ -32,7 +34,7 @@ namespace KSEA.Historian
 
         public Editor(Configuration configuration)
         {
-            m_LauncherButton = new LauncherButton();
+            //m_LauncherButton = new LauncherButton();
             m_ToolbarButton = new ToolbarButton();
 
             m_Position = new Rect(0.5f * Screen.width - 200.0f, 0.5f * Screen.height - 250.0f, 400.0f, 450.0f);
@@ -48,10 +50,11 @@ namespace KSEA.Historian
                 m_LauncherButton.OnTrue += Button_OnTrue;
                 m_LauncherButton.OnFalse += Button_OnFalse;
 
-                m_LauncherButton.Register();
+                if (!m_LauncherButton.IsRegistered)
+                    m_LauncherButton.Register();
             }
 
-            if (m_EnableToolberButton)
+            if (ToolbarManager.ToolbarAvailable && m_EnableToolberButton)
             {
                 m_ToolbarButton.OnTrue += Button_OnTrue;
                 m_ToolbarButton.OnFalse += Button_OnFalse;
@@ -82,7 +85,7 @@ namespace KSEA.Historian
                     m_LauncherButton.Update();
                 }
 
-                if (m_EnableToolberButton)
+                if (m_EnableToolberButton && ToolbarManager.ToolbarAvailable)
                 {
                     m_ToolbarButton.Update();
                 }
@@ -120,7 +123,7 @@ namespace KSEA.Historian
                 m_LauncherButton.Unregister();
             }
 
-            if (m_EnableToolberButton && !m_ToolbarButton.IsRegistered)
+            if (m_EnableToolberButton && ToolbarManager.ToolbarAvailable && !m_ToolbarButton.IsRegistered)
             {
                 m_ToolbarButton.OnTrue += Button_OnTrue;
                 m_ToolbarButton.OnFalse += Button_OnFalse;
@@ -129,7 +132,7 @@ namespace KSEA.Historian
 
                 m_ToolbarButton.Register();
             }
-            else if (!m_EnableToolberButton && m_ToolbarButton.IsRegistered)
+            else if (!m_EnableToolberButton && ToolbarManager.ToolbarAvailable && m_ToolbarButton.IsRegistered)
             {
                 m_ToolbarButton.OnTrue -= Button_OnTrue;
                 m_ToolbarButton.OnFalse -= Button_OnFalse;
@@ -192,6 +195,11 @@ namespace KSEA.Historian
             GUILayout.EndVertical();
 
             GUI.DragWindow();
+        }
+
+        internal void RemoveButton()
+        {
+            m_LauncherButton.Unregister();
         }
 
         void Button_OnTrue()
