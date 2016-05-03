@@ -1,5 +1,8 @@
 # Changelog
 
+#### 1.2.0.41 for KSP 1.1.2°
+* Compile against 1.1.2 KSP.
+
 #### 1.2.0.40 for KSP 1.1 Pre
 * Fix: regression fix for missing "Flying" situation trigger.
 
