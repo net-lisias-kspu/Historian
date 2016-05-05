@@ -186,6 +186,7 @@ namespace KSEA.Historian
             m_parsers.Add("VesselType", VesselTypeParser);
             m_parsers.Add("KK-Distance", KKDistanceParser);
             m_parsers.Add("KK-SpaceCenter", KKSpaceCenterParser);
+            m_parsers.Add("KK-LaunchSite", KKLaunchSiteParser);
         }
 
         protected string Parse(string text)
@@ -558,7 +559,21 @@ namespace KSEA.Historian
             {
                 return ex.Message + "\n" + ex.StackTrace;
             }
+        }
 
+        string KKLaunchSiteParser(CommonInfo info)
+        {
+            var siteManager = Historian.Instance.ReflectedClassType("kkLaunchSiteManager");
+            if (siteManager == null) return "NO KK";
+            if (info.Vessel == null) return "";
+            try
+            {
+                return Reflect.GetStaticMethodResult(siteManager, "getCurrentLaunchSite").ToString();
+            }
+            catch (Exception ex)
+            {
+                return ex.Message + "\n" + ex.StackTrace + "\n" + ex.InnerException?.Message + "\n" + ex.InnerException?.StackTrace;
+            }
         }
 
         #endregion

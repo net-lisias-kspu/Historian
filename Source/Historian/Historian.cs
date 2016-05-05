@@ -156,23 +156,8 @@ namespace KSEA.Historian
             m_ReflectedMods.Add("switcher",Reflect.GetExternalType("regexKSP.LastKSC"));
             m_ReflectedMods.Add("switcherLoader",Reflect.GetExternalType("regexKSP.KSCLoader"));
 
-            /* Kerbal Konstructs.
-
-            namespace KerbalKonstructs.LaunchSites
-            class LaunchSiteManager
-            static string getCurrentLaunchSite()
-
-            namespace KerbalKonstructs.Utilities
-            class NavUtils
-            static StaticObject GetNearestFacility(Vector3 vPosition, string sFacilityType, string sGroup = "None")
-
-            namespace KerbalKonstructs.SpaceCenters
-            class SpaceCenterManager
-            static void getClosestSpaceCenter(Vector3 position, out SpaceCenter ClosestCenter, out float ClosestDistance, out float RecoveryFactor, out float RecoveryRange, out string BaseName)
-
-            */
+            // Kerbal Konstructs
             m_ReflectedMods.Add("kkLaunchSiteManager", Reflect.GetExternalType("KerbalKonstructs.LaunchSites.LaunchSiteManager"));
-            m_ReflectedMods.Add("kkNavUtils", Reflect.GetExternalType("KerbalKonstructs.Utilities.NavUtils"));
             m_ReflectedMods.Add("kkSpaceCenterManager", Reflect.GetExternalType("KerbalKonstructs.SpaceCenters.SpaceCenterManager"));
         }
 
