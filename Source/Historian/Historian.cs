@@ -18,8 +18,8 @@
 **/
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.IO;
 using System.Reflection;
 using UnityEngine;
 
@@ -36,9 +36,9 @@ namespace KSEA.Historian
         Configuration m_Configuration = null;
         Editor m_Editor = null;
         bool m_SuppressEditorWindow = false;
-        Type m_KscSwitcher = null;
-        Type m_KscSwitcherLoader = null;
+        Dictionary<string, Type> m_ReflectedMods = new Dictionary<string, Type>();
         bool m_screenshotRequested = false;
+        string m_assemblyVersion = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
 
         public bool Suppressed
         {
@@ -79,16 +79,23 @@ namespace KSEA.Historian
             }
         }
 
-        public Type KscSwitcher { get { return m_KscSwitcher; } }
+        public Type ReflectedClassType(string classNameKey) 
+            => m_ReflectedMods.ContainsKey(classNameKey) ? m_ReflectedMods[classNameKey] : null;
 
-        public Type KscSwitcherLoader { get { return m_KscSwitcherLoader; } }
-
-        string PluginDirectory
+        public string PluginDirectory
         {
             get
             {
                 var path = Assembly.GetExecutingAssembly().Location;
                 return Path.GetDirectoryName(path);
+            }
+        }
+
+        public string AssemblyFileVersion
+        {
+            get
+            {
+                return m_assemblyVersion;
             }
         }
 
@@ -146,8 +153,27 @@ namespace KSEA.Historian
             GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveButton);
 
             // get reference to KSC switcher if installed
-            m_KscSwitcher = Reflect.GetExternalType("regexKSP.LastKSC");
-            m_KscSwitcherLoader = Reflect.GetExternalType("regexKSP.KSCLoader");
+            m_ReflectedMods.Add("switcher",Reflect.GetExternalType("regexKSP.LastKSC"));
+            m_ReflectedMods.Add("switcherLoader",Reflect.GetExternalType("regexKSP.KSCLoader"));
+
+            /* Kerbal Konstructs.
+
+            namespace KerbalKonstructs.LaunchSites
+            class LaunchSiteManager
+            static string getCurrentLaunchSite()
+
+            namespace KerbalKonstructs.Utilities
+            class NavUtils
+            static StaticObject GetNearestFacility(Vector3 vPosition, string sFacilityType, string sGroup = "None")
+
+            namespace KerbalKonstructs.SpaceCenters
+            class SpaceCenterManager
+            static void getClosestSpaceCenter(Vector3 position, out SpaceCenter ClosestCenter, out float ClosestDistance, out float RecoveryFactor, out float RecoveryRange, out string BaseName)
+
+            */
+            m_ReflectedMods.Add("kkLaunchSiteManager", Reflect.GetExternalType("KerbalKonstructs.LaunchSites.LaunchSiteManager"));
+            m_ReflectedMods.Add("kkNavUtils", Reflect.GetExternalType("KerbalKonstructs.Utilities.NavUtils"));
+            m_ReflectedMods.Add("kkSpaceCenterManager", Reflect.GetExternalType("KerbalKonstructs.SpaceCenters.SpaceCenterManager"));
         }
 
         private void RemoveButton()

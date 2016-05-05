@@ -1,0 +1,81 @@
+KSEA_HISTORIAN_LAYOUT
+{
+	RECTANGLE
+	{
+		Anchor = 0.0,0.0
+		Size = 1.0,1.0
+		Position = 0.8,0.0
+		Color = 0.0,0.0,0.0,0.6
+	}
+
+	TEXT
+	{
+		Anchor = 0.0,0.0
+		Position = 0.81,0.05
+		Size = 0.9,1.0
+		Color = 1.0,1.0,1.0,1.0
+		
+		Font = Bodoni MT
+		Text = Font 1<N>The quick brown fox
+		TextAnchor = UpperLeft
+		FontSize = 30
+		FontStyle = Normal
+	}
+	
+	TEXT
+	{
+		Anchor = 0.0,0.0
+		Position = 0.81,0.15
+		Size = 0.9,0.2
+		Color = 1.0,1.0,1.0,1.0
+		
+		Font = Algerian
+		Text = Font 2<N>The quick brown fox
+		TextAnchor = UpperLeft
+		FontSize = 30
+		FontStyle = Normal
+	}
+	
+	TEXT
+	{
+		Anchor = 0.0,0.0
+		Position = 0.81,0.25
+		Size = 0.9,0.2
+		Color = 1.0,1.0,1.0,1.0
+		
+		Font = Comic Sans MS
+		Text = Font 3<N>The quick brown fox
+		TextAnchor = UpperLeft
+		FontSize = 30
+		FontStyle = Normal
+	}
+	
+	TEXT
+	{
+		Anchor = 0.0,0.0
+		Position = 0.81,0.35
+		Size = 0.9,0.2
+		Color = 1.0,1.0,1.0,1.0
+		
+		Font = Cooper Black
+		Text = Font 4<N>The quick brown fox
+		TextAnchor = UpperLeft
+		FontSize = 30
+		FontStyle = Normal
+	}
+	
+	TEXT
+	{
+		Anchor = 0.0,0.0
+		Position = 0.3,0.45
+		Size = 0.6,1.0
+		Color = 1.0,1.0,1.0,1.0
+		
+		Font = Arial
+		Text = ListFonts: <ListFonts>
+		TextAnchor = UpperLeft
+		FontSize = 14
+		FontStyle = Normal
+	}
+	
+}

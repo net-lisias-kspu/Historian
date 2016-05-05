@@ -56,6 +56,21 @@ namespace KSEA.Historian
             return parent.GetType().GetMethod(methodName).Invoke(parent, parameters);
         }
 
+        public static object GetStaticMethodResult(Type type, string methodName, params object[] parameters)
+        {
+            return type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static).Invoke(null, parameters);
+        }
+
+        public static void VoidMethod(object parent, string methodName, params object[] parameters)
+        {
+            parent.GetType().GetMethod(methodName).Invoke(parent, parameters);
+        }
+
+        public static void StaticVoidMethod(Type type, string methodName, params object[] parameters)
+        {
+            type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static).Invoke(null, parameters);
+        }
+
     }
 
     public static class ConfigNodeExtension

@@ -47,6 +47,8 @@ namespace KSEA.Historian
 
     public class Text : Element
     {
+        const string DEFAULT_FONT_NAME = "NO DEFAULT";
+
         Color m_Color = Color.white;
         string m_Text = "";
         TextAnchor m_TextAnchor = TextAnchor.MiddleCenter;
@@ -57,6 +59,10 @@ namespace KSEA.Historian
         string m_dateFormat;
         bool m_isKerbincalendar;
 
+        static string[] m_OSFonts = Font.GetOSInstalledFontNames();
+        static Dictionary<string,Font> m_createdFonts = new Dictionary<string, Font>();
+        string m_FontName;
+        
         static DefaultDateTimeFormatter m_dateFormatter = new DefaultDateTimeFormatter();
 
         static readonly Dictionary<string, Func<CommonInfo, string>> m_parsers = new Dictionary<string, Func<CommonInfo, string>>();
@@ -80,6 +86,8 @@ namespace KSEA.Historian
 
             style.alignment = m_TextAnchor;
             style.normal.textColor = m_Color;
+            if (m_createdFonts.ContainsKey(m_FontName))
+                style.font = m_createdFonts[m_FontName];
             style.fontSize = m_FontSize;
             style.fontStyle = m_FontStyle;
             style.richText = true;
@@ -95,6 +103,14 @@ namespace KSEA.Historian
             m_Color = node.GetColor("Color", Color.white);
             m_Text = node.GetString("Text", "");
             m_TextAnchor = node.GetEnum("TextAnchor", TextAnchor.MiddleCenter);
+            m_FontName = node.GetString("Font", DEFAULT_FONT_NAME);
+            if (!m_OSFonts.Contains(m_FontName))
+            {
+                Historian.Print($"The requested font '{m_FontName}' is not installed in your OS");
+                m_FontName = DEFAULT_FONT_NAME;
+            }
+            else if (!m_createdFonts.ContainsKey(m_FontName))
+                    m_createdFonts.Add(m_FontName, Font.CreateDynamicFontFromOSFont(m_FontName, 12));
             m_FontSize = node.GetInteger("FontSize", 10);
             m_FontStyle = node.GetEnum("FontStyle", FontStyle.Normal);
 
@@ -164,7 +180,12 @@ namespace KSEA.Historian
             m_parsers.Add("TouristsList", TouristsListParser);
             m_parsers.Add("Target", TargetParser);
             m_parsers.Add("LaunchSite", LaunchSiteParser);
+
             m_parsers.Add("RealDate", RealDateParser);
+            m_parsers.Add("ListFonts", ListFontsParser);
+            m_parsers.Add("VesselType", VesselTypeParser);
+            m_parsers.Add("KK-Distance", KKDistanceParser);
+            m_parsers.Add("KK-SpaceCenter", KKSpaceCenterParser);
         }
 
         protected string Parse(string text)
@@ -437,7 +458,7 @@ namespace KSEA.Historian
 
         string LaunchSiteParser(CommonInfo info)
         {
-            var switcher = Historian.Instance.KscSwitcherLoader;
+            var switcher = Historian.Instance.ReflectedClassType("switcherLoader");
             if (switcher == null) return "KSC";
             try
             {
@@ -457,6 +478,88 @@ namespace KSEA.Historian
                 return "ERROR";
             }
        }
+
+        string ListFontsParser(CommonInfo info) => string.Join(", ", m_OSFonts);
+
+        string VesselTypeParser(CommonInfo info) => info.Vessel?.vesselType.ToString();
+
+        /* Kerbal Konstructs.
+
+            namespace KerbalKonstructs.LaunchSites
+            class LaunchSiteManager
+            static string getCurrentLaunchSite()
+
+            namespace KerbalKonstructs.Utilities
+            class NavUtils
+            static StaticObject GetNearestFacility(Vector3 vPosition, string sFacilityType, string sGroup = "None")
+
+            namespace KerbalKonstructs.SpaceCenters
+            class SpaceCenterManager
+            static void getClosestSpaceCenter(Vector3 position, out SpaceCenter ClosestCenter, out float ClosestDistance, out float RecoveryFactor, out float RecoveryRange, out string BaseName)
+
+            m_ReflectedMods.Add("kkLaunchSiteManager", Reflect.GetExternalType("KerbalKonstructs.LaunchSites.LaunchSiteManager"));
+            m_ReflectedMods.Add("kkNavUtils", Reflect.GetExternalType("KerbalKonstructs.Utilities.NavUtils");
+            m_ReflectedMods.Add("kkSpaceCenterManager", Reflect.GetExternalType("KerbalKonstructs.SpaceCenters.SpaceCenterManager"));
+        */
+
+        class KerbalKonstructsInfo
+        {
+            public SpaceCenter SpaceCenter;
+            public float Distance;
+            public string BaseName;
+        }
+
+        KerbalKonstructsInfo GetKerbalKonstructsSpaceCenterInfo(CommonInfo info, Type scManager)
+        {
+            Vector3 position = info.Vessel.gameObject.transform.position;
+            SpaceCenter closestCenter = null;
+            float distance = 1000.0f;
+            float recoveryFactor = 0.0f;
+            float recoveryRange = 0.0f;
+            string baseName = null;
+            var args = new object[] { position, closestCenter, distance, recoveryFactor, recoveryRange, baseName };
+            Reflect.StaticVoidMethod(scManager, "getClosestSpaceCenter", args);
+            return new KerbalKonstructsInfo
+            {
+                SpaceCenter = (SpaceCenter)args[1],
+                Distance = (float)args[2],
+                BaseName = args[5].ToString()
+            };
+        }
+
+        string KKSpaceCenterParser(CommonInfo info)
+        {
+            var scManager = Historian.Instance.ReflectedClassType("kkSpaceCenterManager");
+            if (scManager == null)
+                return "NO KK";
+            if (info.Vessel == null)
+                return "N/A";
+            try {
+                return GetKerbalKonstructsSpaceCenterInfo(info, scManager).BaseName;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message + "\n" + ex.StackTrace;
+            }
+        }
+
+        string KKDistanceParser(CommonInfo info)
+        {
+            var scManager = Historian.Instance.ReflectedClassType("kkSpaceCenterManager");
+            if (scManager == null)
+                return "NO KK";
+            if (info.Vessel == null)
+                return "";
+            try
+            {
+                return SimplifyDistance(GetKerbalKonstructsSpaceCenterInfo(info, scManager).Distance);
+            }
+            catch (Exception ex)
+            {
+                return ex.Message + "\n" + ex.StackTrace;
+            }
+
+        }
 
         #endregion
 
