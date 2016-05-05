@@ -1,6 +1,9 @@
 
 
 using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 /**
 * This file is part of Historian.
 * 
@@ -78,7 +81,7 @@ namespace KSEA.Historian
         {
             if (m_Open)
             {
-                m_Position = GUI.Window(0, m_Position, OnWindowGUI, "Historian", HighLogic.Skin.window);
+                m_Position = GUI.Window(0, m_Position, OnWindowGUI, $"Historian: v {Historian.Instance.AssemblyFileVersion}", HighLogic.Skin.window);
 
                 if (m_EnableLauncherButton)
                 {
