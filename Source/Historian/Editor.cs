@@ -40,7 +40,7 @@ namespace KSEA.Historian
             //m_LauncherButton = new LauncherButton();
             m_ToolbarButton = new ToolbarButton();
 
-            m_Position = new Rect(0.5f * Screen.width - 200.0f, 0.5f * Screen.height - 250.0f, 400.0f, 450.0f);
+            m_Position = new Rect(0.5f * Screen.width - 200.0f, 0.5f * Screen.height - 250.0f, 400.0f, 500.0f);
 
             m_NextButtonTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Button_Next", false);
             m_PreviousButtonTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Button_Previous", false);
@@ -173,6 +173,12 @@ namespace KSEA.Historian
             configuration.CustomText = GUILayout.TextArea(configuration.CustomText, GUILayout.Height(60));
             configuration.PersistentCustomText = GUILayout.Toggle(configuration.PersistentCustomText, "Persistent Custom Text");
 
+            GUILayout.Space(20);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Default Space Center Name:");
+            configuration.DefaultSpaceCenterName = GUILayout.TextField(configuration.DefaultSpaceCenterName, GUILayout.Width(150));
+            GUILayout.EndHorizontal();
             GUILayout.Space(20);
 
             GUILayout.BeginHorizontal();

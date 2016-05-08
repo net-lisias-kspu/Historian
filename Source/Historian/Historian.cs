@@ -87,7 +87,7 @@ namespace KSEA.Historian
             get
             {
                 var path = Assembly.GetExecutingAssembly().Location;
-                return Path.GetDirectoryName(path);
+                return Path.Combine(Path.GetDirectoryName(path), "Plugins");
             }
         }
 
@@ -253,7 +253,7 @@ namespace KSEA.Historian
         {
             Print("Searching for layouts ...");
 
-            var directory = Path.Combine(PluginDirectory, "Layouts");
+            var directory = Path.Combine(PluginDirectory, "..\\Layouts");
             var files = Directory.GetFiles(directory, "*.layout");
 
             foreach (var file in files)

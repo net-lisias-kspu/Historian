@@ -186,7 +186,6 @@ namespace KSEA.Historian
             m_parsers.Add("VesselType", VesselTypeParser);
             m_parsers.Add("KK-Distance", KKDistanceParser);
             m_parsers.Add("KK-SpaceCenter", KKSpaceCenterParser);
-            m_parsers.Add("KK-LaunchSite", KKLaunchSiteParser);
         }
 
         protected string Parse(string text)
@@ -459,49 +458,50 @@ namespace KSEA.Historian
 
         string LaunchSiteParser(CommonInfo info)
         {
+            var defaultSpaceCenter = Historian.Instance.GetConfiguration().DefaultSpaceCenterName;
             var switcher = Historian.Instance.ReflectedClassType("switcherLoader");
-            if (switcher == null) return "KSC";
-            try
+            if (switcher != null)
             {
-                var instance = Reflect.GetStaticField(switcher, "instance");
-                var siteManager = Reflect.GetFieldValue(instance, "Sites");
-                var lastSite = (string)Reflect.GetFieldValue(siteManager, "lastSite");
-                var node = (ConfigNode)Reflect.GetMethodResult(siteManager, "getSiteByName", lastSite);
+                try
+                {
+                    var instance = Reflect.GetStaticField(switcher, "instance");
+                    var siteManager = Reflect.GetFieldValue(instance, "Sites");
+                    var lastSite = (string)Reflect.GetFieldValue(siteManager, "lastSite");
+                    var node = (ConfigNode)Reflect.GetMethodResult(siteManager, "getSiteByName", lastSite);
 
-                if (node == null)
-                    return lastSite;
+                    if (node == null)
+                        return lastSite == "KSC" ? defaultSpaceCenter : lastSite;
 
-                return node.GetValue("displayName");
+                    var displayName = node.GetValue("displayName");
+                    return displayName == "KSC" ? defaultSpaceCenter : displayName;
+                }
+                catch
+                {
+                    Historian.Print("Exception getting launchsite from KSC Switcher");
+                }
             }
-            catch
+
+            var kkSiteManager = Historian.Instance.ReflectedClassType("kkLaunchSiteManager");
+            if (kkSiteManager != null && info.Vessel != null)
             {
-                Historian.Print("Exception getting launchsite");
-                return "ERROR";
+                try
+                {
+                    var current = Reflect.GetStaticMethodResult(kkSiteManager, "getCurrentLaunchSite").ToString();
+                    return current == "KSC" ? defaultSpaceCenter : current;
+                }
+                catch (Exception ex)
+                {
+                    Historian.Print("Exception getting launchsite from Kerbal Konstructs");
+                }
             }
-       }
+            return defaultSpaceCenter;
+        }
 
         string ListFontsParser(CommonInfo info) => string.Join(", ", m_OSFonts);
 
         string VesselTypeParser(CommonInfo info) => info.Vessel?.vesselType.ToString();
 
-        /* Kerbal Konstructs.
 
-            namespace KerbalKonstructs.LaunchSites
-            class LaunchSiteManager
-            static string getCurrentLaunchSite()
-
-            namespace KerbalKonstructs.Utilities
-            class NavUtils
-            static StaticObject GetNearestFacility(Vector3 vPosition, string sFacilityType, string sGroup = "None")
-
-            namespace KerbalKonstructs.SpaceCenters
-            class SpaceCenterManager
-            static void getClosestSpaceCenter(Vector3 position, out SpaceCenter ClosestCenter, out float ClosestDistance, out float RecoveryFactor, out float RecoveryRange, out string BaseName)
-
-            m_ReflectedMods.Add("kkLaunchSiteManager", Reflect.GetExternalType("KerbalKonstructs.LaunchSites.LaunchSiteManager"));
-            m_ReflectedMods.Add("kkNavUtils", Reflect.GetExternalType("KerbalKonstructs.Utilities.NavUtils");
-            m_ReflectedMods.Add("kkSpaceCenterManager", Reflect.GetExternalType("KerbalKonstructs.SpaceCenters.SpaceCenterManager"));
-        */
 
         class KerbalKonstructsInfo
         {
@@ -520,12 +520,15 @@ namespace KSEA.Historian
             string baseName = null;
             var args = new object[] { position, closestCenter, distance, recoveryFactor, recoveryRange, baseName };
             Reflect.StaticVoidMethod(scManager, "getClosestSpaceCenter", args);
-            return new KerbalKonstructsInfo
+            var kkInfo = new KerbalKonstructsInfo
             {
                 SpaceCenter = (SpaceCenter)args[1],
                 Distance = (float)args[2],
                 BaseName = args[5].ToString()
             };
+            if (kkInfo.BaseName == "KSC")
+                kkInfo.BaseName = Historian.Instance.GetConfiguration().DefaultSpaceCenterName;
+            return kkInfo;
         }
 
         string KKSpaceCenterParser(CommonInfo info)
@@ -558,21 +561,6 @@ namespace KSEA.Historian
             catch (Exception ex)
             {
                 return ex.Message + "\n" + ex.StackTrace;
-            }
-        }
-
-        string KKLaunchSiteParser(CommonInfo info)
-        {
-            var siteManager = Historian.Instance.ReflectedClassType("kkLaunchSiteManager");
-            if (siteManager == null) return "NO KK";
-            if (info.Vessel == null) return "";
-            try
-            {
-                return Reflect.GetStaticMethodResult(siteManager, "getCurrentLaunchSite").ToString();
-            }
-            catch (Exception ex)
-            {
-                return ex.Message + "\n" + ex.StackTrace + "\n" + ex.InnerException?.Message + "\n" + ex.InnerException?.StackTrace;
             }
         }
 
