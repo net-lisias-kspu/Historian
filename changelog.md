@@ -1,5 +1,8 @@
 # Changelog
 
+#### 1.2.1.14 for KSP 1.1.2
+* Regression fix for `DateFormat` - same issue as with crew trait colouring
+
 #### 1.2.1.9 for KSP 1.1.2
 * Add text node parameters:
 	* `VesselType` - the type of vessel e.g. probe, debris, lander etc.
