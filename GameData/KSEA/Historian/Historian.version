@@ -1,0 +1,36 @@
+{
+    "NAME":"Historian Extended",
+    "URL":"http://forum.kerbalspaceprogram.com/index.php?/topic/138848-112-historian-expanded/",
+    "DOWNLOAD":"https://github.com/Aelfhe1m/Historian-Expanded/releases",
+    "GITHUB":
+    {
+        "USERNAME":"Aelfhe1m",
+        "REPOSITORY":"Historian-Expanded",
+        "ALLOW_PRE_RELEASE":false,
+    },
+    "VERSION":
+    {
+        "MAJOR":1,
+        "MINOR":2,
+        "PATCH":1,
+        "BUILD":9
+    },
+    "KSP_VERSION":
+    {
+        "MAJOR":1,
+        "MINOR":1,
+        "PATCH":2
+    },
+    "KSP_VERSION_MIN":
+    {
+        "MAJOR":1,
+        "MINOR":1,
+        "PATCH":2
+    },
+    "KSP_VERSION_MAX":
+    {
+        "MAJOR":1,
+        "MINOR":1,
+        "PATCH":99
+    }
+}

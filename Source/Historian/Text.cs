@@ -41,6 +41,7 @@ namespace KSEA.Historian
         public int Second { get { return Time[0]; } }
 
         public string[] TraitColours { get; set; }
+        public string DateFormat { get; set; }
     }
 
     public class Text : Element
@@ -54,7 +55,7 @@ namespace KSEA.Historian
         FontStyle fontStyle = FontStyle.Normal;
         string pilotColor, engineerColor, scientistColor, touristColor;
         int baseYear;
-        string dateFormat;
+        string dateFormat = "dd MMM yyyy";
         bool isKerbincalendar;
 
         static string[] OSFonts = Font.GetOSInstalledFontNames();
@@ -117,7 +118,9 @@ namespace KSEA.Historian
 
             isKerbincalendar = GameSettings.KERBIN_TIME;
             baseYear = node.GetInteger("BaseYear", isKerbincalendar ? 1 : 1951);
-            dateFormat = node.GetString("DateFormat", CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern);
+            dateFormat = node.GetString("DateFormat", "");
+            if (string.IsNullOrEmpty(dateFormat))
+                dateFormat =CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern;
         }
 
         void InitializeParameterDictionary()
@@ -182,6 +185,7 @@ namespace KSEA.Historian
             parsers.Add("VesselType", VesselTypeParser);
             parsers.Add("KK-Distance", KKDistanceParser);
             parsers.Add("KK-SpaceCenter", KKSpaceCenterParser);
+            parsers.Add("DateFormat", DateFormatParser);
         }
 
         protected string Parse(string text)
@@ -204,7 +208,8 @@ namespace KSEA.Historian
                 Time = time,
                 UT = ut,
                 Target = target,
-                TraitColours = new string[] { pilotColor, engineerColor, scientistColor, touristColor }
+                TraitColours = new string[] { pilotColor, engineerColor, scientistColor, touristColor },
+                DateFormat = dateFormat
             };
 
             // scan template text string for parameter tokens
@@ -265,18 +270,20 @@ namespace KSEA.Historian
 
         string CustomParser(CommonInfo info) => Parse(Historian.Instance.GetConfiguration().CustomText.Replace("<Custom>", "")); // avoid recurssion.
 
+        string DateFormatParser(CommonInfo info) => info.DateFormat;
+
         string RealDateParser(CommonInfo info)
-            => DateTime.Now.ToString(dateFormat);
+            => DateTime.Now.ToString(info.DateFormat);
 
         string DateParser(CommonInfo info) 
             => isKerbincalendar
-                ? info.Time.FormattedDate(dateFormat, baseYear)
-                : new DateTime(info.Year + baseYear, 1, 1, info.Hour, info.Minute, info.Second).AddDays(info.Day - 1).ToString(dateFormat);
+                ? info.Time.FormattedDate(info.DateFormat, baseYear)
+                : new DateTime(info.Year + baseYear, 1, 1, info.Hour, info.Minute, info.Second).AddDays(info.Day - 1).ToString(info.DateFormat);
 
         string DateParserKAC(CommonInfo info)
             => isKerbincalendar
-                ? info.Time.FormattedDate(dateFormat, baseYear)
-                : new DateTime(baseYear, 1, 1).AddSeconds(info.UT).ToString(dateFormat);
+                ? info.Time.FormattedDate(info.DateFormat, baseYear)
+                : new DateTime(baseYear, 1, 1).AddSeconds(info.UT).ToString(info.DateFormat);
 
         string UTParser(CommonInfo info) => $"Y{info.Year + 1}, D{(info.Day):D3}, {info.Hour}:{info.Minute:D2}:{info.Second:D2}";
 
