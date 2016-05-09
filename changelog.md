@@ -1,6 +1,20 @@
 # Changelog
 
-#### 1.2.0.41 for KSP 1.1.2°
+#### 1.2.1.9 for KSP 1.1.2
+* Add text node parameters:
+	* `VesselType` - the type of vessel e.g. probe, debris, lander etc.
+	* `RealDate` - the real world date and time formatted using the block level DateFormat setting
+* Support for Kerbal Konstructs](http://forum.kerbalspaceprogram.com/index.php?/topic/94863-112-kerbal-konstructs-v0967_ex-holy-glowing-balls-batman/) and [Kerbin Side](http://forum.kerbalspaceprogram.com/index.php?/topic/74776-112-kerbin-side-v110-supplements/)
+	* `LaunchSite` modified to detect most recently set KK launch site
+	* `KK-SpaceCenter` - the closest detected "space center"
+	* `KK-Distance` - the straight line distance from the closest detected "space center"
+* Setting added to main configuration dialog for "Default space center name". Will replace "KSC" in `LaunchSite` or `KK-SpaceCenter` parameter results. NOTE: only replaces the value if "KSC" is the full return value. "KSC Launch pad", "Kerbal Space Center" or similar results will NOT be affected
+* `TEXT` and `SITUATION_TEXT` blocks can now specify a `Font` property for the name of the OS font to use to display the block. NOTE: font name must EXACTLY match OS font name. A utility parameter `ListFonts` is supplied to list the names of all installed fonts.
+* "Historian.cfg" moved to `GameData\KSEA\Historian\Plugins` folder to avoid interfering with Module Manager caching.
+* Current version number displayed in settings window title bar
+* General code clean-up and refactoring
+
+#### 1.2.0.41 for KSP 1.1.2
 * Compile against 1.1.2 KSP.
 
 #### 1.2.0.40 for KSP 1.1 Pre

@@ -16,8 +16,10 @@ You can open the Historian configuration window by using either the stock applic
 
 * __Suppressed__: When suppressed, Historian will not display the overlay when taking screenshots. As of version 1.1.0, you can also right click on Blizzy's Toolbar button to toggle this option without having to open the configuration window.
 * __Always Active__: If this is turned on, the overlay will always show on top of the game. This is useful when editting layouts.
+* __Default Space Center Name__: A preferred name to use when a text parameter returns "KSC"
 * __Load__: Reloads all layouts while the game is running.
 * __Save__: Saves the current layout as the default layout (selected automatically everytime you launch KSP).
+
 
 Press the configuration window again to close the configuration window.
 Note that the configuration window shows up even if you have GUI disabled using the 'F2' key. This is intentional to allow layout editting while the game GUI is off.
@@ -26,7 +28,7 @@ Note that the configuration window shows up even if you have GUI disabled using 
 
 All Historian layout files must be located inside `<KSP Root>/GameData/KSEA/Historian/Layouts` folder, and must have a `*.layout` extension to be recognized by Historian. Even though the files have a `*.layout` extension, they follow the same syntax as KSP's `*.cfg` files. This is to prevent the game from loading them into the database by default. You can edit these files using your favorite text editor.
 
-The following documentations assumes that you have a basic knowledge about KSP's configuration file syntax. To create a new layout, simply create a new empty text file and call it `<Layout Name>.layout`. Make sure the file has a `*.layout` extension. To modify a layout, simply open it in any text editor.
+The following documentation assumes that you have a basic knowledge about KSP's configuration file syntax. To create a new layout, simply create a new empty text file and call it `<Layout Name>.layout`. Make sure the file has a `*.layout` extension. To modify a layout, simply open it in any text editor.
 
 All layouts have a root node defined by `KSEA_HISTORIAN_LAYOUT`. Inside this node, you can define your elements. Elements are the basic building blocks of a layout. Each layout has a number of elements, rendered in the order defined (this is useful to remember if you plan on layering the elements). Each element is defined by a configuration node and has a few properties that determine the element's behaviour.
 
@@ -64,6 +66,7 @@ A `TEXT` element renders a string of text.
 
 * `Text` Value of the text that is to be displayed. Supports rich text and placeholder values. _Default: Empty_
 * `TextAnchor` Alignment of the text relative to the bounds of the element. Supports any one of these values: `UpperLeft`, `UpperCenter`, `UpperRight`, `MiddleLeft`,`MiddleCenter`, `MiddleRight`, `LowerLeft`, `LowerCenter`, and `LowerRight`. _Default: MiddleCenter_
+* `Font` name of OS font to use for text in the element. NOTE: this value is case sensitive and the name must EXACTLY match the name of a font installed in your operating system (e.g. `Arial`, `Comic Sans MS`, `Times New Roman`). _Default_: none.
 * `FontSize` Size of the font. Note that rich text format specifiers can override this. _Default: 10_
 * `FontStyle` Style of the font. Supports any one of these values: `Normal`, `Bold`, `Italic`, and `BoldAndItalic`. Note that rich text format specifiers can override this. _Default: Normal_
 * `Color` Color of the font. Note that rich text format specifiers can override this. _Default: 1.0,1.0,1.0,1.0_
@@ -123,7 +126,11 @@ The following pre-defined placeholder values can be used inside a text element. 
 * `<PilotsList>, <EngineersList>, <ScientistsList>, <ToursistsList>` As above but formatted as a vertical bullet list of names rather than comma separated.
 * `<PilotsShort>, <EngineersShort>, <ScientistsShort>, <TouristsShort>` As `<CrewShort>` but filtered to single trait.
 * `<Target>` Name of currently targeted vessel or body (if any)
-* `<LaunchSite>` If [KSCSwitcher](http://forum.kerbalspaceprogram.com/index.php?/topic/106206-105-regexs-useful-mod-emporium/) is installed will display the name of the current active space center (e.g. _Cape Canaveral_). If not then _KSC_ is displayed.
+* `<LaunchSite>` If [KSCSwitcher](http://forum.kerbalspaceprogram.com/index.php?/topic/106206-105-regexs-useful-mod-emporium/) is installed will display the name of the current active space center (e.g. _Cape Canaveral_). If [Kerbal Konstructs](http://forum.kerbalspaceprogram.com/index.php?/topic/94863-112-kerbal-konstructs-v0967_ex-holy-glowing-balls-batman/) is installed then the launchsite most recently set via the menu the VAB or SPH is displayed. If neither mod is present then the __Default Space Center Name__ is displayed.
+* `<RealDate>` the real world date and time.
+* `<VesselType>` the type of the current vessel. Will be one of `Base`, `Debris`, `EVA`, `Flag`, `Lander`, `Probe`, `Rover`, `Ship`, `SpaceObject`, `Station`, `Unknown`
+* `<KK-SpaceCenter> If [Kerbal Konstructs](http://forum.kerbalspaceprogram.com/index.php?/topic/94863-112-kerbal-konstructs-v0967_ex-holy-glowing-balls-batman/) is installed will return the BaseName of the closest open space center. If not installed then `NO KK` will be returned.
+* `<KK-Distance>` If [Kerbal Konstructs](http://forum.kerbalspaceprogram.com/index.php?/topic/94863-112-kerbal-konstructs-v0967_ex-holy-glowing-balls-batman/) is installed will return the distance to the closest open space center. If not installed then `NO KK` will be returned.
 * `<Custom>` The current value of the Custom Text. You can set this value using the configuration window. If custom text is not persistent (default), it will be cleared after the next screenshot.
 
 Note that all placeholder values are case-sensitive.
@@ -215,3 +222,5 @@ Below, you can find an example of a default layout:
 This layout would produce screenshots that looks like this:
 
 ![](http://i.imgur.com/nqsvA09l.png)
+
+Other examples are available on the [mod release thread](http://forum.kerbalspaceprogram.com/index.php?/topic/138848-112-historian-expanded/)
