@@ -28,28 +28,28 @@ namespace KSEA.Historian
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
 	public class Historian : Singleton<Historian>
     {
-        List<Layout> m_Layouts = new List<Layout>();
-        int m_CurrentLayoutIndex = -1;
-        bool m_Active = false;
-        bool m_AlwaysActive = false;
-        bool m_Suppressed = false;
-        Configuration m_Configuration = null;
-        Editor m_Editor = null;
-        bool m_SuppressEditorWindow = false;
-        Dictionary<string, Type> m_ReflectedMods = new Dictionary<string, Type>();
-        bool m_screenshotRequested = false;
-        string m_assemblyVersion = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+        List<Layout> layouts = new List<Layout>();
+        int currentLayoutIndex = -1;
+        bool active = false;
+        bool alwaysActive = false;
+        bool suppressed = false;
+        Configuration configuration = null;
+        Editor editor = null;
+        bool suppressEditorWindow = false;
+        Dictionary<string, Type> feflectedMods = new Dictionary<string, Type>();
+        bool screenshotRequested = false;
+        string assemblyVersion = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
 
         public bool Suppressed
         {
             get
             {
-                return m_Suppressed;
+                return suppressed;
             }
 
             set
             {
-                m_Suppressed = value;
+                suppressed = value;
             }
         }
 
@@ -57,12 +57,12 @@ namespace KSEA.Historian
         {
             get
             {
-                return m_AlwaysActive;
+                return alwaysActive;
             }
 
             set
             {
-                m_AlwaysActive = value;
+                alwaysActive = value;
             }
         }
 
@@ -70,17 +70,17 @@ namespace KSEA.Historian
         {
             get
             {
-                return m_CurrentLayoutIndex;
+                return currentLayoutIndex;
             }
 
             set
             {
-                m_CurrentLayoutIndex = value;
+                currentLayoutIndex = value;
             }
         }
 
         public Type ReflectedClassType(string classNameKey) 
-            => m_ReflectedMods.ContainsKey(classNameKey) ? m_ReflectedMods[classNameKey] : null;
+            => feflectedMods.ContainsKey(classNameKey) ? feflectedMods[classNameKey] : null;
 
         public string PluginDirectory
         {
@@ -91,57 +91,56 @@ namespace KSEA.Historian
             }
         }
 
-        public string AssemblyFileVersion
+        public string ModDirectory
         {
             get
             {
-                return m_assemblyVersion;
+                var path = Assembly.GetExecutingAssembly().Location;
+                return Path.GetDirectoryName(path);
             }
         }
 
+        public string AssemblyFileVersion => assemblyVersion;
+
         public void Reload()
         {
-            m_Layouts.Clear();
+            layouts.Clear();
             LoadLayouts();
-            m_CurrentLayoutIndex = FindLayoutIndex(m_Configuration.Layout);
+            currentLayoutIndex = FindLayoutIndex(configuration.Layout);
         }
 
-        public Configuration GetConfiguration()
-        {
-            return m_Configuration;
-        }
+        public Configuration GetConfiguration() => configuration;
 
-        public string[] GetLayoutNames()
-        {
-            return m_Layouts.Select(item => item.Name).ToArray();
-        }
+        public string[] GetLayoutNames() => layouts.Select(item => item.Name).ToArray();
 
-        public string GetLayoutName(int index)
-        {
-            return GetLayout(index).Name;
-        }
+        public string GetLayoutName(int index) => GetLayout(index).Name;
 
-        public string GetCurrentLayoutName()
-        {
-            return GetCurrentLayout().Name;
-        }
+        public string GetCurrentLayoutName() => GetCurrentLayout().Name;
 
         public void SetConfiguration(Configuration configuration)
         {
-            m_Configuration = configuration;
-            m_Configuration.Save(Path.Combine(PluginDirectory, "Historian.cfg"));
+            this.configuration = configuration;
+            this.configuration.Save(Path.Combine(PluginDirectory, "Historian.cfg"));
+        }
+
+        private void RemoveOldConfig()
+        {
+            var fName = Path.Combine(ModDirectory, "Historian.cfg");
+            if (File.Exists(fName)) File.Delete(fName);
         }
 
         void Awake()
         {
             DontDestroyOnLoad(this);
 
-            m_Configuration = Configuration.Load(Path.Combine(PluginDirectory, "Historian.cfg"));
+            RemoveOldConfig();
+
+            configuration = Configuration.Load(Path.Combine(PluginDirectory, "Historian.cfg"));
 
             LoadLayouts();
 
-            m_CurrentLayoutIndex = FindLayoutIndex(m_Configuration.Layout);
-            Print("Current Layout Index {0}", m_CurrentLayoutIndex);
+            currentLayoutIndex = FindLayoutIndex(configuration.Layout);
+            Print("Current Layout Index {0}", currentLayoutIndex);
             
 
             GameEvents.onHideUI.Add(Game_OnHideGUI);
@@ -153,107 +152,100 @@ namespace KSEA.Historian
             GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveButton);
 
             // get reference to KSC switcher if installed
-            m_ReflectedMods.Add("switcher",Reflect.GetExternalType("regexKSP.LastKSC"));
-            m_ReflectedMods.Add("switcherLoader",Reflect.GetExternalType("regexKSP.KSCLoader"));
+            feflectedMods.Add("switcher",Reflect.GetExternalType("regexKSP.LastKSC"));
+            feflectedMods.Add("switcherLoader",Reflect.GetExternalType("regexKSP.KSCLoader"));
 
             // Kerbal Konstructs
-            m_ReflectedMods.Add("kkLaunchSiteManager", Reflect.GetExternalType("KerbalKonstructs.LaunchSites.LaunchSiteManager"));
-            m_ReflectedMods.Add("kkSpaceCenterManager", Reflect.GetExternalType("KerbalKonstructs.SpaceCenters.SpaceCenterManager"));
+            feflectedMods.Add("kkLaunchSiteManager", Reflect.GetExternalType("KerbalKonstructs.LaunchSites.LaunchSiteManager"));
+            feflectedMods.Add("kkSpaceCenterManager", Reflect.GetExternalType("KerbalKonstructs.SpaceCenters.SpaceCenterManager"));
         }
+
 
         private void RemoveButton()
         {
-            if (m_Editor != null)
+            if (editor != null)
             {
-                m_Editor.RemoveButton();
+                editor.RemoveButton();
             }
         }
 
         private void AddButton()
         {
-            m_Editor = new Editor(m_Configuration);
+            editor = new Editor(configuration);
         }
 
         public void set_m_Active()
 		{
-			m_Active = true;
-            m_screenshotRequested = true;
+			active = true;
+            screenshotRequested = true;
 		}
 
         void Update()
         {
-            if (!m_Suppressed)
+            if (!suppressed)
             {
-                if (!m_Active)
+                if (!active)
                 {
-                    m_Active |= GameSettings.TAKE_SCREENSHOT.GetKeyDown();
+                    active |= GameSettings.TAKE_SCREENSHOT.GetKeyDown();
                 }
                 else
                 {
-                    if (!m_Configuration.PersistentCustomText)
+                    if (!configuration.PersistentCustomText)
                     {
-                        m_Configuration.CustomText = "";
-                        m_Configuration.Save(Path.Combine(PluginDirectory, "Historian.cfg"));
+                        configuration.CustomText = "";
+                        configuration.Save(Path.Combine(PluginDirectory, "Historian.cfg"));
                     }
 
-                    if (!m_screenshotRequested) m_Active = false;
+                    if (!screenshotRequested) active = false;
                 }
             }
         }
 
         void OnGUI()
         {
-            if (!m_Suppressed && (m_Active || m_AlwaysActive))
+            if (!suppressed && (active || alwaysActive))
             {
                 var layout = GetCurrentLayout();
                 layout.Draw();
 
-                if (m_screenshotRequested) m_screenshotRequested = false;
+                if (screenshotRequested) screenshotRequested = false;
             }
 
-            if (!m_SuppressEditorWindow && m_Editor != null)
+            if (!suppressEditorWindow && editor != null)
             {
-                m_Editor.Draw();
+                editor.Draw();
             }
         }
 
         void Game_OnHideGUI()
         {
-            m_SuppressEditorWindow |= !m_Configuration.PersistentConfigurationWindow;
+            suppressEditorWindow |= !configuration.PersistentConfigurationWindow;
         }
 
         void Game_OnShowGUI()
         {
-            m_SuppressEditorWindow = false;
+            suppressEditorWindow = false;
         }
 
         void Game_OnUnpause()
         {
-            m_SuppressEditorWindow = false;
+            suppressEditorWindow = false;
         }
 
         void Game_OnPause()
         {
-            m_SuppressEditorWindow = true;
+            suppressEditorWindow = true;
         }
 
-        int FindLayoutIndex(string name)
-        {
-            return m_Layouts.FindIndex(layout => layout.Name == name);
-        }
+        int FindLayoutIndex(string layoutName) => layouts.FindIndex(layout => layout.Name == layoutName);
 
-        Layout FindLayout(string name)
-        {
-            var index = FindLayoutIndex(name);
-
-            return GetLayout(index);
-        }
+        Layout FindLayout(string layoutName) => GetLayout(FindLayoutIndex(layoutName));
 
         void LoadLayouts()
         {
             Print("Searching for layouts ...");
 
-            var directory = Path.Combine(PluginDirectory, "..\\Layouts");
+            var directory = Path.Combine(ModDirectory, "Layouts");
             var files = Directory.GetFiles(directory, "*.layout");
 
             foreach (var file in files)
@@ -269,10 +261,10 @@ namespace KSEA.Historian
                 var name = Path.GetFileNameWithoutExtension(file);
                 var node = ConfigNode.Load(file).GetNode("KSEA_HISTORIAN_LAYOUT");
 
-                if (m_Layouts.FindIndex(layout => layout.Name == name) < 0)
+                if (layouts.FindIndex(layout => layout.Name == name) < 0)
                 {
                     var layout = Layout.Load(name, node);
-                    m_Layouts.Add(layout);
+                    layouts.Add(layout);
 
                     Print("Found layout '{0}'.", name);
                 }
@@ -289,27 +281,18 @@ namespace KSEA.Historian
 
         Layout GetLayout(int index)
         {
-            if (index >= 0 && index < m_Layouts.Count)
+            if (index >= 0 && index < layouts.Count)
             {
-                return m_Layouts[index];
+                return layouts[index];
             }
 
             return Layout.Empty;
         }
 
-        Layout GetCurrentLayout()
-        {
-            return GetLayout(m_CurrentLayoutIndex);
-        }
+        Layout GetCurrentLayout() => GetLayout(currentLayoutIndex);
 
-        public static void Print(string format, params object[] args)
-        {
-            Print(string.Format(format, args));
-        }
+        public static void Print(string format, params object[] args) => Print(string.Format(format, args));
 
-        public static void Print(string message)
-        {
-            Debug.Log("[KSEA.Historian] " + message);
-        }
+        public static void Print(string message) => Debug.Log("[KSEA.Historian] " + message);
     }
 }

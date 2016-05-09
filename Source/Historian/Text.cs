@@ -17,10 +17,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using UnityEngine;
 using static KSPUtil;
@@ -49,143 +47,141 @@ namespace KSEA.Historian
     {
         const string DEFAULT_FONT_NAME = "NO DEFAULT";
 
-        Color m_Color = Color.white;
-        string m_Text = "";
-        TextAnchor m_TextAnchor = TextAnchor.MiddleCenter;
-        int m_FontSize = 10;
-        FontStyle m_FontStyle = FontStyle.Normal;
-        string m_pilotColor, m_engineerColor, m_scientistColor, m_touristColor;
-        int m_baseYear;
-        string m_dateFormat;
-        bool m_isKerbincalendar;
+        Color color = Color.white;
+        string text = "";
+        TextAnchor textAnchor = TextAnchor.MiddleCenter;
+        int fontSize = 10;
+        FontStyle fontStyle = FontStyle.Normal;
+        string pilotColor, engineerColor, scientistColor, touristColor;
+        int baseYear;
+        string dateFormat;
+        bool isKerbincalendar;
 
-        static string[] m_OSFonts = Font.GetOSInstalledFontNames();
-        static Dictionary<string,Font> m_createdFonts = new Dictionary<string, Font>();
-        string m_FontName;
+        static string[] OSFonts = Font.GetOSInstalledFontNames();
+        static Dictionary<string,Font> createdFonts = new Dictionary<string, Font>();
+        string fontName;
         
-        static DefaultDateTimeFormatter m_dateFormatter = new DefaultDateTimeFormatter();
+        static DefaultDateTimeFormatter dateFormatter = new DefaultDateTimeFormatter();
 
-        static readonly Dictionary<string, Func<CommonInfo, string>> m_parsers = new Dictionary<string, Func<CommonInfo, string>>();
+        static readonly Dictionary<string, Func<CommonInfo, string>> parsers 
+            = new Dictionary<string, Func<CommonInfo, string>>();
 
-        readonly static string[] m_AllTraits = { "Pilot", "Engineer", "Scientist", "Tourist" };
+        readonly static string[] allTraits = { "Pilot", "Engineer", "Scientist", "Tourist" };
 
         public Text()
         {
-            if (m_parsers.Count < 1)
+            if (parsers.Count < 1)
                 InitializeParameterDictionary();
         }
 
-        public void SetText(string text)
-        {
-            m_Text = text;
-        }
+        public void SetText(string text) => this.text = text;
 
         protected override void OnDraw(Rect bounds)
         {
             var style = new GUIStyle(GUI.skin.label);
 
-            style.alignment = m_TextAnchor;
-            style.normal.textColor = m_Color;
-            if (m_createdFonts.ContainsKey(m_FontName))
-                style.font = m_createdFonts[m_FontName];
-            style.fontSize = m_FontSize;
-            style.fontStyle = m_FontStyle;
+            style.alignment = textAnchor;
+            style.normal.textColor = color;
+            if (createdFonts.ContainsKey(fontName))
+                style.font = createdFonts[fontName];
+            style.fontSize = fontSize;
+            style.fontStyle = fontStyle;
             style.richText = true;
 
             var content = new GUIContent();
-            content.text = Parse(m_Text);
+            content.text = Parse(text);
 
             GUI.Label(bounds, content, style);
         }
 
         protected override void OnLoad(ConfigNode node)
         {
-            m_Color = node.GetColor("Color", Color.white);
-            m_Text = node.GetString("Text", "");
-            m_TextAnchor = node.GetEnum("TextAnchor", TextAnchor.MiddleCenter);
-            m_FontName = node.GetString("Font", DEFAULT_FONT_NAME);
-            if (!m_OSFonts.Contains(m_FontName))
+            color = node.GetColor("Color", Color.white);
+            text = node.GetString("Text", "");
+            textAnchor = node.GetEnum("TextAnchor", TextAnchor.MiddleCenter);
+            fontName = node.GetString("Font", DEFAULT_FONT_NAME);
+            if (!OSFonts.Contains(fontName))
             {
-                Historian.Print($"The requested font '{m_FontName}' is not installed in your OS");
-                m_FontName = DEFAULT_FONT_NAME;
+                Historian.Print($"The requested font '{fontName}' is not installed in your OS");
+                fontName = DEFAULT_FONT_NAME;
             }
-            else if (!m_createdFonts.ContainsKey(m_FontName))
-                    m_createdFonts.Add(m_FontName, Font.CreateDynamicFontFromOSFont(m_FontName, 12));
-            m_FontSize = node.GetInteger("FontSize", 10);
-            m_FontStyle = node.GetEnum("FontStyle", FontStyle.Normal);
+            else if (!createdFonts.ContainsKey(fontName))
+                    createdFonts.Add(fontName, Font.CreateDynamicFontFromOSFont(fontName, 12));
+            fontSize = node.GetInteger("FontSize", 10);
+            fontStyle = node.GetEnum("FontStyle", FontStyle.Normal);
 
-            m_pilotColor = node.GetString("PilotColor", "clear");
-            m_engineerColor = node.GetString("EngineerColor", "clear");
-            m_scientistColor = node.GetString("ScientistColor", "clear");
-            m_touristColor = node.GetString("TouristColor", "clear");
+            pilotColor = node.GetString("PilotColor", "clear");
+            engineerColor = node.GetString("EngineerColor", "clear");
+            scientistColor = node.GetString("ScientistColor", "clear");
+            touristColor = node.GetString("TouristColor", "clear");
 
-            m_isKerbincalendar = GameSettings.KERBIN_TIME;
-            m_baseYear = node.GetInteger("BaseYear", m_isKerbincalendar ? 1 : 1951);
-            m_dateFormat = node.GetString("DateFormat", CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern);
+            isKerbincalendar = GameSettings.KERBIN_TIME;
+            baseYear = node.GetInteger("BaseYear", isKerbincalendar ? 1 : 1951);
+            dateFormat = node.GetString("DateFormat", CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern);
         }
 
         void InitializeParameterDictionary()
         {
-            m_parsers.Add("N", NewLineParser);
-            m_parsers.Add("Custom", CustomParser);
-            m_parsers.Add("Date", DateParser);
-            m_parsers.Add("DateKAC", DateParserKAC);
-            m_parsers.Add("UT", UTParser);
-            m_parsers.Add("T+", METParser);
-            m_parsers.Add("MET", METParser);
-            m_parsers.Add("Year", YearParser);
-            m_parsers.Add("YearKAC", YearParserKAC);
-            m_parsers.Add("Day", DayParser);
-            m_parsers.Add("DayKAC", DayParserKAC);
-            m_parsers.Add("Hour", HourParser);
-            m_parsers.Add("Minute", MinuteParser);
-            m_parsers.Add("Second", SecondParser);
-            m_parsers.Add("Vessel", VesselParser);
-            m_parsers.Add("Body", BodyParser);
-            m_parsers.Add("Biome", BiomeParser);
-            m_parsers.Add("Situation", SituationParser);
-            m_parsers.Add("LandingZone", LandingZoneParser);
-            m_parsers.Add("Altitude", AltitudeParser);
-            m_parsers.Add("Latitude", LatitudeParser);
-            m_parsers.Add("LatitudeDMS", LatitudeDMSParser);
-            m_parsers.Add("Longitude", LongitudeParser);
-            m_parsers.Add("LongitudeDMS", LongitudeDMSParser);
-            m_parsers.Add("Heading", HeadingParser);
-            m_parsers.Add("Mach", MachParser);
-            m_parsers.Add("Speed", SpeedParser);
-            m_parsers.Add("SrfSpeed", SurfaceSpeedParser);
-            m_parsers.Add("OrbSpeed", OrbitalSpeedParser);
-            m_parsers.Add("Ap", ApParser);
-            m_parsers.Add("Pe", PeParser);
-            m_parsers.Add("Inc", IncParser);
-            m_parsers.Add("Ecc", EccParser);
-            m_parsers.Add("LAN", LanParser);
-            m_parsers.Add("ArgPe", ArgPeParser);
-            m_parsers.Add("Period", PeriodParser);
-            m_parsers.Add("Orbit", OrbitParser);
-            m_parsers.Add("Crew", CrewParser);
-            m_parsers.Add("CrewShort", CrewShortParser);
-            m_parsers.Add("CrewList", CrewListParser);
-            m_parsers.Add("Pilots", PilotsParser);
-            m_parsers.Add("PilotsShort", PilotsShortParser);
-            m_parsers.Add("PilotsList", PilotsListParser);
-            m_parsers.Add("Engineers", EngineersParser);
-            m_parsers.Add("EngineersShort", EngineersShortParser);
-            m_parsers.Add("EngineersList", EngineersListParser);
-            m_parsers.Add("Scientists", ScientistsParser);
-            m_parsers.Add("ScientistsShort", ScientistsShortParser);
-            m_parsers.Add("ScientistsList", ScientistsListParser);
-            m_parsers.Add("Tourists", TouristsParser);
-            m_parsers.Add("TouristsShort", TouristsShortParser);
-            m_parsers.Add("TouristsList", TouristsListParser);
-            m_parsers.Add("Target", TargetParser);
-            m_parsers.Add("LaunchSite", LaunchSiteParser);
+            parsers.Add("N", NewLineParser);
+            parsers.Add("Custom", CustomParser);
+            parsers.Add("Date", DateParser);
+            parsers.Add("DateKAC", DateParserKAC);
+            parsers.Add("UT", UTParser);
+            parsers.Add("T+", METParser);
+            parsers.Add("MET", METParser);
+            parsers.Add("Year", YearParser);
+            parsers.Add("YearKAC", YearParserKAC);
+            parsers.Add("Day", DayParser);
+            parsers.Add("DayKAC", DayParserKAC);
+            parsers.Add("Hour", HourParser);
+            parsers.Add("Minute", MinuteParser);
+            parsers.Add("Second", SecondParser);
+            parsers.Add("Vessel", VesselParser);
+            parsers.Add("Body", BodyParser);
+            parsers.Add("Biome", BiomeParser);
+            parsers.Add("Situation", SituationParser);
+            parsers.Add("LandingZone", LandingZoneParser);
+            parsers.Add("Altitude", AltitudeParser);
+            parsers.Add("Latitude", LatitudeParser);
+            parsers.Add("LatitudeDMS", LatitudeDMSParser);
+            parsers.Add("Longitude", LongitudeParser);
+            parsers.Add("LongitudeDMS", LongitudeDMSParser);
+            parsers.Add("Heading", HeadingParser);
+            parsers.Add("Mach", MachParser);
+            parsers.Add("Speed", SpeedParser);
+            parsers.Add("SrfSpeed", SurfaceSpeedParser);
+            parsers.Add("OrbSpeed", OrbitalSpeedParser);
+            parsers.Add("Ap", ApParser);
+            parsers.Add("Pe", PeParser);
+            parsers.Add("Inc", IncParser);
+            parsers.Add("Ecc", EccParser);
+            parsers.Add("LAN", LanParser);
+            parsers.Add("ArgPe", ArgPeParser);
+            parsers.Add("Period", PeriodParser);
+            parsers.Add("Orbit", OrbitParser);
+            parsers.Add("Crew", CrewParser);
+            parsers.Add("CrewShort", CrewShortParser);
+            parsers.Add("CrewList", CrewListParser);
+            parsers.Add("Pilots", PilotsParser);
+            parsers.Add("PilotsShort", PilotsShortParser);
+            parsers.Add("PilotsList", PilotsListParser);
+            parsers.Add("Engineers", EngineersParser);
+            parsers.Add("EngineersShort", EngineersShortParser);
+            parsers.Add("EngineersList", EngineersListParser);
+            parsers.Add("Scientists", ScientistsParser);
+            parsers.Add("ScientistsShort", ScientistsShortParser);
+            parsers.Add("ScientistsList", ScientistsListParser);
+            parsers.Add("Tourists", TouristsParser);
+            parsers.Add("TouristsShort", TouristsShortParser);
+            parsers.Add("TouristsList", TouristsListParser);
+            parsers.Add("Target", TargetParser);
+            parsers.Add("LaunchSite", LaunchSiteParser);
 
-            m_parsers.Add("RealDate", RealDateParser);
-            m_parsers.Add("ListFonts", ListFontsParser);
-            m_parsers.Add("VesselType", VesselTypeParser);
-            m_parsers.Add("KK-Distance", KKDistanceParser);
-            m_parsers.Add("KK-SpaceCenter", KKSpaceCenterParser);
+            parsers.Add("RealDate", RealDateParser);
+            parsers.Add("ListFonts", ListFontsParser);
+            parsers.Add("VesselType", VesselTypeParser);
+            parsers.Add("KK-Distance", KKDistanceParser);
+            parsers.Add("KK-SpaceCenter", KKSpaceCenterParser);
         }
 
         protected string Parse(string text)
@@ -194,9 +190,9 @@ namespace KSEA.Historian
 
             // get common data sources
             var ut = Planetarium.GetUniversalTime();
-            var time = m_isKerbincalendar 
-                ? m_dateFormatter.GetKerbinDateFromUT((int)ut) 
-                : m_dateFormatter.GetEarthDateFromUT((int)ut);
+            var time = isKerbincalendar 
+                ? dateFormatter.GetKerbinDateFromUT((int)ut) 
+                : dateFormatter.GetEarthDateFromUT((int)ut);
             var vessel = FlightGlobals.ActiveVessel;
             var orbit = vessel?.GetOrbit();
             var target = vessel?.targetObject;
@@ -208,7 +204,7 @@ namespace KSEA.Historian
                 Time = time,
                 UT = ut,
                 Target = target,
-                TraitColours = new string[] { m_pilotColor, m_engineerColor, m_scientistColor, m_touristColor }
+                TraitColours = new string[] { pilotColor, engineerColor, scientistColor, touristColor }
             };
 
             // scan template text string for parameter tokens
@@ -225,10 +221,10 @@ namespace KSEA.Historian
                         // extract token
                         var token = text.Substring(i + 1, tokenLen);
                         // check if recognised
-                        if (m_parsers.ContainsKey(token))
+                        if (parsers.ContainsKey(token))
                         {
                             // run parser for matching token
-                            result.Append(m_parsers[token](info));
+                            result.Append(parsers[token](info));
                         }
                         else
                         {
@@ -261,10 +257,7 @@ namespace KSEA.Historian
             return output;
         }
 
-        int GetTokenLength(string text, int pos)
-        {
-            return text.IndexOf('>', pos) - pos - 1;
-        }
+        int GetTokenLength(string rawText, int pos) => rawText.IndexOf('>', pos) - pos - 1;
 
         #region Parsers
 
@@ -273,33 +266,33 @@ namespace KSEA.Historian
         string CustomParser(CommonInfo info) => Parse(Historian.Instance.GetConfiguration().CustomText.Replace("<Custom>", "")); // avoid recurssion.
 
         string RealDateParser(CommonInfo info)
-            => DateTime.Now.ToString(m_dateFormat);
+            => DateTime.Now.ToString(dateFormat);
 
         string DateParser(CommonInfo info) 
-            => m_isKerbincalendar
-                ? info.Time.FormattedDate(m_dateFormat, m_baseYear)
-                : new DateTime(info.Year + m_baseYear, 1, 1, info.Hour, info.Minute, info.Second).AddDays(info.Day - 1).ToString(m_dateFormat);
+            => isKerbincalendar
+                ? info.Time.FormattedDate(dateFormat, baseYear)
+                : new DateTime(info.Year + baseYear, 1, 1, info.Hour, info.Minute, info.Second).AddDays(info.Day - 1).ToString(dateFormat);
 
         string DateParserKAC(CommonInfo info)
-            => m_isKerbincalendar
-                ? info.Time.FormattedDate(m_dateFormat, m_baseYear)
-                : new DateTime(m_baseYear, 1, 1).AddSeconds(info.UT).ToString(m_dateFormat);
+            => isKerbincalendar
+                ? info.Time.FormattedDate(dateFormat, baseYear)
+                : new DateTime(baseYear, 1, 1).AddSeconds(info.UT).ToString(dateFormat);
 
         string UTParser(CommonInfo info) => $"Y{info.Year + 1}, D{(info.Day):D3}, {info.Hour}:{info.Minute:D2}:{info.Second:D2}";
 
-        string YearParser(CommonInfo info) => (info.Year + m_baseYear).ToString();
+        string YearParser(CommonInfo info) => (info.Year + baseYear).ToString();
 
         string YearParserKAC(CommonInfo info)
-            => (m_isKerbincalendar)
-                ? (info.Year + m_baseYear).ToString()
-                : new DateTime(m_baseYear, 1, 1).AddSeconds(info.UT).ToString("yyyy");
+            => (isKerbincalendar)
+                ? (info.Year + baseYear).ToString()
+                : new DateTime(baseYear, 1, 1).AddSeconds(info.UT).ToString("yyyy");
 
         string DayParser(CommonInfo info) => info.Day.ToString();
 
         string DayParserKAC(CommonInfo info)
-            => (m_isKerbincalendar)
+            => (isKerbincalendar)
                 ? (info.Day.ToString())
-                : new DateTime(m_baseYear, 1, 1).AddSeconds(info.UT).DayOfYear.ToString();
+                : new DateTime(baseYear, 1, 1).AddSeconds(info.UT).DayOfYear.ToString();
 
         string HourParser(CommonInfo info) => info.Hour.ToString();
 
@@ -312,10 +305,10 @@ namespace KSEA.Historian
             if (info.Vessel != null)
             {
                 int[] t;
-                if (m_isKerbincalendar)
-                    t = m_dateFormatter.GetKerbinDateFromUT((int)info.Vessel.missionTime);
+                if (isKerbincalendar)
+                    t = dateFormatter.GetKerbinDateFromUT((int)info.Vessel.missionTime);
                 else
-                    t = m_dateFormatter.GetEarthDateFromUT((int)info.Vessel.missionTime);
+                    t = dateFormatter.GetEarthDateFromUT((int)info.Vessel.missionTime);
                 return (t[4] > 0)
                     ? $"T+ {t[4]}y, {t[3]}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
                     : (t[3] > 0)
@@ -396,9 +389,9 @@ namespace KSEA.Historian
                 return "";
 
              var period = info.Orbit.period;
-            var t = m_isKerbincalendar
-                ? m_dateFormatter.GetKerbinDateFromUT((int)period)
-                : m_dateFormatter.GetEarthDateFromUT((int)period);
+            var t = isKerbincalendar
+                ? dateFormatter.GetKerbinDateFromUT((int)period)
+                : dateFormatter.GetEarthDateFromUT((int)period);
             return (t[4] > 0)
                      ? $"{t[4] + 1}y, {t[3] + 1}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
                      : (t[3] > 0)
@@ -410,13 +403,13 @@ namespace KSEA.Historian
             => info.Orbit == null ? "" : $"{SimplifyDistance(info.Orbit.ApA)} x {SimplifyDistance(info.Orbit.PeA)}";
 
         string CrewParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: m_AllTraits, traitColours: info.TraitColours);
+            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: allTraits, traitColours: info.TraitColours);
 
         string CrewShortParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: m_AllTraits, traitColours: info.TraitColours);
+            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: allTraits, traitColours: info.TraitColours);
 
         string CrewListParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: m_AllTraits, traitColours: info.TraitColours);
+            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: allTraits, traitColours: info.TraitColours);
 
         string PilotsParser(CommonInfo info)
             => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: new string[] { "Pilot" }, traitColours: info.TraitColours);
@@ -497,7 +490,7 @@ namespace KSEA.Historian
             return defaultSpaceCenter;
         }
 
-        string ListFontsParser(CommonInfo info) => string.Join(", ", m_OSFonts);
+        string ListFontsParser(CommonInfo info) => string.Join(", ", OSFonts);
 
         string VesselTypeParser(CommonInfo info) => info.Vessel?.vesselType.ToString();
 

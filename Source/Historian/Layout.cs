@@ -22,8 +22,7 @@ namespace KSEA.Historian
     public class Layout
     {
         public static readonly Layout Empty = new Layout();
-        readonly List<IElement> m_Elements = new List<IElement>();
-        string m_Name = "";
+        readonly List<IElement> elements = new List<IElement>();
 
         public static Layout Load(string name, ConfigNode node)
         {
@@ -56,13 +55,7 @@ namespace KSEA.Historian
             return Empty;
         }
 
-        public string Name
-        {
-            get
-            {
-                return m_Name;
-            }
-        }
+        public string Name { get; } 
 
         public Layout()
         {
@@ -70,20 +63,17 @@ namespace KSEA.Historian
 
         public Layout(string name)
         {
-            m_Name = name;
+            this.Name = name;
         }
 
         public void Draw()
         {
-            foreach (var element in m_Elements)
+            foreach (var element in elements)
             {
                 element.Draw();
             }
         }
 
-        void AddElement(IElement element)
-        {
-            m_Elements.Add(element);
-        }
+        void AddElement(IElement element) => elements.Add(element);
     }
 }

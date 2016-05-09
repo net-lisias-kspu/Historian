@@ -21,33 +21,28 @@ namespace KSEA.Historian
 {
     public class Rectangle : Element
     {
-        Color m_Color = Color.black;
-        Texture m_Texture = null;
+        Color color = Color.black;
+        Texture2D texture = null;
 
-        protected override void OnDraw(Rect bounds)
-        {
-            GUI.DrawTexture(bounds, m_Texture);
-        }
+        protected override void OnDraw(Rect bounds) => GUI.DrawTexture(bounds, texture);
 
         protected override void OnLoad(ConfigNode node)
         {
-            m_Color = node.GetColor("Color", Color.black);
+            color = node.GetColor("Color", Color.black);
 
             var width = (int) (Screen.width * Size.x);
             var height = (int) (Screen.height * Size.y);
 
-            var texture = new Texture2D(width, height);
+            texture = new Texture2D(width, height);
             var pixels = texture.GetPixels();
 
             for (int i = 0; i < pixels.Length; ++i)
             {
-                pixels[i] = m_Color;
+                pixels[i] = color;
             }
 
             texture.SetPixels(pixels);
             texture.Apply();
-
-            m_Texture = texture;
         }
     }
 }

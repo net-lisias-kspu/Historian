@@ -21,18 +21,18 @@ namespace KSEA.Historian
 {
     public class Singleton<T> : MonoBehaviour where T : Singleton<T>
     {
-        static T s_Instance = null;
+        static T instance = null;
 
         public static T Instance
         {
             get
             {
-                if (s_Instance == null)
+                if (instance == null)
                 {
-                    s_Instance = Object.FindObjectOfType<T>();
+                    instance = Object.FindObjectOfType<T>();
                 }
 
-                return s_Instance;
+                return instance;
             }
         }
     }

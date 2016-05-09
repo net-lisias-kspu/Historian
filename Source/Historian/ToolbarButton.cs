@@ -4,24 +4,17 @@ namespace KSEA.Historian
 {
     public class ToolbarButton
     {
-        IButton m_Button = null;
-        bool m_State = false;
+        IButton button = null;
+        bool state = false;
         public delegate void Callback();
 
         public event Callback OnTrue = delegate { };
         public event Callback OnFalse = delegate { };
         public event Callback OnAlternateClick = delegate { };
 
-        public bool IsRegistered
-        {
-            get;
-            private set;
-        }
+        public bool IsRegistered { get; private set; }
 
-        public void SetState(bool state)
-        {
-            m_State = state;
-        }
+        public void SetState(bool state) => this.state = state;
 
         public void Register()
         {
@@ -29,12 +22,12 @@ namespace KSEA.Historian
             {
                 var toolbar = ToolbarManager.Instance;
 
-                m_Button = toolbar.add("KSEA_Historian", "Button");
+                button = toolbar.add("KSEA_Historian", "Button");
 
-                m_Button.Text = "Historian";
-                m_Button.ToolTip = "Click to open Historian configuration window.";
-                m_Button.TexturePath = "KSEA/Historian/Historian_Toolbar";
-                m_Button.OnClick += Button_OnClick;
+                button.Text = "Historian";
+                button.ToolTip = "Click to open Historian configuration window.";
+                button.TexturePath = "KSEA/Historian/Historian_Toolbar";
+                button.OnClick += Button_OnClick;
 
                 IsRegistered = true;
             }
@@ -44,9 +37,9 @@ namespace KSEA.Historian
         {
             IsRegistered = false;
 
-            if (m_Button != null)
+            if (button != null)
             {
-                m_Button.Destroy();
+                button.Destroy();
             }
         }
 
@@ -57,11 +50,11 @@ namespace KSEA.Historian
 
             if (historian.Suppressed)
             {
-                m_Button.TexturePath = "KSEA/Historian/Historian_Toolbar_Suppressed";
+                button.TexturePath = "KSEA/Historian/Historian_Toolbar_Suppressed";
             }
             else
             {
-                m_Button.TexturePath = "KSEA/Historian/Historian_Toolbar";
+                button.TexturePath = "KSEA/Historian/Historian_Toolbar";
             }
         }
 
@@ -69,32 +62,32 @@ namespace KSEA.Historian
         {
             switch (e.MouseButton)
             {
-            case 0: // Left Click
+                case 0: // Left Click
 
-                m_State = !m_State;
+                    state = !state;
 
-                if (m_State)
-                {
-                    OnTrue();
-                }
-                else
-                {
-                    OnFalse();
-                }
+                    if (state)
+                    {
+                        OnTrue();
+                    }
+                    else
+                    {
+                        OnFalse();
+                    }
 
-                break;
+                    break;
 
-            case 1: // Right Click
+                case 1: // Right Click
 
-                OnAlternateClick();
-                Update();
+                    OnAlternateClick();
+                    Update();
 
-                break;
+                    break;
 
-            case 2: // Middle Click
-            default:
+                case 2: // Middle Click
+                default:
 
-                break;
+                    break;
             }
         }
     }

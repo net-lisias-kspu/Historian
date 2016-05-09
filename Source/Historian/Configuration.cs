@@ -24,103 +24,19 @@ namespace KSEA.Historian
     {
         static readonly Version CurrentVersion = new Version("1.1");
 
-        string m_Layout = "";
-        bool m_EnableLauncherButton = true;
-        bool m_EnableToolbarButton = true;
-        string m_CustomText = "";
-        bool m_PersistentCustomText = false;
-        bool m_PersistentConfigurationWindow = true;
-        string m_DefaultSpaceCenterName = "KSC";
+        public string Layout { get; set; } = "";
 
-        public string Layout
-        {
-            get
-            {
-                return m_Layout;
-            }
+        public string DefaultSpaceCenterName { get; set; } = "KSC";
 
-            set
-            {
-                m_Layout = value;
-            }
-        }
+        public bool EnableLauncherButton { get; set; } = true;
 
-        public string DefaultSpaceCenterName
-        {
-            get
-            {
-                return m_DefaultSpaceCenterName;
-            }
-            set
-            {
-                m_DefaultSpaceCenterName = value;
-            }
-        }
+        public bool EnableToolbarButton { get; set; } = true;
 
-        public bool EnableLauncherButton
-        {
-            get
-            {
-                return m_EnableLauncherButton;
-            }
+        public string CustomText { get; set; } = "";
 
-            set
-            {
-                m_EnableLauncherButton = value;
-            }
-        }
+        public bool PersistentCustomText { get; set; } = false;
 
-        public bool EnableToolbarButton
-        {
-            get
-            {
-                return m_EnableToolbarButton;
-            }
-
-            set
-            {
-                m_EnableToolbarButton = value;
-            }
-        }
-
-        public string CustomText
-        {
-            get
-            {
-                return m_CustomText;
-            }
-
-            set
-            {
-                m_CustomText = value;
-            }
-        }
-
-        public bool PersistentCustomText
-        {
-            get
-            {
-                return m_PersistentCustomText;
-            }
-
-            set
-            {
-                m_PersistentCustomText = value;
-            }
-        }
-
-        public bool PersistentConfigurationWindow
-        {
-            get
-            {
-                return m_PersistentConfigurationWindow;
-            }
-
-            set
-            {
-                m_PersistentConfigurationWindow = value;
-            }
-        }
+        public bool PersistentConfigurationWindow { get; set; } = false;
 
         public static Configuration Load(string file)
         {
@@ -131,13 +47,13 @@ namespace KSEA.Historian
 
                 var version = node.GetVersion("Version", new Version());
 
-                configuration.m_Layout = node.GetString("Layout", "Default");
-                configuration.m_EnableLauncherButton = node.GetBoolean("EnableLauncherButton", true);
-                configuration.m_EnableToolbarButton = node.GetBoolean("EnableToolbarButton", true);
-                configuration.m_CustomText = node.GetString("CustomText", "");
-                configuration.m_DefaultSpaceCenterName = node.GetString("DefaultSpaceCenterName", "KSC");
-                configuration.m_PersistentCustomText = node.GetBoolean("PersistentCustomText", false);
-                configuration.m_PersistentConfigurationWindow = node.GetBoolean("PersistentConfigurationWindow", true);
+                configuration.Layout = node.GetString("Layout", "Default");
+                configuration.EnableLauncherButton = node.GetBoolean("EnableLauncherButton", true);
+                configuration.EnableToolbarButton = node.GetBoolean("EnableToolbarButton", true);
+                configuration.CustomText = node.GetString("CustomText", "");
+                configuration.DefaultSpaceCenterName = node.GetString("DefaultSpaceCenterName", "KSC");
+                configuration.PersistentCustomText = node.GetBoolean("PersistentCustomText", false);
+                configuration.PersistentConfigurationWindow = node.GetBoolean("PersistentConfigurationWindow", true);
 
                 if (version != CurrentVersion)
                 {
@@ -158,12 +74,12 @@ namespace KSEA.Historian
 
                 var configuration = new Configuration();
 
-                configuration.m_Layout = "Default";
-                configuration.m_EnableLauncherButton = true;
-                configuration.m_EnableToolbarButton = true;
-                configuration.m_CustomText = "";
-                configuration.m_PersistentCustomText = false;
-                configuration.m_PersistentConfigurationWindow = true;
+                configuration.Layout = "Default";
+                configuration.EnableLauncherButton = true;
+                configuration.EnableToolbarButton = true;
+                configuration.CustomText = "";
+                configuration.PersistentCustomText = false;
+                configuration.PersistentConfigurationWindow = true;
 
                 configuration.Save(file);
 
@@ -179,13 +95,13 @@ namespace KSEA.Historian
                 var node = root.AddNode("KSEA_HISTORIAN_CONFIGURATION");
 
                 node.AddValue("Version", CurrentVersion.ToString());
-                node.AddValue("Layout", m_Layout);
-                node.AddValue("EnableLauncherButton", m_EnableLauncherButton);
-                node.AddValue("EnableToolbarButton", m_EnableToolbarButton);
-                node.AddValue("CustomText", m_CustomText);
-                node.AddValue("PersistentCustomText", m_PersistentCustomText);
-                node.AddValue("PersistentConfigurationWindow", m_PersistentConfigurationWindow);
-                node.AddValue("DefaultSpaceCenterName", m_DefaultSpaceCenterName);
+                node.AddValue("Layout", Layout);
+                node.AddValue("EnableLauncherButton", EnableLauncherButton);
+                node.AddValue("EnableToolbarButton", EnableToolbarButton);
+                node.AddValue("CustomText", CustomText);
+                node.AddValue("PersistentCustomText", PersistentCustomText);
+                node.AddValue("PersistentConfigurationWindow", PersistentConfigurationWindow);
+                node.AddValue("DefaultSpaceCenterName", DefaultSpaceCenterName);
 
                 if (File.Exists(file))
                 {

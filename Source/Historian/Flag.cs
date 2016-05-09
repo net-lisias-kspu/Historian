@@ -23,32 +23,32 @@ namespace KSEA.Historian
 {
     public class Flag : Element
     {
-        Vector2 m_Scale = Vector2.zero;
-        Texture m_Texture = null;
-        Texture m_DefaultTexture = null;
-        Texture2D m_BackgroundTexture;
+        Vector2 scale = Vector2.zero;
+        Texture texture = null;
+        Texture defaultTexture = null;
+        Texture2D backgroundTexture;
 
         protected override void OnDraw(Rect bounds)
         {
             UpdateTexture();
 
-            if (m_BackgroundTexture != null) GUI.DrawTexture(bounds, m_BackgroundTexture);
-            GUI.DrawTexture(bounds, m_Texture);
+            if (backgroundTexture != null) GUI.DrawTexture(bounds, backgroundTexture);
+            GUI.DrawTexture(bounds, texture);
         }
 
         protected override void OnLoad(ConfigNode node)
         {
-            m_Scale = node.GetVector2("Scale", Vector2.one);
-            m_DefaultTexture = GameDatabase.Instance.GetTexture(node.GetString("DefaultTexture", ""), false);
-            m_BackgroundTexture = GameDatabase.Instance.GetTexture(node.GetString("BackgroundTexture", ""), false);
+            scale = node.GetVector2("Scale", Vector2.one);
+            defaultTexture = GameDatabase.Instance.GetTexture(node.GetString("DefaultTexture", ""), false);
+            backgroundTexture = GameDatabase.Instance.GetTexture(node.GetString("BackgroundTexture", ""), false);
 
             if (Size == Vector2.zero)
             {
-                Size = new Vector2((float) m_DefaultTexture.width / Screen.width * m_Scale.x, (float) m_DefaultTexture.height / Screen.height * m_Scale.y);
+                Size = new Vector2((float) defaultTexture.width / Screen.width * scale.x, (float) defaultTexture.height / Screen.height * scale.y);
             }
             else
             {
-                Size = new Vector2(Size.x * m_Scale.x, Size.y * m_Scale.y);
+                Size = new Vector2(Size.x * scale.x, Size.y * scale.y);
             }
         }
 
@@ -65,11 +65,11 @@ namespace KSEA.Historian
 
                 var url = flags.GroupBy(item => item).OrderByDescending(item => item.Count()).First().Key;
 
-                m_Texture = (string.IsNullOrEmpty(url)) ? m_DefaultTexture : GameDatabase.Instance.GetTexture(url, false);
+                texture = (string.IsNullOrEmpty(url)) ? defaultTexture : GameDatabase.Instance.GetTexture(url, false);
             }
             else
             {
-                m_Texture = m_DefaultTexture;
+                texture = defaultTexture;
             }
         }
     }

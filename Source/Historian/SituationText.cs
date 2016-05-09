@@ -5,29 +5,29 @@ namespace KSEA.Historian
 {
     public class SituationText : Text
     {
-        Dictionary<Vessel.Situations, string> m_situations = new Dictionary<Vessel.Situations, string>();
-        string m_Default = "";
+        Dictionary<Vessel.Situations, string> situations = new Dictionary<Vessel.Situations, string>();
+        string defaultSituation = "";
 
         protected override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
 
-            m_Default = node.GetString("Default", "");
+            defaultSituation = node.GetString("Default", "");
 
-            m_situations.Add(Vessel.Situations.LANDED, node.GetString("Landed", ""));
-            m_situations.Add(Vessel.Situations.FLYING, node.GetString("Flying", ""));
-            m_situations.Add(Vessel.Situations.SPLASHED, node.GetString("Splashed", ""));
-            m_situations.Add(Vessel.Situations.PRELAUNCH, node.GetString("Prelaunch", ""));
-            m_situations.Add(Vessel.Situations.SUB_ORBITAL, node.GetString("SubOrbital", ""));
-            m_situations.Add(Vessel.Situations.ORBITING, node.GetString("Orbiting", ""));
-            m_situations.Add(Vessel.Situations.ESCAPING, node.GetString("Escaping", ""));
-            m_situations.Add(Vessel.Situations.DOCKED, node.GetString("Docked", ""));
+            situations.Add(Vessel.Situations.LANDED, node.GetString("Landed", ""));
+            situations.Add(Vessel.Situations.FLYING, node.GetString("Flying", ""));
+            situations.Add(Vessel.Situations.SPLASHED, node.GetString("Splashed", ""));
+            situations.Add(Vessel.Situations.PRELAUNCH, node.GetString("Prelaunch", ""));
+            situations.Add(Vessel.Situations.SUB_ORBITAL, node.GetString("SubOrbital", ""));
+            situations.Add(Vessel.Situations.ORBITING, node.GetString("Orbiting", ""));
+            situations.Add(Vessel.Situations.ESCAPING, node.GetString("Escaping", ""));
+            situations.Add(Vessel.Situations.DOCKED, node.GetString("Docked", ""));
         }
 
         protected override void OnDraw(Rect bounds)
         {
             var situation = FlightGlobals.ActiveVessel?.situation;
-            var text = (situation.HasValue && m_situations.ContainsKey(situation.Value)) ? m_situations[situation.Value] : m_Default;
+            var text = (situation.HasValue && situations.ContainsKey(situation.Value)) ? situations[situation.Value] : defaultSituation;
             SetText(text);
             base.OnDraw(bounds);
         }

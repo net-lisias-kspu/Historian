@@ -21,26 +21,23 @@ namespace KSEA.Historian
 {
     public class Picture : Element
     {
-        Vector2 m_Scale = Vector2.zero;
-        Texture m_Texture = null;
+        Vector2 scale = Vector2.zero;
+        Texture texture = null;
 
-        protected override void OnDraw(Rect bounds)
-        {
-            GUI.DrawTexture(bounds, m_Texture);
-        }
+        protected override void OnDraw(Rect bounds) => GUI.DrawTexture(bounds, texture);
 
         protected override void OnLoad(ConfigNode node)
         {
-            m_Scale = node.GetVector2("Scale", Vector2.one);
-            m_Texture = GameDatabase.Instance.GetTexture(node.GetString("Texture", ""), false);
+            scale = node.GetVector2("Scale", Vector2.one);
+            texture = GameDatabase.Instance.GetTexture(node.GetString("Texture", ""), false);
 
             if (Size == Vector2.zero)
             {
-                Size = new Vector2((float) m_Texture.width / Screen.width * m_Scale.x, (float) m_Texture.height / Screen.height * m_Scale.y);
+                Size = new Vector2((float) texture.width / Screen.width * scale.x, (float) texture.height / Screen.height * scale.y);
             }
             else
             {
-                Size = new Vector2(Size.x * m_Scale.x, Size.y * m_Scale.y);
+                Size = new Vector2(Size.x * scale.x, Size.y * scale.y);
             }
         }
     }

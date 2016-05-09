@@ -1,9 +1,3 @@
-
-
-using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 /**
 * This file is part of Historian.
 * 
@@ -20,77 +14,75 @@ using System.Reflection;
 * You should have received a copy of the GNU General Public License
 * along with Historian. If not, see <http://www.gnu.org/licenses/>.
 **/
+using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 namespace KSEA.Historian
 {
     public class Editor
     {
-        bool m_Open = false;
-        static LauncherButton m_LauncherButton = new LauncherButton();
-        ToolbarButton m_ToolbarButton = null;
-        Rect m_Position;
-        Texture m_NextButtonTexture = null;
-        Texture m_PreviousButtonTexture = null;
-        bool m_EnableLauncherButton = true;
-        bool m_EnableToolberButton = true;
+        bool isOpen = false;
+        static LauncherButton appLauncherButton = new LauncherButton();
+        ToolbarButton toolbarButton = null;
+        Rect position;
+        Texture nextButtonTexture = null;
+        Texture previousButtonTexture = null;
+        bool enableLauncherButton = true;
+        bool enableToolberButton = true;
 
         public Editor(Configuration configuration)
         {
             //m_LauncherButton = new LauncherButton();
-            m_ToolbarButton = new ToolbarButton();
+            toolbarButton = new ToolbarButton();
 
-            m_Position = new Rect(0.5f * Screen.width - 200.0f, 0.5f * Screen.height - 250.0f, 400.0f, 500.0f);
+            position = new Rect(0.5f * Screen.width - 200.0f, 0.5f * Screen.height - 250.0f, 400.0f, 500.0f);
 
-            m_NextButtonTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Button_Next", false);
-            m_PreviousButtonTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Button_Previous", false);
+            nextButtonTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Button_Next", false);
+            previousButtonTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Button_Previous", false);
 
-            m_EnableLauncherButton = configuration.EnableLauncherButton;
-            m_EnableToolberButton = configuration.EnableToolbarButton;
+            enableLauncherButton = configuration.EnableLauncherButton;
+            enableToolberButton = configuration.EnableToolbarButton;
 
-            if (m_EnableLauncherButton)
+            if (enableLauncherButton)
             {
-                m_LauncherButton.OnTrue += Button_OnTrue;
-                m_LauncherButton.OnFalse += Button_OnFalse;
+                appLauncherButton.OnTrue += Button_OnTrue;
+                appLauncherButton.OnFalse += Button_OnFalse;
 
-                if (!m_LauncherButton.IsRegistered)
-                    m_LauncherButton.Register();
+                if (!appLauncherButton.IsRegistered)
+                    appLauncherButton.Register();
             }
 
-            if (ToolbarManager.ToolbarAvailable && m_EnableToolberButton)
+            if (ToolbarManager.ToolbarAvailable && enableToolberButton)
             {
-                m_ToolbarButton.OnTrue += Button_OnTrue;
-                m_ToolbarButton.OnFalse += Button_OnFalse;
-                m_ToolbarButton.OnAlternateClick += Button_OnAlternateClick;
+                toolbarButton.OnTrue += Button_OnTrue;
+                toolbarButton.OnFalse += Button_OnFalse;
+                toolbarButton.OnAlternateClick += Button_OnAlternateClick;
 
-                m_ToolbarButton.Register();
+                toolbarButton.Register();
             }
         }
 
-        public void Open()
-        {
-            m_Open = true;
-        }
+        public void Open() => isOpen = true;
 
-        public void Close()
-        {
-            m_Open = false;
-        }
+        public void Close() => isOpen = false;
 
         public void Draw()
         {
-            if (m_Open)
+            if (isOpen)
             {
-                m_Position = GUI.Window(0, m_Position, OnWindowGUI, $"Historian: v {Historian.Instance.AssemblyFileVersion}", HighLogic.Skin.window);
+                position = GUI.Window(0, position, OnWindowGUI, $"Historian: v {Historian.Instance.AssemblyFileVersion}", HighLogic.Skin.window);
 
-                if (m_EnableLauncherButton)
+                if (enableLauncherButton)
                 {
-                    m_LauncherButton.Update();
+                    appLauncherButton.Update();
                 }
 
-                if (m_EnableToolberButton && ToolbarManager.ToolbarAvailable)
+                if (enableToolberButton && ToolbarManager.ToolbarAvailable)
                 {
-                    m_ToolbarButton.Update();
+                    toolbarButton.Update();
                 }
             }
         }
@@ -108,41 +100,41 @@ namespace KSEA.Historian
 
             configuration.PersistentConfigurationWindow = GUILayout.Toggle(configuration.PersistentConfigurationWindow, "Always Display Configuration Window");
 
-            m_EnableLauncherButton = GUILayout.Toggle(m_EnableLauncherButton, "Use Stock Launcher");
-            m_EnableToolberButton = GUILayout.Toggle(m_EnableToolberButton, "Use Blizzy's Toolbar");
+            enableLauncherButton = GUILayout.Toggle(enableLauncherButton, "Use Stock Launcher");
+            enableToolberButton = GUILayout.Toggle(enableToolberButton, "Use Blizzy's Toolbar");
 
-            if (m_EnableLauncherButton && !m_LauncherButton.IsRegistered)
+            if (enableLauncherButton && !appLauncherButton.IsRegistered)
             {
-                m_LauncherButton.OnTrue += Button_OnTrue;
-                m_LauncherButton.OnFalse += Button_OnFalse;
+                appLauncherButton.OnTrue += Button_OnTrue;
+                appLauncherButton.OnFalse += Button_OnFalse;
 
-                m_LauncherButton.Register();
+                appLauncherButton.Register();
             }
-            else if (!m_EnableLauncherButton && m_LauncherButton.IsRegistered)
+            else if (!enableLauncherButton && appLauncherButton.IsRegistered)
             {
-                m_LauncherButton.OnTrue -= Button_OnTrue;
-                m_LauncherButton.OnFalse -= Button_OnFalse;
+                appLauncherButton.OnTrue -= Button_OnTrue;
+                appLauncherButton.OnFalse -= Button_OnFalse;
 
-                m_LauncherButton.Unregister();
+                appLauncherButton.Unregister();
             }
 
-            if (m_EnableToolberButton && ToolbarManager.ToolbarAvailable && !m_ToolbarButton.IsRegistered)
+            if (enableToolberButton && ToolbarManager.ToolbarAvailable && !toolbarButton.IsRegistered)
             {
-                m_ToolbarButton.OnTrue += Button_OnTrue;
-                m_ToolbarButton.OnFalse += Button_OnFalse;
+                toolbarButton.OnTrue += Button_OnTrue;
+                toolbarButton.OnFalse += Button_OnFalse;
 
-                m_ToolbarButton.SetState(m_Open);
+                toolbarButton.SetState(isOpen);
 
-                m_ToolbarButton.Register();
+                toolbarButton.Register();
             }
-            else if (!m_EnableToolberButton && ToolbarManager.ToolbarAvailable && m_ToolbarButton.IsRegistered)
+            else if (!enableToolberButton && ToolbarManager.ToolbarAvailable && toolbarButton.IsRegistered)
             {
-                m_ToolbarButton.OnTrue -= Button_OnTrue;
-                m_ToolbarButton.OnFalse -= Button_OnFalse;
+                toolbarButton.OnTrue -= Button_OnTrue;
+                toolbarButton.OnFalse -= Button_OnFalse;
 
-                m_ToolbarButton.SetState(m_Open);
+                toolbarButton.SetState(isOpen);
 
-                m_ToolbarButton.Unregister();
+                toolbarButton.Unregister();
             }
 
             GUILayout.Space(20);
@@ -153,11 +145,11 @@ namespace KSEA.Historian
 
             var layouts = historian.GetLayoutNames();
 
-            if (GUILayout.Button(m_PreviousButtonTexture, GUILayout.Width(20), GUILayout.Height(GUI.skin.label.lineHeight)))
+            if (GUILayout.Button(previousButtonTexture, GUILayout.Width(20), GUILayout.Height(GUI.skin.label.lineHeight)))
             {
                 historian.CurrentLayoutIndex = Mathf.Clamp(historian.CurrentLayoutIndex - 1, 0, layouts.Length - 1);
             }
-            else if (GUILayout.Button(m_NextButtonTexture, GUILayout.Width(20), GUILayout.Height(GUI.skin.label.lineHeight)))
+            else if (GUILayout.Button(nextButtonTexture, GUILayout.Width(20), GUILayout.Height(GUI.skin.label.lineHeight)))
             {
                 historian.CurrentLayoutIndex = Mathf.Clamp(historian.CurrentLayoutIndex + 1, 0, layouts.Length - 1);
             }
@@ -192,8 +184,8 @@ namespace KSEA.Historian
             if (GUILayout.Button("Save", GUILayout.Width(100.0f)))
             {
                 configuration.Layout = historian.GetCurrentLayoutName();
-                configuration.EnableLauncherButton = m_EnableLauncherButton;
-                configuration.EnableToolbarButton = m_EnableToolberButton;
+                configuration.EnableLauncherButton = enableLauncherButton;
+                configuration.EnableToolbarButton = enableToolberButton;
 
                 historian.SetConfiguration(configuration);
             }
@@ -206,26 +198,12 @@ namespace KSEA.Historian
             GUI.DragWindow();
         }
 
-        internal void RemoveButton()
-        {
-            m_LauncherButton.Unregister();
-        }
+        internal void RemoveButton() => appLauncherButton.Unregister();
 
-        void Button_OnTrue()
-        {
-            Open();
-        }
+        void Button_OnTrue() => Open();
 
-        void Button_OnFalse()
-        {
-            Close();
-        }
+        void Button_OnFalse() => Close();
 
-        void Button_OnAlternateClick()
-        {
-            var historian = Historian.Instance;
-
-            historian.Suppressed = !historian.Suppressed;
-        }
+        void Button_OnAlternateClick() => Historian.Instance.Suppressed = !Historian.Instance.Suppressed;
     }
 }

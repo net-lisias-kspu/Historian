@@ -10,28 +10,15 @@ namespace KSEA.Historian
         public static string[] KerbinMonthNames = { "Unnam", "Dosnam", "Trenam", "Cuatnam", "Cinqnam", "Seinam", "Sietnam", "Ocnam", "Nuevnam", "Diznam", "Oncnam", "Docenam" };
         public static string[] KerbinDayNames = { "Akant", "Brant", "Casant", "Dovant", "Esant", "Flant" };
 
-        public static string KerbinMonthName(this int dayNumber)
-        {
-            return KerbinMonthNames[KerbinMonth(dayNumber) - 1];
-        }
+        public static string KerbinMonthName(this int dayNumber) => KerbinMonthNames[KerbinMonth(dayNumber) - 1];
 
-        public static int KerbinMonth(this int dayNumber)
-        {
-            return (int)Math.Floor((dayNumber - 0.01f) / 35.5) + 1;
-        }
+        public static int KerbinMonth(this int dayNumber) => (int)Math.Floor((dayNumber - 0.01f) / 35.5) + 1;
 
         public static int[] FirstDayOfMonth = { 1, 36, 72, 107, 143, 178, 214, 249, 285, 320, 356, 391 };
 
-        public static int KerbinDayOfMonth(this int dayNumber)
-        {
-            var month = KerbinMonth(dayNumber);
-            return dayNumber - FirstDayOfMonth[month - 1] + 1;
-        }
+        public static int KerbinDayOfMonth(this int dayNumber) => dayNumber - FirstDayOfMonth[KerbinMonth(dayNumber) - 1] + 1;
 
-        public static int KerbinDayOfWeek(this int dayNumber)
-        {
-            return ((dayNumber - 1) % 6) + 1;
-        }
+        public static int KerbinDayOfWeek(this int dayNumber) => ((dayNumber - 1) % 6) + 1;
 
         internal static int ParseRepeatPattern(String format, int pos, char patternChar)
         {
@@ -141,10 +128,7 @@ namespace KSEA.Historian
             return value.ToString(DigitFormat[tokenLen]);
         }
 
-        static string FormatYear(int year, int tokenLen)
-        {
-            return year.ToString(new string('0', tokenLen));
-        }
+        static string FormatYear(int year, int tokenLen) => year.ToString(new string('0', tokenLen));
 
         static string FormatMonth(int month, int tokenLen)
         {

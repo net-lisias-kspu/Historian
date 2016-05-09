@@ -23,31 +23,24 @@ namespace KSEA.Historian
 {
     public class LauncherButton
     {
-        ApplicationLauncherButton m_Button = null;
-        Texture m_NormalTexture = null;
-        Texture m_SuppressedTexture = null;
+        ApplicationLauncherButton button = null;
+        Texture normalTexture = null;
+        Texture suppressedTexture = null;
         public delegate void Callback();
 
         public event Callback OnTrue = delegate { };
         public event Callback OnFalse = delegate { };
 
-        public bool IsRegistered
-        {
-            get;
-            private set;
-        }
+        public bool IsRegistered { get; private set; }
 
         public LauncherButton()
         {
-            var database = GameDatabase.Instance;
-
-            m_NormalTexture = database.GetTexture("KSEA/Historian/Historian_Launcher", false);
-            m_SuppressedTexture = database.GetTexture("KSEA/Historian/Historian_Launcher_Suppressed", false);
+            normalTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Launcher", false);
+            suppressedTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Launcher_Suppressed", false);
         }
 
         public void Register()
         {
-            var launcher = ApplicationLauncher.Instance;
             var scenes = ApplicationLauncher.AppScenes.FLIGHT |
                          ApplicationLauncher.AppScenes.MAPVIEW |
                          ApplicationLauncher.AppScenes.SPACECENTER |
@@ -55,7 +48,7 @@ namespace KSEA.Historian
                          ApplicationLauncher.AppScenes.TRACKSTATION |
                          ApplicationLauncher.AppScenes.VAB;
 
-            m_Button = launcher.AddModApplication(Button_OnTrue, Button_OnFalse, null, null, null, null, scenes, m_NormalTexture);            
+            button = ApplicationLauncher.Instance.AddModApplication(Button_OnTrue, Button_OnFalse, null, null, null, null, scenes, normalTexture);
 
             Update();
 
@@ -64,12 +57,11 @@ namespace KSEA.Historian
 
         public void Unregister()
         {
-            if (m_Button != null)
+            if (button != null)
             {
                 IsRegistered = false;
-                var launcher = ApplicationLauncher.Instance;
-                launcher.RemoveModApplication(m_Button);
-                m_Button = null;
+                ApplicationLauncher.Instance.RemoveModApplication(button);
+                button = null;
             }
         }
 
@@ -77,25 +69,23 @@ namespace KSEA.Historian
         {
             if (value)
             {
-                m_Button.SetTrue(call);
+                button.SetTrue(call);
             }
             else
             {
-                m_Button.SetFalse(call);
+                button.SetFalse(call);
             }
         }
 
         public void Update()
         {
-            var historian = Historian.Instance;
-
-            if (historian.Suppressed)
+            if (Historian.Instance.Suppressed)
             {
-                m_Button.SetTexture(m_SuppressedTexture);
+                button.SetTexture(suppressedTexture);
             }
             else
             {
-                m_Button.SetTexture(m_NormalTexture);
+                button.SetTexture(normalTexture);
             }
         }
 
