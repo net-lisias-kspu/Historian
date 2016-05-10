@@ -33,7 +33,7 @@ namespace KSEA.Historian
         bool enableLauncherButton = true;
         bool enableToolberButton = true;
 
-        public Editor(Configuration configuration)
+        public Editor(HistorianSettings configuration)
         {
             //m_LauncherButton = new LauncherButton();
             toolbarButton = new ToolbarButton();
@@ -73,6 +73,7 @@ namespace KSEA.Historian
         {
             if (isOpen)
             {
+                
                 position = GUI.Window(0, position, OnWindowGUI, $"Historian: v {Historian.Instance.AssemblyFileVersion}", HighLogic.Skin.window);
 
                 if (enableLauncherButton)
@@ -91,7 +92,7 @@ namespace KSEA.Historian
         {
             GUI.skin = HighLogic.Skin;
             var historian = Historian.Instance;
-            var configuration = historian.GetConfiguration();
+            var configuration = HistorianSettings.fetch;
 
             GUILayout.BeginVertical();
 
@@ -186,8 +187,6 @@ namespace KSEA.Historian
                 configuration.Layout = historian.GetCurrentLayoutName();
                 configuration.EnableLauncherButton = enableLauncherButton;
                 configuration.EnableToolbarButton = enableToolberButton;
-
-                historian.SetConfiguration(configuration);
             }
 
             GUILayout.FlexibleSpace();
