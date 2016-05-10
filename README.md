@@ -20,9 +20,11 @@ You can open the Historian configuration window by using either the stock applic
 * __Load__: Reloads all layouts while the game is running.
 * __Save__: Saves the current layout as the default layout (selected automatically everytime you launch KSP).
 
+Press the app launcher or toolbar button again to close the configuration window.
 
-Press the configuration window again to close the configuration window.
 Note that the configuration window shows up even if you have GUI disabled using the 'F2' key. This is intentional to allow layout editting while the game GUI is off.
+
+Note that configuration is stored in each save game file separately. Starting a new save will set configuration to default values. Reverting a flight or quickloading may load an older version of the configuration if you've made recent changes.
 
 ### Layouts
 
