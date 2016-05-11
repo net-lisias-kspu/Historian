@@ -28,6 +28,7 @@ namespace KSEA.Historian
         static LauncherButton appLauncherButton = new LauncherButton();
         ToolbarButton toolbarButton = null;
         Rect position;
+        int windowId;
         Texture nextButtonTexture = null;
         Texture previousButtonTexture = null;
         bool enableLauncherButton = true;
@@ -39,6 +40,7 @@ namespace KSEA.Historian
             toolbarButton = new ToolbarButton();
 
             position = new Rect(0.5f * Screen.width - 200.0f, 0.5f * Screen.height - 250.0f, 400.0f, 500.0f);
+            windowId = new System.Random().Next(876543210, 987654321); // large random number
 
             nextButtonTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Button_Next", false);
             previousButtonTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Button_Previous", false);
@@ -74,7 +76,7 @@ namespace KSEA.Historian
             if (isOpen)
             {
                 
-                position = GUI.Window(0, position, OnWindowGUI, $"Historian: v {Historian.Instance.AssemblyFileVersion}", HighLogic.Skin.window);
+                position = GUI.Window(windowId, position, OnWindowGUI, $"Historian: v {Historian.Instance.AssemblyFileVersion}", HighLogic.Skin.window);
 
                 if (enableLauncherButton)
                 {
