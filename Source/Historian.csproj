@@ -53,6 +53,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Historian\Configuration.cs" />
     <Compile Include="Historian\Editor.cs" />
     <Compile Include="Historian\Element.cs" />
     <Compile Include="Historian\Flag.cs" />
