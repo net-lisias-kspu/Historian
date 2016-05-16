@@ -22,7 +22,7 @@ namespace KSEA.Historian
 {
     public class Configuration
     {
-        static readonly Version CurrentVersion = new Version("1.1");
+        static readonly Version CurrentVersion = new Version("1.1.2");
 
         public string Layout { get; set; } = "";
 
@@ -64,13 +64,10 @@ namespace KSEA.Historian
             }
             catch
             {
-                Historian.Print("Failed to load configuration file '{0}'. Attempting recovery ...", file);
+                Historian.Print($"Failed to load configuration file '{file}'. Attempting recovery ...");
 
                 if (File.Exists(file))
-                {
                     File.Delete(file);
-
-                }
 
                 var configuration = new Configuration();
 
@@ -91,6 +88,10 @@ namespace KSEA.Historian
         {
             try
             {
+                // ensure save directory exists.
+                var dir = Path.GetDirectoryName(file);
+                Directory.CreateDirectory(dir);
+
                 var root = new ConfigNode();
                 var node = root.AddNode("KSEA_HISTORIAN_CONFIGURATION");
 
@@ -104,17 +105,15 @@ namespace KSEA.Historian
                 node.AddValue("DefaultSpaceCenterName", DefaultSpaceCenterName);
 
                 if (File.Exists(file))
-                {
                     File.Delete(file);
-                }
 
                 root.Save(file);
 
-                Historian.Print("Configuration saved at '{0}'.", file);
+                Historian.Print($"Configuration saved at '{file}'.");
             }
             catch
             {
-                Historian.Print("Failed to save configuration file '{0}'.", file);
+                Historian.Print($"Failed to save configuration file '{file}'.");
             }
         }
     }

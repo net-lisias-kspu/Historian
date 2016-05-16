@@ -26,7 +26,7 @@ using UnityEngine;
 namespace KSEA.Historian
 {
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
-	public class Historian : Singleton<Historian>
+    public class Historian : Singleton<Historian>
     {
         List<Layout> layouts = new List<Layout>();
         int currentLayoutIndex = -1;
@@ -79,7 +79,7 @@ namespace KSEA.Historian
             }
         }
 
-        public Type ReflectedClassType(string classNameKey) 
+        public Type ReflectedClassType(string classNameKey)
             => feflectedMods.ContainsKey(classNameKey) ? feflectedMods[classNameKey] : null;
 
         public string PluginDirectory
@@ -87,7 +87,7 @@ namespace KSEA.Historian
             get
             {
                 var path = Assembly.GetExecutingAssembly().Location;
-                return Path.Combine(Path.GetDirectoryName(path), "Plugins");
+                return Path.Combine(Path.Combine(Path.GetDirectoryName(path), "Plugins"), "Plugindata");
             }
         }
 
@@ -127,21 +127,25 @@ namespace KSEA.Historian
         {
             var fName = Path.Combine(ModDirectory, "Historian.cfg");
             if (File.Exists(fName)) File.Delete(fName);
+            fName = Path.Combine(Path.Combine(ModDirectory, "Plugins"), "Historian.cfg");
+            if (File.Exists(fName)) File.Delete(fName);
+
+            var scenario = HighLogic.CurrentGame
+                        .scenarios
+                        .Select(s => s.)
+                        
+                        .SingleOrDefault();
         }
 
         void Awake()
         {
             DontDestroyOnLoad(this);
-
             RemoveOldConfig();
-
             configuration = Configuration.Load(Path.Combine(PluginDirectory, "Historian.cfg"));
-
             LoadLayouts();
 
             currentLayoutIndex = FindLayoutIndex(configuration.Layout);
             Print("Current Layout Index {0}", currentLayoutIndex);
-            
 
             GameEvents.onHideUI.Add(Game_OnHideGUI);
             GameEvents.onShowUI.Add(Game_OnShowGUI);
@@ -152,8 +156,8 @@ namespace KSEA.Historian
             GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveButton);
 
             // get reference to KSC switcher if installed
-            feflectedMods.Add("switcher",Reflect.GetExternalType("regexKSP.LastKSC"));
-            feflectedMods.Add("switcherLoader",Reflect.GetExternalType("regexKSP.KSCLoader"));
+            feflectedMods.Add("switcher", Reflect.GetExternalType("regexKSP.LastKSC"));
+            feflectedMods.Add("switcherLoader", Reflect.GetExternalType("regexKSP.KSCLoader"));
 
             // Kerbal Konstructs
             feflectedMods.Add("kkLaunchSiteManager", Reflect.GetExternalType("KerbalKonstructs.LaunchSites.LaunchSiteManager"));
@@ -164,21 +168,16 @@ namespace KSEA.Historian
         private void RemoveButton()
         {
             if (editor != null)
-            {
                 editor.RemoveButton();
-            }
         }
 
-        private void AddButton()
-        {
-            editor = new Editor(configuration);
-        }
+        private void AddButton() => editor = new Editor(configuration);
 
         public void set_m_Active()
-		{
-			active = true;
+        {
+            active = true;
             screenshotRequested = true;
-		}
+        }
 
         void Update()
         {
@@ -190,7 +189,7 @@ namespace KSEA.Historian
                 }
                 else
                 {
-                    if (!configuration.PersistentCustomText)
+                    if (!configuration.PersistentCustomText && !string.IsNullOrEmpty(configuration.CustomText))
                     {
                         configuration.CustomText = "";
                         configuration.Save(Path.Combine(PluginDirectory, "Historian.cfg"));
@@ -217,25 +216,13 @@ namespace KSEA.Historian
             }
         }
 
-        void Game_OnHideGUI()
-        {
-            suppressEditorWindow |= !configuration.PersistentConfigurationWindow;
-        }
+        void Game_OnHideGUI() => suppressEditorWindow |= !configuration.PersistentConfigurationWindow;
 
-        void Game_OnShowGUI()
-        {
-            suppressEditorWindow = false;
-        }
+        void Game_OnShowGUI() => suppressEditorWindow = false;
 
-        void Game_OnUnpause()
-        {
-            suppressEditorWindow = false;
-        }
+        void Game_OnUnpause() => suppressEditorWindow = false;
 
-        void Game_OnPause()
-        {
-            suppressEditorWindow = true;
-        }
+        void Game_OnPause() => suppressEditorWindow = true;
 
         int FindLayoutIndex(string layoutName) => layouts.FindIndex(layout => layout.Name == layoutName);
 
@@ -244,10 +231,7 @@ namespace KSEA.Historian
         void LoadLayouts()
         {
             Print("Searching for layouts ...");
-
-            var directory = Path.Combine(ModDirectory, "Layouts");
-            var files = Directory.GetFiles(directory, "*.layout");
-
+            var files = Directory.GetFiles(Path.Combine(ModDirectory, "Layouts"), "*.layout");
             foreach (var file in files)
             {
                 LoadLayout(file);
@@ -256,26 +240,26 @@ namespace KSEA.Historian
 
         void LoadLayout(string file)
         {
+            string layoutName = Path.GetFileNameWithoutExtension(file); 
             try
             {
-                var name = Path.GetFileNameWithoutExtension(file);
                 var node = ConfigNode.Load(file).GetNode("KSEA_HISTORIAN_LAYOUT");
 
-                if (layouts.FindIndex(layout => layout.Name == name) < 0)
+                if (layouts.FindIndex(layout => layout.Name == layoutName) < 0)
                 {
-                    var layout = Layout.Load(name, node);
+                    var layout = Layout.Load(layoutName, node);
                     layouts.Add(layout);
 
-                    Print("Found layout '{0}'.", name);
+                    Print($"Found layout '{layoutName}'.");
                 }
                 else
                 {
-                    Print("Layout with name '{0}' already exists. Unable to load duplicate.", name);
+                    Print($"Layout with name '{layoutName}' already exists. Unable to load duplicate.");
                 }
             }
             catch
             {
-                Print("Failed to load layout '{0}'.", name);
+                Print($"Failed to load layout '{layoutName}'.");
             }
         }
 

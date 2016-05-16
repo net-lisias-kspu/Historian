@@ -101,7 +101,7 @@ namespace KSEA.Historian
             text = node.GetString("Text", "");
             textAnchor = node.GetEnum("TextAnchor", TextAnchor.MiddleCenter);
             fontName = node.GetString("Font", DEFAULT_FONT_NAME);
-            if (!OSFonts.Contains(fontName))
+            if (!OSFonts.Contains(fontName) && fontName != DEFAULT_FONT_NAME)
             {
                 Historian.Print($"The requested font '{fontName}' is not installed in your OS");
                 fontName = DEFAULT_FONT_NAME;
@@ -120,7 +120,7 @@ namespace KSEA.Historian
             baseYear = node.GetInteger("BaseYear", isKerbincalendar ? 1 : 1951);
             dateFormat = node.GetString("DateFormat", "");
             if (string.IsNullOrEmpty(dateFormat))
-                dateFormat =CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern;
+                dateFormat = CultureInfo.CurrentUICulture.DateTimeFormat.LongDatePattern;
         }
 
         void InitializeParameterDictionary()
