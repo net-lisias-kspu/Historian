@@ -268,7 +268,7 @@ namespace KSEA.Historian
 
         string NewLineParser(CommonInfo info) => Environment.NewLine;
 
-        string CustomParser(CommonInfo info) => Parse(HistorianSettings.fetch.CustomText.Replace("<Custom>", "")); // avoid recurssion.
+        string CustomParser(CommonInfo info) => Parse(Historian.Instance.GetConfiguration().CustomText.Replace("<Custom>", "")); // avoid recurssion.
 
         string DateFormatParser(CommonInfo info) => info.DateFormat;
 
@@ -458,7 +458,7 @@ namespace KSEA.Historian
 
         string LaunchSiteParser(CommonInfo info)
         {
-            var defaultSpaceCenter = HistorianSettings.fetch.DefaultSpaceCenterName;
+            var defaultSpaceCenter = Historian.Instance.GetConfiguration().DefaultSpaceCenterName;
             var switcher = Historian.Instance.ReflectedClassType("switcherLoader");
             if (switcher != null)
             {
@@ -527,7 +527,7 @@ namespace KSEA.Historian
                 BaseName = args[5].ToString()
             };
             if (kkInfo.BaseName == "KSC")
-                kkInfo.BaseName = HistorianSettings.fetch.DefaultSpaceCenterName;
+                kkInfo.BaseName = Historian.Instance.GetConfiguration().DefaultSpaceCenterName;
             return kkInfo;
         }
 

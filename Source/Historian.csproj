@@ -58,7 +58,6 @@
     <Compile Include="Historian\Element.cs" />
     <Compile Include="Historian\Flag.cs" />
     <Compile Include="Historian\Historian.cs" />
-    <Compile Include="Historian\HistorianScenario.cs" />
     <Compile Include="Historian\KerbinDates.cs" />
     <Compile Include="Historian\LauncherButton.cs" />
     <Compile Include="Historian\Layout.cs" />

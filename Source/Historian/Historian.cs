@@ -25,31 +25,7 @@ using UnityEngine;
 
 namespace KSEA.Historian
 {
-
-    [KSPAddon(KSPAddon.Startup.TrackingStation, false)]
-    public class KCT_Tracking_Station : Historian
-    {
-
-    }
-
-    [KSPAddon(KSPAddon.Startup.Flight, false)]
-    public class KCT_Flight : Historian
-    {
-
-    }
-
-    [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
-    public class KCT_SpaceCenter : Historian
-    {
-
-    }
-
-    [KSPAddon(KSPAddon.Startup.EditorAny, false)]
-    public class KCT_Editor : Historian
-    {
-
-    }
-
+    [KSPAddon(KSPAddon.Startup.MainMenu, true)]
 	public class Historian : Singleton<Historian>
     {
         List<Layout> layouts = new List<Layout>();
@@ -57,6 +33,7 @@ namespace KSEA.Historian
         bool active = false;
         bool alwaysActive = false;
         bool suppressed = false;
+        Configuration configuration = null;
         Editor editor = null;
         bool suppressEditorWindow = false;
         Dictionary<string, Type> feflectedMods = new Dictionary<string, Type>();
@@ -129,8 +106,10 @@ namespace KSEA.Historian
         {
             layouts.Clear();
             LoadLayouts();
-            currentLayoutIndex = FindLayoutIndex(HistorianSettings.fetch.Layout);
+            currentLayoutIndex = FindLayoutIndex(configuration.Layout);
         }
+
+        public Configuration GetConfiguration() => configuration;
 
         public string[] GetLayoutNames() => layouts.Select(item => item.Name).ToArray();
 
@@ -138,59 +117,29 @@ namespace KSEA.Historian
 
         public string GetCurrentLayoutName() => GetCurrentLayout().Name;
 
+        public void SetConfiguration(Configuration configuration)
+        {
+            this.configuration = configuration;
+            this.configuration.Save(Path.Combine(PluginDirectory, "Historian.cfg"));
+        }
+
         private void RemoveOldConfig()
         {
             var fName = Path.Combine(ModDirectory, "Historian.cfg");
             if (File.Exists(fName)) File.Delete(fName);
-            fName = Path.Combine(PluginDirectory, "Historian.cfg");
-            if (File.Exists(fName)) File.Delete(fName);
         }
-
-        //void Start()
-        //{
-        //    //Code for saving to the persistence.sfs
-        //    ProtoScenarioModule scenario = HighLogic.CurrentGame.scenarios.Find(s => s.moduleName == typeof(HistorianSettings).Name);
-        //    if (scenario == null)
-        //    {
-        //        try
-        //        {
-        //            Print($"Adding InternalModule scenario to game '{HighLogic.CurrentGame.Title}'");
-        //            HighLogic.CurrentGame.AddProtoScenarioModule(typeof(HistorianSettings), GameScenes.FLIGHT, GameScenes.SPACECENTER, GameScenes.EDITOR, GameScenes.TRACKSTATION);
-        //            // the game will add this scenario to the appropriate persistent file on save from now on
-        //        }
-        //        catch (ArgumentException ae)
-        //        {
-        //            Debug.LogException(ae);
-        //        }
-        //        catch
-        //        {
-        //            Print("Unknown failure while adding scenario.");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        if (!scenario.targetScenes.Contains(GameScenes.SPACECENTER))
-        //            scenario.targetScenes.Add(GameScenes.SPACECENTER);
-        //        if (!scenario.targetScenes.Contains(GameScenes.FLIGHT))
-        //            scenario.targetScenes.Add(GameScenes.FLIGHT);
-        //        if (!scenario.targetScenes.Contains(GameScenes.EDITOR))
-        //            scenario.targetScenes.Add(GameScenes.EDITOR);
-        //        if (!scenario.targetScenes.Contains(GameScenes.TRACKSTATION))
-        //            scenario.targetScenes.Add(GameScenes.TRACKSTATION);
-
-        //    }
-        //    //End code for persistence.sfs
-        //}
 
         void Awake()
         {
-            Historian.Print("Awake");
             DontDestroyOnLoad(this);
 
             RemoveOldConfig();
+
+            configuration = Configuration.Load(Path.Combine(PluginDirectory, "Historian.cfg"));
+
             LoadLayouts();
 
-            currentLayoutIndex = FindLayoutIndex(HistorianSettings.fetch.Layout);
+            currentLayoutIndex = FindLayoutIndex(configuration.Layout);
             Print("Current Layout Index {0}", currentLayoutIndex);
             
 
@@ -222,7 +171,7 @@ namespace KSEA.Historian
 
         private void AddButton()
         {
-            editor = new Editor(HistorianSettings.fetch);
+            editor = new Editor(configuration);
         }
 
         public void set_m_Active()
@@ -241,10 +190,10 @@ namespace KSEA.Historian
                 }
                 else
                 {
-                    var config = HistorianSettings.fetch;
-                    if (!config.PersistentCustomText)
+                    if (!configuration.PersistentCustomText)
                     {
-                        config.CustomText = "";
+                        configuration.CustomText = "";
+                        configuration.Save(Path.Combine(PluginDirectory, "Historian.cfg"));
                     }
 
                     if (!screenshotRequested) active = false;
@@ -270,7 +219,7 @@ namespace KSEA.Historian
 
         void Game_OnHideGUI()
         {
-            suppressEditorWindow |= !HistorianSettings.fetch.PersistentConfigurationWindow;
+            suppressEditorWindow |= !configuration.PersistentConfigurationWindow;
         }
 
         void Game_OnShowGUI()
