@@ -1,7 +1,6 @@
 {
     "NAME":"Historian Extended",
-    "URL":"http://forum.kerbalspaceprogram.com/index.php?/topic/138848-112-historian-expanded/",
-    "DOWNLOAD":"https://github.com/Aelfhe1m/Historian-Expanded/releases",
+    "URL":"https://raw.githubusercontent.com/Aelfhe1m/Historian-Expanded/master/GameData/KSEA/Historian/Historian.version",
     "GITHUB":
     {
         "USERNAME":"Aelfhe1m",
@@ -12,8 +11,8 @@
     {
         "MAJOR":1,
         "MINOR":2,
-        "PATCH":1,
-        "BUILD":9
+        "PATCH":3,
+        "BUILD":1
     },
     "KSP_VERSION":
     {
