@@ -68,6 +68,7 @@ namespace KSEA.Historian
 
         public void Draw()
         {
+            Historian.Print($"Draw called {System.DateTime.Now.Ticks}");
             foreach (var element in elements)
             {
                 element.Draw();

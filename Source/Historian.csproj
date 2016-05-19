@@ -53,6 +53,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Historian\ActionText.cs" />
     <Compile Include="Historian\Configuration.cs" />
     <Compile Include="Historian\Editor.cs" />
     <Compile Include="Historian\Element.cs" />
@@ -66,9 +67,11 @@
     <Compile Include="Historian\Singleton.cs" />
     <Compile Include="Historian\SituationText.cs" />
     <Compile Include="Historian\Text.cs" />
+    <Compile Include="Historian\TextList.cs" />
     <Compile Include="Historian\ToolbarButton.cs" />
     <Compile Include="Historian\ToolbarWrapper.cs" />
     <Compile Include="Historian\Utility.cs" />
+    <Compile Include="Historian\LastAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

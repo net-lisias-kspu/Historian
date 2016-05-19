@@ -39,6 +39,20 @@ namespace KSEA.Historian
         Dictionary<string, Type> feflectedMods = new Dictionary<string, Type>();
         bool screenshotRequested = false;
         string assemblyVersion = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+        LastAction lastAction = LastAction.None;
+        DateTime lastActionTime = DateTime.Now;
+        double lastActionPersistTime = 3.0f; // last action is active for 1 second after key press
+
+        public LastAction LastAction {
+            get
+            {
+                return lastAction;
+            }
+            set
+            {
+                lastAction = value;
+            }
+        }
 
         public bool Suppressed
         {
@@ -129,12 +143,6 @@ namespace KSEA.Historian
             if (File.Exists(fName)) File.Delete(fName);
             fName = Path.Combine(Path.Combine(ModDirectory, "Plugins"), "Historian.cfg");
             if (File.Exists(fName)) File.Delete(fName);
-
-            var scenario = HighLogic.CurrentGame
-                        .scenarios
-                        .Select(s => s.)
-                        
-                        .SingleOrDefault();
         }
 
         void Awake()
@@ -183,6 +191,12 @@ namespace KSEA.Historian
         {
             if (!suppressed)
             {
+                if (lastAction != LastAction.None && (DateTime.Now - lastActionTime) > TimeSpan.FromSeconds(lastActionPersistTime) )
+                {
+                    lastAction = LastAction.None;
+                }
+                CheckForEvents();
+                
                 if (!active)
                 {
                     active |= GameSettings.TAKE_SCREENSHOT.GetKeyDown();
@@ -200,8 +214,42 @@ namespace KSEA.Historian
             }
         }
 
+        void CheckForEvents()
+        {
+            var currentAction = lastAction;
+            if (GameSettings.AbortActionGroup.GetKeyDown())
+                lastAction = LastAction.Abort;
+            if (GameSettings.LAUNCH_STAGES.GetKeyDown())
+                lastAction = LastAction.Stage;
+            if (GameSettings.CustomActionGroup1.GetKeyDown())
+                lastAction = LastAction.AG1;
+            if (GameSettings.CustomActionGroup2.GetKeyDown())
+                lastAction = LastAction.AG2;
+            if (GameSettings.CustomActionGroup3.GetKeyDown())
+                lastAction = LastAction.AG3;
+            if (GameSettings.CustomActionGroup4.GetKeyDown())
+                lastAction = LastAction.AG4;
+            if (GameSettings.CustomActionGroup5.GetKeyDown())
+                lastAction = LastAction.AG5;
+            if (GameSettings.CustomActionGroup6.GetKeyDown())
+                lastAction = LastAction.AG6;
+            if (GameSettings.CustomActionGroup7.GetKeyDown())
+                lastAction = LastAction.AG7;
+            if (GameSettings.CustomActionGroup8.GetKeyDown())
+                lastAction = LastAction.AG8;
+            if (GameSettings.CustomActionGroup9.GetKeyDown())
+                lastAction = LastAction.AG9;
+            if (GameSettings.CustomActionGroup10.GetKeyDown())
+                lastAction = LastAction.AG10;
+
+            if (currentAction != lastAction)
+                lastActionTime = DateTime.Now;
+        }
+
         void OnGUI()
         {
+            var s = new ScreenShot();
+            
             if (!suppressed && (active || alwaysActive))
             {
                 var layout = GetCurrentLayout();

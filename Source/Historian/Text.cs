@@ -179,13 +179,15 @@ namespace KSEA.Historian
             parsers.Add("TouristsList", TouristsListParser);
             parsers.Add("Target", TargetParser);
             parsers.Add("LaunchSite", LaunchSiteParser);
-
             parsers.Add("RealDate", RealDateParser);
             parsers.Add("ListFonts", ListFontsParser);
             parsers.Add("VesselType", VesselTypeParser);
             parsers.Add("KK-Distance", KKDistanceParser);
             parsers.Add("KK-SpaceCenter", KKSpaceCenterParser);
             parsers.Add("DateFormat", DateFormatParser);
+
+            parsers.Add("StageNumber", StageNumberParser);
+            parsers.Add("LastAction", LastActionParser);
         }
 
         protected string Parse(string text)
@@ -501,7 +503,9 @@ namespace KSEA.Historian
 
         string VesselTypeParser(CommonInfo info) => info.Vessel?.vesselType.ToString();
 
+        string StageNumberParser(CommonInfo info) => info.Vessel?.currentStage.ToString();
 
+        string LastActionParser(CommonInfo info) => Historian.Instance.LastAction.ToString();
 
         class KerbalKonstructsInfo
         {

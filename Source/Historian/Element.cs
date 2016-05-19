@@ -35,18 +35,22 @@ namespace KSEA.Historian
         {
             switch (type)
             {
-            case "RECTANGLE":
-                return new Rectangle();
-            case "TEXT":
-                return new Text();
-            case "PICTURE":
-                return new Picture();
-            case "FLAG":
-                return new Flag();
-            case "SITUATION_TEXT":
-                return new SituationText();
-            default:
-                return null;
+                case "RECTANGLE":
+                    return new Rectangle();
+                case "TEXT":
+                    return new Text();
+                case "PICTURE":
+                    return new Picture();
+                case "FLAG":
+                    return new Flag();
+                case "SITUATION_TEXT":
+                    return new SituationText();
+                case "ACTION_TEXT":
+                    return new ActionText();
+                case "TEXT_LIST":
+                    return new TextList();
+                default:
+                    return null;
             }
         }
 
