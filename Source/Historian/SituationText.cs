@@ -7,12 +7,20 @@ namespace KSEA.Historian
     {
         Dictionary<Vessel.Situations, string> situations = new Dictionary<Vessel.Situations, string>();
         string defaultSituation = "";
+        string ragDolledSituation = "";
+        string climbingSituation = "";
+
+        TriState evaOnly = TriState.UseDefault;
 
         protected override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
 
             defaultSituation = node.GetString("Default", "");
+            ragDolledSituation = node.GetString("RagDolled", "");
+            climbingSituation = node.GetString("Climbing", "");
+
+            evaOnly = node.GetEnum("EvaOnly", TriState.UseDefault);
 
             situations.Add(Vessel.Situations.LANDED, node.GetString("Landed", ""));
             situations.Add(Vessel.Situations.FLYING, node.GetString("Flying", ""));
@@ -26,8 +34,29 @@ namespace KSEA.Historian
 
         protected override void OnDraw(Rect bounds)
         {
+            var isEva = (FlightGlobals.ActiveVessel?.isEVA).ToTriState();
+            if (evaOnly != TriState.UseDefault && evaOnly != isEva)
+                return;
+
             var situation = FlightGlobals.ActiveVessel?.situation;
             var text = (situation.HasValue && situations.ContainsKey(situation.Value)) ? situations[situation.Value] : defaultSituation;
+
+            if (isEva == TriState.True)
+            {
+                var ragDolled = FlightGlobals.ActiveVessel.evaController.isRagdoll;
+                var onLadder = FlightGlobals.ActiveVessel.evaController.OnALadder;
+
+                if (ragDolled && !string.IsNullOrEmpty(ragDolledSituation))
+                {
+                    text = ragDolledSituation;
+                }
+
+                if (onLadder && !string.IsNullOrEmpty(climbingSituation))
+                {
+                    text = climbingSituation;
+                }
+            }
+
             SetText(text);
             base.OnDraw(bounds);
         }

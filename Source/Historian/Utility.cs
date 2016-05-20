@@ -22,6 +22,42 @@ using System.Reflection;
 
 namespace KSEA.Historian
 {
+    public enum TriState
+    {
+        UseDefault = -2,
+        True = -1,
+        False = 0,
+
+        // UseDefault synonyms
+        Either = -2,
+        Any = -2,
+        Always = -2
+    }
+
+    public static class Extensions
+    {
+        public static bool? ToNullableBoolean(this TriState self)
+        {
+            switch (self)
+            {
+                case TriState.True:
+                    return true;
+                case TriState.False:
+                    return false;
+                default:
+                    return null;
+            }
+        }
+
+        public static TriState ToTriState(this bool? self)
+        {
+            if (self.HasValue)
+            {
+                return self.Value ? TriState.True : TriState.False;
+            }
+            return TriState.UseDefault;
+        }
+    }
 
     public static class Reflect
     {

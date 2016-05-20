@@ -53,6 +53,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Historian\ExtendedSituation.cs" />
     <Compile Include="Historian\ActionText.cs" />
     <Compile Include="Historian\Configuration.cs" />
     <Compile Include="Historian\Editor.cs" />

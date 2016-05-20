@@ -2,19 +2,92 @@ KSEA_HISTORIAN_LAYOUT
 {
 	RECTANGLE
 	{
+		// left panel
 		Anchor = 0.0,0.0
 		Size = 1.0,1.0
 		Position = 0.8,0.0
 		Color = 0.0,0.0,0.0,0.6
 	}
+	
+	RECTANGLE
+	{
+		// lower panel
+		Anchor = 0.0,1.0
+		Size = 1.0,0.05
+		Position = 0.0,1.0
+		Color = 0.0,0.0,0.0,0.5
+	}
 
 	FLAG
 	{
-		Anchor = 0.5,0.5
-		Position = 0.1,0.91
-		Scale = 1,1
+		Anchor = 0.0,1.0
+		Position = 0.0,1.0
+		Scale = 0.3,0.3
 		DefaultTexture = Squad/Flags/default
 		BackgroundTexture = Squad/Flags/minimalistic
+	}
+	
+	SITUATION_TEXT {
+		Anchor = 0.0,1.0
+		Size = 1.0,0.05
+		Position = 0.1,1.0
+		TextAnchor = UpperLeft
+		FontSize = 12
+
+		Default = Undefined
+		Landed = Landed
+		Splashed = Splashed
+		Prelaunch = Prelaunch
+		Flying = Flying
+		SubOrbital = SubOrbital
+		Orbiting = Orbiting
+		Escaping = Escaping
+		Docked = Docked
+	}
+	
+	SITUATION_TEXT {
+		EvaOnly = True
+	
+		Anchor = 0.0,1.0
+		Size = 1.0,0.05
+		Position = 0.1,1.0
+		TextAnchor = MiddleLeft
+		FontSize = 12
+		Color = 1.0, 0.8, 0.0, 1.0
+
+		Default = EVA Undefined
+		Landed = EVA Landed
+		Splashed = EVA Splashed
+		Prelaunch = EVA Prelaunch
+		Flying = EVA Flying
+		SubOrbital = EVA SubOrbital
+		Orbiting = EVA Orbiting
+		Escaping = EVA Escaping
+		Docked = EVA Docked
+		
+		RagDolled = Ouch!
+		Climbing = EVA Climbing
+	}
+	
+	SITUATION_TEXT {
+		EvaOnly = False
+		
+		Anchor = 0.0,1.0
+		Size = 1.0,0.05
+		Position = 0.1,1.0
+		TextAnchor = LowerLeft
+		FontSize = 12
+		Color = 0.0, 0.8, 0.8, 1.0
+
+		Default = Undefined
+		Landed = VESSEL Landed
+		Splashed = VESSEL Splashed
+		Prelaunch = VESSEL Prelaunch - Поехали!
+		Flying = VESSEL Flying
+		SubOrbital = VESSEL SubOrbital
+		Orbiting = VESSEL Orbiting
+		Escaping = VESSEL Escaping
+		Docked = VESSEL Docked
 	}
 	
 	ACTION_TEXT
@@ -46,15 +119,51 @@ KSEA_HISTORIAN_LAYOUT
 		Random = false
 		ResetOnLaunch = true
 		
-		Text = First message
-		Text = Message number two
-		Text = Message three
-		Text = Fourth
-		Text = 5
-		Text = Six
-		Text = Sieben
-		Text = 八 (はち)
-		Text = Neuf
+		Default 
+		{
+			Text = First message
+			Text = Message number two
+			Text = Message three
+			Text = Fourth
+			Text = 5
+			Text = Six
+			Text = Sieben
+			Text = 八 (はち)
+			Text = Neuf
+		}
+		
+		Prelaunch
+		{
+			Text = Поехали!
+			Text = Let's go!
+		}
+		
+		Landed 
+		{
+			Text = The Eagle has landed
+			Text = Is it safe now?
+		}
+		
+		Flying 
+		{
+			Text = Flying 1
+			Text = Flying 2
+		}
+		
+		RagDolled
+		{
+			Text = I think I broke something
+			Text = Is that meant to bend like that?
+			Text = Ouch!
+			Text = 痛い!
+		}
+		
+		Climbing
+		{
+			Text = Ever upward
+			Text = I think I'm slipping
+			Text = This ladder's a bit slippery!
+		}
 	}
 	
 	TEXT

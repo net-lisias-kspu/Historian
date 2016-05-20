@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace KSEA.Historian
 {
     class TextList : Text
     {
-        List<string> texts = new List<string>();
+        Dictionary<ExtendedSituation, List<string>> situationTexts = new Dictionary<ExtendedSituation, List<string>>();
+        TriState evaOnly = TriState.UseDefault;
+
         bool isRandom = false;
-        int messageIndex = 0;
+        Dictionary<ExtendedSituation, int> messageIndices = new Dictionary<ExtendedSituation, int>();
         bool resetOnLaunch = false;
         Vessel lastVessel = null;
         System.Random rnd = new System.Random();
@@ -21,52 +21,111 @@ namespace KSEA.Historian
         {
             base.OnLoad(node);
 
-            texts = new List<string>();
+            situationTexts = new Dictionary<ExtendedSituation, List<string>>();
 
             isRandom = node.GetBoolean("Random", false);
             resetOnLaunch = node.GetBoolean("ResetOnLaunch", false);
 
-            texts.AddRange(node.GetValues("Text"));
-            messageIndex = -1;
+            evaOnly = node.GetEnum("EvaOnly", TriState.UseDefault);
+
+            foreach (var section in node.GetNodes())
+            {
+                var name = section.name;
+                try
+                {
+                    var situation = (ExtendedSituation)(object)ConfigNode.ParseEnum(typeof(ExtendedSituation), name);
+                    
+                    if (!situationTexts.ContainsKey(situation))
+                    {
+                        situationTexts.Add(situation, new List<string>());
+                        messageIndices.Add(situation, -1);
+                    }
+                    situationTexts[situation].AddRange(section.GetValues("Text"));
+                    Historian.Print($"Adding text list for {situation} - total items {situationTexts[situation].Count}");
+                }
+                catch
+                {
+                    Historian.Print($"Unrecognised situation block {name} in TEXT_LIST");
+                }
+            }
         }
 
         protected override void OnDraw(Rect bounds)
         {
-            
-            Historian.Print($"Random text: {isRandom}, Reset: {resetOnLaunch}, Index: {messageIndex}");
+            var isEva = (FlightGlobals.ActiveVessel?.isEVA).ToTriState();
+            if (evaOnly != TriState.UseDefault && evaOnly != isEva)
+                return;
+
+            var situation = FlightGlobals.ActiveVessel?.situation;
+            var extendedSituation = situation.HasValue && situationTexts.ContainsKey((ExtendedSituation)situation.Value) 
+                ? Extend(situation, isEva)
+                : ExtendedSituation.Default;
+
+            var texts = situationTexts[extendedSituation];
+
+            // debug
+            Historian.Print($"Random text: {isRandom}, Reset: {resetOnLaunch}, Index: {messageIndices[extendedSituation]}, isEva: {isEva}, situation: {extendedSituation}, #Messages: {texts.Count}");
+
             if (texts.Count < 1)
                 return;
 
+            UpdateMessageIndex(extendedSituation);
+
+
+            SetText(texts[messageIndices[extendedSituation]]);
+            base.OnDraw(bounds);
+
+            lastVessel = FlightGlobals.ActiveVessel;
+            lastDraw = DateTime.Now;
+        }
+
+        ExtendedSituation Extend(Vessel.Situations? situation, TriState isEva)
+        {
+            if (isEva == TriState.True)
+            {
+                if (FlightGlobals.ActiveVessel.evaController.isRagdoll
+                        && situationTexts.ContainsKey(ExtendedSituation.RagDolled))
+                {
+                    return ExtendedSituation.RagDolled;
+                }
+
+                if (FlightGlobals.ActiveVessel.evaController.OnALadder
+                        && situationTexts.ContainsKey(ExtendedSituation.Climbing))
+                {
+                    return ExtendedSituation.Climbing;
+                }
+            }
+
+            return (ExtendedSituation)situation;
+        }
+
+        void UpdateMessageIndex(ExtendedSituation extendedSituation)
+        {
             if (DateTime.Now - lastDraw < minimumInterval)
             {
                 Historian.Print("No index update");
             }
             else
             {
-                messageIndex++;
+                messageIndices[extendedSituation]++;
 
                 if (isRandom)
                 {
-                    messageIndex = rnd.Next(0, texts.Count - 1);
+                    messageIndices[extendedSituation] = rnd.Next(0, situationTexts[extendedSituation].Count - 1);
                 }
                 else
                 {
                     if (resetOnLaunch && lastVessel != FlightGlobals.ActiveVessel)
                     {
                         Historian.Print("Vessel changed - reseting messages");
-                        messageIndex = 0;
+                        messageIndices[extendedSituation] = 0;
                     }
                 }
 
-                if (messageIndex >= texts.Count)
-                    messageIndex = 0; // wrap around after end of list
+                if (messageIndices[extendedSituation] >= situationTexts[extendedSituation].Count)
+                    messageIndices[extendedSituation] = 0; // wrap around after end of list
             }
-
-            SetText(texts[messageIndex]);
-            base.OnDraw(bounds);
-
-            lastVessel = FlightGlobals.ActiveVessel;
-            lastDraw = DateTime.Now;
         }
+
     }
 }
