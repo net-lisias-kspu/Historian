@@ -28,8 +28,7 @@ namespace KSEA.Historian
         Texture suppressedTexture = null;
         public delegate void Callback();
 
-        public event Callback OnTrue = delegate { };
-        public event Callback OnFalse = delegate { };
+        public event Callback Click = delegate { };
 
         public bool IsRegistered { get; private set; }
 
@@ -48,7 +47,7 @@ namespace KSEA.Historian
                          ApplicationLauncher.AppScenes.TRACKSTATION |
                          ApplicationLauncher.AppScenes.VAB;
 
-            button = ApplicationLauncher.Instance.AddModApplication(Button_OnTrue, Button_OnFalse, null, null, null, null, scenes, normalTexture);
+            button = ApplicationLauncher.Instance.AddModApplication(OnClick, OnClick, null, null, null, null, scenes, normalTexture);
 
             Update();
 
@@ -89,14 +88,9 @@ namespace KSEA.Historian
             }
         }
 
-        void Button_OnTrue()
+        void OnClick()
         {
-            OnTrue();
-        }
-
-        void Button_OnFalse()
-        {
-            OnFalse();
+            Click();
         }
     }
 }

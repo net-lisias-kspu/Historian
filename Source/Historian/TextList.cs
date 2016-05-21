@@ -41,7 +41,7 @@ namespace KSEA.Historian
                         messageIndices.Add(situation, -1);
                     }
                     situationTexts[situation].AddRange(section.GetValues("Text"));
-                    Historian.Print($"Adding text list for {situation} - total items {situationTexts[situation].Count}");
+                    // Historian.Print($"Adding text list for {situation} - total items {situationTexts[situation].Count}");
                 }
                 catch
                 {
@@ -64,7 +64,7 @@ namespace KSEA.Historian
             var texts = situationTexts[extendedSituation];
 
             // debug
-            Historian.Print($"Random text: {isRandom}, Reset: {resetOnLaunch}, Index: {messageIndices[extendedSituation]}, isEva: {isEva}, situation: {extendedSituation}, #Messages: {texts.Count}");
+            // Historian.Print($"Random text: {isRandom}, Reset: {resetOnLaunch}, Index: {messageIndices[extendedSituation]}, isEva: {isEva}, situation: {extendedSituation}, #Messages: {texts.Count}");
 
             if (texts.Count < 1)
                 return;
@@ -103,7 +103,7 @@ namespace KSEA.Historian
         {
             if (DateTime.Now - lastDraw < minimumInterval)
             {
-                Historian.Print("No index update");
+                // Historian.Print("No index update");
             }
             else
             {
@@ -117,7 +117,7 @@ namespace KSEA.Historian
                 {
                     if (resetOnLaunch && lastVessel != FlightGlobals.ActiveVessel)
                     {
-                        Historian.Print("Vessel changed - reseting messages");
+                        // Historian.Print("Vessel changed - reseting messages");
                         messageIndices[extendedSituation] = 0;
                     }
                 }

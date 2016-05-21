@@ -50,8 +50,7 @@ namespace KSEA.Historian
 
             if (enableLauncherButton)
             {
-                appLauncherButton.OnTrue += Button_OnTrue;
-                appLauncherButton.OnFalse += Button_OnFalse;
+                appLauncherButton.Click += Button_Click;
 
                 if (!appLauncherButton.IsRegistered)
                     appLauncherButton.Register();
@@ -59,17 +58,17 @@ namespace KSEA.Historian
 
             if (ToolbarManager.ToolbarAvailable && enableToolberButton)
             {
-                toolbarButton.OnTrue += Button_OnTrue;
-                toolbarButton.OnFalse += Button_OnFalse;
+                toolbarButton.OnTrue += Toggle;
+                toolbarButton.OnFalse += Toggle;
                 toolbarButton.OnAlternateClick += Button_OnAlternateClick;
 
                 toolbarButton.Register();
             }
         }
 
-        public void Open() => isOpen = true;
+        //public void Open() => isOpen = true;
 
-        public void Close() => isOpen = false;
+        //public void Close() => isOpen = false;
 
         public void Draw()
         {
@@ -105,42 +104,9 @@ namespace KSEA.Historian
             enableLauncherButton = GUILayout.Toggle(enableLauncherButton, "Use Stock Launcher");
             enableToolberButton = GUILayout.Toggle(enableToolberButton, "Use Blizzy's Toolbar");
 
-            if (enableLauncherButton && !appLauncherButton.IsRegistered)
-            {
-                appLauncherButton.OnTrue += Button_OnTrue;
-                appLauncherButton.OnFalse += Button_OnFalse;
-
-                appLauncherButton.Register();
-            }
-            else if (!enableLauncherButton && appLauncherButton.IsRegistered)
-            {
-                appLauncherButton.OnTrue -= Button_OnTrue;
-                appLauncherButton.OnFalse -= Button_OnFalse;
-
-                appLauncherButton.Unregister();
-            }
-
-            if (enableToolberButton && ToolbarManager.ToolbarAvailable && !toolbarButton.IsRegistered)
-            {
-                toolbarButton.OnTrue += Button_OnTrue;
-                toolbarButton.OnFalse += Button_OnFalse;
-
-                toolbarButton.SetState(isOpen);
-
-                toolbarButton.Register();
-            }
-            else if (!enableToolberButton && ToolbarManager.ToolbarAvailable && toolbarButton.IsRegistered)
-            {
-                toolbarButton.OnTrue -= Button_OnTrue;
-                toolbarButton.OnFalse -= Button_OnFalse;
-
-                toolbarButton.SetState(isOpen);
-
-                toolbarButton.Unregister();
-            }
+            ManageButtons();
 
             GUILayout.Space(20);
-
             GUILayout.BeginHorizontal();
             GUILayout.Label("Layout");
             GUILayout.Space(20);
@@ -200,11 +166,44 @@ namespace KSEA.Historian
             GUI.DragWindow();
         }
 
+        void ManageButtons()
+        {
+            if (enableLauncherButton && !appLauncherButton.IsRegistered)
+            {
+                appLauncherButton.Click += Button_Click;
+                appLauncherButton.Register();
+            }
+            else if (!enableLauncherButton && appLauncherButton.IsRegistered)
+            {
+                appLauncherButton.Click -= Button_Click;
+                appLauncherButton.Unregister();
+            }
+
+            if (enableToolberButton && ToolbarManager.ToolbarAvailable && !toolbarButton.IsRegistered)
+            {
+                toolbarButton.OnTrue += Button_Click;
+                toolbarButton.OnFalse += Button_Click;
+
+                toolbarButton.SetState(isOpen);
+
+                toolbarButton.Register();
+            }
+            else if (!enableToolberButton && ToolbarManager.ToolbarAvailable && toolbarButton.IsRegistered)
+            {
+                toolbarButton.OnTrue -= Button_Click;
+                toolbarButton.OnFalse -= Button_Click;
+
+                toolbarButton.SetState(isOpen);
+
+                toolbarButton.Unregister();
+            }
+        }
+
         internal void RemoveButton() => appLauncherButton.Unregister();
 
-        void Button_OnTrue() => Open();
+        void Button_Click() => Toggle();
 
-        void Button_OnFalse() => Close();
+        void Toggle() => isOpen = !isOpen;
 
         void Button_OnAlternateClick() => Historian.Instance.Suppressed = !Historian.Instance.Suppressed;
     }
