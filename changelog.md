@@ -29,7 +29,7 @@
 #### 1.2.3.8 - dev build
 * Add new element TEXT_LIST
 
-#### 1.2.3.1 - dev build
+#### 1.2.3.2 - dev build
 * Add new element ACTION_TEXT
 
 #### 1.2.3.1 for KSP 1.1.2
