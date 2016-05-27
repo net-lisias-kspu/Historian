@@ -43,15 +43,18 @@ namespace KSEA.Historian
 
             if (isEva == TriState.True)
             {
-                var ragDolled = FlightGlobals.ActiveVessel.evaController.isRagdoll;
-                var onLadder = FlightGlobals.ActiveVessel.evaController.OnALadder;
+                var kerbal = FlightGlobals.ActiveVessel.evaController;
+
+                var ragDolled = kerbal.isRagdoll;
+                var onLadder = kerbal.OnALadder;
+                var clambering = kerbal.fsm.currentStateName.StartsWith("Clamber");
 
                 if (ragDolled && !string.IsNullOrEmpty(ragDolledSituation))
                 {
                     text = ragDolledSituation;
                 }
 
-                if (onLadder && !string.IsNullOrEmpty(climbingSituation))
+                if ((onLadder || clambering) && !string.IsNullOrEmpty(climbingSituation))
                 {
                     text = climbingSituation;
                 }

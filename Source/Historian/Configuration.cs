@@ -17,26 +17,46 @@
 
 using System;
 using System.IO;
+using UnityEngine;
 
 namespace KSEA.Historian
 {
     public class Configuration
     {
+        // defaults
         static readonly Version CurrentVersion = new Version("1.1.2");
 
-        public string Layout { get; set; } = "";
+        static Configuration Defaults = new Configuration {
+            Layout = "Default",
+            EnableLauncherButton = true,
+            EnableToolbarButton = true,
+            CustomText = "",
+            PersistentConfigurationWindow = false,
+            PersistentCustomText = false,
+            TimeToRememberLastAction = 2000, // 2000ms = 2s
+            DefaultSpaceCenterName = "KSC",
+            KerbinMonthNames = new string[] { "Unnam", "Dosnam", "Trenam", "Cuatnam", "Cinqnam", "Seinam", "Sietnam", "Ocnam", "Nuevnam", "Diznam", "Oncnam", "Docenam" },
+            KerbinDayNames = new string[] { "Akant", "Brant", "Casant", "Dovant", "Esant", "Flant" }
+        };
+        
+        public string Layout { get; set; }
 
-        public string DefaultSpaceCenterName { get; set; } = "KSC";
+        public string DefaultSpaceCenterName { get; set; }
 
-        public bool EnableLauncherButton { get; set; } = true;
+        public bool EnableLauncherButton { get; set; }
 
-        public bool EnableToolbarButton { get; set; } = true;
+        public bool EnableToolbarButton { get; set; }
 
-        public string CustomText { get; set; } = "";
+        public string CustomText { get; set; }
 
-        public bool PersistentCustomText { get; set; } = false;
+        public bool PersistentCustomText { get; set; }
 
-        public bool PersistentConfigurationWindow { get; set; } = false;
+        public bool PersistentConfigurationWindow { get; set; }
+
+        public int TimeToRememberLastAction { get; set; }
+
+        public string[] KerbinMonthNames;
+        public string[] KerbinDayNames;
 
         public static Configuration Load(string file)
         {
@@ -47,13 +67,26 @@ namespace KSEA.Historian
 
                 var version = node.GetVersion("Version", new Version());
 
-                configuration.Layout = node.GetString("Layout", "Default");
-                configuration.EnableLauncherButton = node.GetBoolean("EnableLauncherButton", true);
-                configuration.EnableToolbarButton = node.GetBoolean("EnableToolbarButton", true);
-                configuration.CustomText = node.GetString("CustomText", "");
-                configuration.DefaultSpaceCenterName = node.GetString("DefaultSpaceCenterName", "KSC");
-                configuration.PersistentCustomText = node.GetBoolean("PersistentCustomText", false);
-                configuration.PersistentConfigurationWindow = node.GetBoolean("PersistentConfigurationWindow", true);
+                configuration.Layout 
+                    = node.GetString("Layout", Defaults.Layout);
+                configuration.EnableLauncherButton 
+                    = node.GetBoolean("EnableLauncherButton", Defaults.EnableLauncherButton);
+                configuration.EnableToolbarButton 
+                    = node.GetBoolean("EnableToolbarButton", Defaults.EnableToolbarButton);
+                configuration.CustomText 
+                    = node.GetString("CustomText", Defaults.CustomText);
+                configuration.DefaultSpaceCenterName 
+                    = node.GetString("DefaultSpaceCenterName", Defaults.DefaultSpaceCenterName);
+                configuration.PersistentCustomText 
+                    = node.GetBoolean("PersistentCustomText", Defaults.PersistentCustomText);
+                configuration.PersistentConfigurationWindow 
+                    = node.GetBoolean("PersistentConfigurationWindow", Defaults.PersistentConfigurationWindow);
+                configuration.TimeToRememberLastAction 
+                    = node.GetInteger("TimeToRememberLastAction", Defaults.TimeToRememberLastAction);
+                configuration.KerbinDayNames
+                    = node.TryReadStringArray("KerbinDayNames", Defaults.KerbinDayNames);
+                configuration.KerbinMonthNames
+                    = node.TryReadStringArray("KerbinMonthNames", Defaults.KerbinMonthNames);
 
                 if (version != CurrentVersion)
                 {
@@ -71,12 +104,15 @@ namespace KSEA.Historian
 
                 var configuration = new Configuration();
 
-                configuration.Layout = "Default";
-                configuration.EnableLauncherButton = true;
-                configuration.EnableToolbarButton = true;
-                configuration.CustomText = "";
-                configuration.PersistentCustomText = false;
-                configuration.PersistentConfigurationWindow = true;
+                configuration.Layout = Defaults.Layout;
+                configuration.EnableLauncherButton = Defaults.EnableLauncherButton;
+                configuration.EnableToolbarButton = Defaults.EnableToolbarButton;
+                configuration.CustomText = Defaults.CustomText;
+                configuration.PersistentCustomText = Defaults.PersistentCustomText;
+                configuration.PersistentConfigurationWindow = Defaults.PersistentConfigurationWindow;
+                configuration.TimeToRememberLastAction = Defaults.TimeToRememberLastAction;
+                configuration.KerbinDayNames = (string[])Defaults.KerbinDayNames.Clone();  
+                configuration.KerbinMonthNames = (string[])Defaults.KerbinMonthNames.Clone();
 
                 configuration.Save(file);
 
@@ -103,6 +139,9 @@ namespace KSEA.Historian
                 node.AddValue("PersistentCustomText", PersistentCustomText);
                 node.AddValue("PersistentConfigurationWindow", PersistentConfigurationWindow);
                 node.AddValue("DefaultSpaceCenterName", DefaultSpaceCenterName);
+                node.AddValue("TimeToRememberLastAction", TimeToRememberLastAction);
+                node.AddValue("KerbinDayNames", string.Join(";", KerbinDayNames));
+                node.AddValue("KerbinMonthNames", string.Join(";", KerbinMonthNames));
 
                 if (File.Exists(file))
                     File.Delete(file);

@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace KSEA.Historian
 {
     public static class KerbinDates
     {
-        public static string[] KerbinMonthNames = { "Unnam", "Dosnam", "Trenam", "Cuatnam", "Cinqnam", "Seinam", "Sietnam", "Ocnam", "Nuevnam", "Diznam", "Oncnam", "Docenam" };
-        public static string[] KerbinDayNames = { "Akant", "Brant", "Casant", "Dovant", "Esant", "Flant" };
-
-        public static string KerbinMonthName(this int dayNumber) => KerbinMonthNames[KerbinMonth(dayNumber) - 1];
+        public static string KerbinMonthName(this int dayNumber) => Historian.Instance.GetConfiguration().KerbinMonthNames[KerbinMonth(dayNumber) - 1];
 
         public static int KerbinMonth(this int dayNumber) => (int)Math.Floor((dayNumber - 0.01f) / 35.5) + 1;
 
@@ -132,6 +127,7 @@ namespace KSEA.Historian
 
         static string FormatMonth(int month, int tokenLen)
         {
+            var config = Historian.Instance.GetConfiguration();
             switch (tokenLen)
             {
                 case 1:
@@ -139,21 +135,22 @@ namespace KSEA.Historian
                 case 2:
                     return month.ToString("00");
                 case 3:
-                    return KerbinMonthNames[month - 1].Substring(0, 3);
+                    return config.KerbinMonthNames[month - 1].Substring(0, 3);
                 // case 4:
                 default:
-                    return KerbinMonthNames[month - 1];
+                    return config.KerbinMonthNames[month - 1];
             }
         }
 
         static string FormatDayOfWeek(int dayOfWeek, int tokenLen)
         {
+            var config = Historian.Instance.GetConfiguration();
             switch (tokenLen)
             {
                 case 3:
-                    return KerbinDayNames[dayOfWeek - 1].Substring(0, 3);
+                    return config.KerbinDayNames[dayOfWeek - 1].Substring(0, 3);
                 default:
-                    return KerbinDayNames[dayOfWeek - 1];
+                    return config.KerbinDayNames[dayOfWeek - 1];
             }
         }
     }

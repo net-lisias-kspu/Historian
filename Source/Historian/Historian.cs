@@ -41,7 +41,6 @@ namespace KSEA.Historian
         string assemblyVersion = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
         LastAction lastAction = LastAction.None;
         DateTime lastActionTime = DateTime.Now;
-        double lastActionPersistTime = 3.0f; // last action is active for 1 second after key press
 
         public LastAction LastAction {
             get
@@ -118,6 +117,7 @@ namespace KSEA.Historian
 
         public void Reload()
         {
+            configuration = Configuration.Load(Path.Combine(PluginDirectory, "Historian.cfg"));
             layouts.Clear();
             LoadLayouts();
             currentLayoutIndex = FindLayoutIndex(configuration.Layout);
@@ -137,7 +137,7 @@ namespace KSEA.Historian
             this.configuration.Save(Path.Combine(PluginDirectory, "Historian.cfg"));
         }
 
-        private void RemoveOldConfig()
+        void RemoveOldConfig()
         {
             var fName = Path.Combine(ModDirectory, "Historian.cfg");
             if (File.Exists(fName)) File.Delete(fName);
@@ -173,13 +173,13 @@ namespace KSEA.Historian
         }
 
 
-        private void RemoveButton()
+        void RemoveButton()
         {
             if (editor != null)
                 editor.RemoveButton();
         }
 
-        private void AddButton() => editor = new Editor(configuration);
+        void AddButton() => editor = new Editor(configuration);
 
         public void set_m_Active()
         {
@@ -191,7 +191,7 @@ namespace KSEA.Historian
         {
             if (!suppressed)
             {
-                if (lastAction != LastAction.None && (DateTime.Now - lastActionTime) > TimeSpan.FromSeconds(lastActionPersistTime) )
+                if (lastAction != LastAction.None && (DateTime.Now - lastActionTime) > TimeSpan.FromSeconds(configuration.TimeToRememberLastAction) )
                 {
                     lastAction = LastAction.None;
                 }
@@ -217,10 +217,16 @@ namespace KSEA.Historian
         void CheckForEvents()
         {
             var currentAction = lastAction;
+            var vessel = FlightGlobals.ActiveVessel;
             if (GameSettings.AbortActionGroup.GetKeyDown())
                 lastAction = LastAction.Abort;
             if (GameSettings.LAUNCH_STAGES.GetKeyDown())
-                lastAction = LastAction.Stage;
+            {
+                // ignore stage unless a vessel is active & it's not an EVA kerbal or flag
+                if (vessel != null && vessel.vesselType != VesselType.Flag && !vessel.isEVA)
+                    lastAction = LastAction.Stage;
+            }
+                
             if (GameSettings.CustomActionGroup1.GetKeyDown())
                 lastAction = LastAction.AG1;
             if (GameSettings.CustomActionGroup2.GetKeyDown())

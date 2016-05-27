@@ -121,6 +121,7 @@ namespace KSEA.Historian
             dateFormat = node.GetString("DateFormat", "");
             if (string.IsNullOrEmpty(dateFormat))
                 dateFormat = CultureInfo.CurrentUICulture.DateTimeFormat.LongDatePattern;
+                // looks like this doesn't work properly - CultuireInfo.*.name always returns en-US in KSP during my testing
         }
 
         void InitializeParameterDictionary()
@@ -188,6 +189,7 @@ namespace KSEA.Historian
 
             parsers.Add("StageNumber", StageNumberParser);
             parsers.Add("LastAction", LastActionParser);
+            parsers.Add("EvaState", EvaStateParser);
         }
 
         protected string Parse(string text)
@@ -506,6 +508,24 @@ namespace KSEA.Historian
         string StageNumberParser(CommonInfo info) => info.Vessel?.currentStage.ToString();
 
         string LastActionParser(CommonInfo info) => Historian.Instance.LastAction.ToString();
+
+        string EvaStateParser(CommonInfo info)
+        {
+            if (info.Vessel == null || !info.Vessel.isEVA)
+                return "";
+            try
+            {
+                var message = "";
+                if (info.Vessel.evaController.JetpackDeployed)
+                    message = "Jetpack ";
+                if (info.Vessel.evaController.JetpackIsThrusting)
+                    message += "thrusting ";
+                return message + info.Vessel.evaController.fsm.currentStateName;
+            } catch(Exception e) {
+                return $"Error: {e.Message}";
+            }
+            
+        }
 
         class KerbalKonstructsInfo
         {

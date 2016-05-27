@@ -83,14 +83,20 @@ namespace KSEA.Historian
         {
             if (isEva == TriState.True)
             {
-                if (FlightGlobals.ActiveVessel.evaController.isRagdoll
-                        && situationTexts.ContainsKey(ExtendedSituation.RagDolled))
+                var kerbal = FlightGlobals.ActiveVessel.evaController;
+
+                var ragDolled = kerbal.isRagdoll;
+                var onLadder = kerbal.OnALadder;
+                var clambering = kerbal.fsm.currentStateName.StartsWith("Clamber");
+
+                // Historian.Print(kerbal.fsm.currentStateName);
+
+                if (ragDolled && situationTexts.ContainsKey(ExtendedSituation.RagDolled))
                 {
                     return ExtendedSituation.RagDolled;
                 }
 
-                if (FlightGlobals.ActiveVessel.evaController.OnALadder
-                        && situationTexts.ContainsKey(ExtendedSituation.Climbing))
+                if ((onLadder || clambering) && situationTexts.ContainsKey(ExtendedSituation.Climbing))
                 {
                     return ExtendedSituation.Climbing;
                 }
@@ -101,6 +107,7 @@ namespace KSEA.Historian
 
         void UpdateMessageIndex(ExtendedSituation extendedSituation)
         {
+            
             if (DateTime.Now - lastDraw < minimumInterval)
             {
                 // Historian.Print("No index update");

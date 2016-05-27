@@ -236,6 +236,31 @@ namespace KSEA.Historian
 
             return fallback;
         }
+
+        public static string[] TryReadStringArray(this ConfigNode self, string name, string[] fallback, bool fixedLength = true)
+        {
+            if (self.HasValue(name))
+            {
+                try
+                {
+                    var values = self.GetValue(name).Split(';');
+                    if (fixedLength && values.Length != fallback.Length)
+                    {
+                        Historian.Print($"Wrong number of parameters for {name}. Expected {fallback.Length} but found {values.Length}");
+                    }
+                    else
+                    {
+                        return values;
+                    }
+                }
+                catch (Exception e) {
+                    Historian.Print($"Exception: {e.Message}. While attempting to read {name} from config");
+                }
+            }
+
+            Historian.Print($"Unable to read array values for {name} - using defaults.");
+            return (string[]) fallback.Clone();
+        }
     }
 
 

@@ -14,10 +14,6 @@
 * You should have received a copy of the GNU General Public License
 * along with Historian. If not, see <http://www.gnu.org/licenses/>.
 **/
-using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 using UnityEngine;
 
 namespace KSEA.Historian
@@ -39,7 +35,12 @@ namespace KSEA.Historian
             //m_LauncherButton = new LauncherButton();
             toolbarButton = new ToolbarButton();
 
-            position = new Rect(0.5f * Screen.width - 200.0f, 0.5f * Screen.height - 250.0f, 400.0f, 500.0f);
+            var windowHeight = 570f;
+            var windowWidth = 900f;
+            //if (GameSettings.KERBIN_TIME)
+            //    windowHeight += 100; // add extra height for Kerbin month/day name fields
+
+            position = new Rect(0.5f * Screen.width - windowWidth / 2, 0.5f * Screen.height - windowHeight / 2, windowWidth, windowHeight);
             windowId = (new System.Random()).Next(876543210, 987654321); // 9 digit random number
 
             nextButtonTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Button_Next", false);
@@ -66,10 +67,6 @@ namespace KSEA.Historian
             }
         }
 
-        //public void Open() => isOpen = true;
-
-        //public void Close() => isOpen = false;
-
         public void Draw()
         {
             if (isOpen)
@@ -94,13 +91,15 @@ namespace KSEA.Historian
             var historian = Historian.Instance;
             var configuration = historian.GetConfiguration();
 
+            // column one
+            GUILayout.BeginArea(new Rect (5, 20, 380, 450));
             GUILayout.BeginVertical();
 
+            GUILayout.Space(20);
             historian.Suppressed = GUILayout.Toggle(historian.Suppressed, "Suppressed");
             historian.AlwaysActive = GUILayout.Toggle(historian.AlwaysActive, "Always Active");
 
             configuration.PersistentConfigurationWindow = GUILayout.Toggle(configuration.PersistentConfigurationWindow, "Always Display Configuration Window");
-
             enableLauncherButton = GUILayout.Toggle(enableLauncherButton, "Use Stock Launcher");
             enableToolberButton = GUILayout.Toggle(enableToolberButton, "Use Blizzy's Toolbar");
 
@@ -110,9 +109,7 @@ namespace KSEA.Historian
             GUILayout.BeginHorizontal();
             GUILayout.Label("Layout");
             GUILayout.Space(20);
-
             var layouts = historian.GetLayoutNames();
-
             if (GUILayout.Button(previousButtonTexture, GUILayout.Width(20), GUILayout.Height(GUI.skin.label.lineHeight)))
             {
                 historian.CurrentLayoutIndex = Mathf.Clamp(historian.CurrentLayoutIndex - 1, 0, layouts.Length - 1);
@@ -121,26 +118,62 @@ namespace KSEA.Historian
             {
                 historian.CurrentLayoutIndex = Mathf.Clamp(historian.CurrentLayoutIndex + 1, 0, layouts.Length - 1);
             }
-
             GUILayout.Space(5);
-            GUILayout.Label(historian.GetCurrentLayoutName(), GUI.skin.textField);
-
+            GUILayout.Label(historian.GetCurrentLayoutName(), GUI.skin.textArea);
             GUILayout.EndHorizontal();
 
             GUILayout.Space(20);
-
             GUILayout.Label("Custom Text:");
-            configuration.CustomText = GUILayout.TextArea(configuration.CustomText, GUILayout.Height(60));
+            configuration.CustomText = GUILayout.TextArea(configuration.CustomText, GUI.skin.textArea, GUILayout.Height(60));
             configuration.PersistentCustomText = GUILayout.Toggle(configuration.PersistentCustomText, "Persistent Custom Text");
 
             GUILayout.Space(20);
-
             GUILayout.BeginHorizontal();
             GUILayout.Label("Default Space Center Name:");
-            configuration.DefaultSpaceCenterName = GUILayout.TextField(configuration.DefaultSpaceCenterName, GUILayout.Width(150));
+            configuration.DefaultSpaceCenterName = GUILayout.TextField(configuration.DefaultSpaceCenterName, GUI.skin.textArea, GUILayout.Width(150));
             GUILayout.EndHorizontal();
-            GUILayout.Space(20);
 
+            GUILayout.EndVertical();
+            GUILayout.EndArea();
+
+            // column two
+            GUILayout.BeginArea(new Rect (400, 20, 220, 400));
+            GUILayout.BeginVertical();
+
+            GUILayout.Space(20);
+            GUILayout.Label("Kerbin calendar day names:");
+            for (int i = 0; i < configuration.KerbinDayNames.Length; i++)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label($"{i+1}:");
+                GUILayout.FlexibleSpace();
+                configuration.KerbinDayNames[i] = GUILayout.TextField(configuration.KerbinDayNames[i], GUI.skin.textArea, GUILayout.Width(190f));
+                GUILayout.EndHorizontal();
+            }
+
+            GUILayout.EndVertical();
+            GUILayout.EndArea();
+
+            // column three
+            GUILayout.BeginArea(new Rect(650, 20, 220, 480));
+            GUILayout.BeginVertical();
+
+            GUILayout.Space(20);
+            GUILayout.Label("Kerbin calendar month names:");
+            for (int i = 0; i < configuration.KerbinMonthNames.Length; i++)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label($"{i+1}:");
+                GUILayout.FlexibleSpace();
+                configuration.KerbinMonthNames[i] = GUILayout.TextField(configuration.KerbinMonthNames[i], GUI.skin.textArea, GUILayout.Width(190f));
+                GUILayout.EndHorizontal();
+            }
+
+            GUILayout.EndVertical();
+            GUILayout.EndArea();
+
+            // bottom bar
+            GUILayout.BeginArea(new Rect(5,520,890,30));
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
@@ -156,12 +189,12 @@ namespace KSEA.Historian
                 configuration.EnableToolbarButton = enableToolberButton;
 
                 historian.SetConfiguration(configuration);
+                if (!configuration.PersistentConfigurationWindow) Toggle();
             }
 
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
-
-            GUILayout.EndVertical();
+            GUILayout.EndArea();
 
             GUI.DragWindow();
         }

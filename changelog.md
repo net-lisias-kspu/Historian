@@ -1,5 +1,18 @@
 # Changelog
 
+#### 1.2.3.24 - dev build
+* Fix toggling of editor menu display when both toolbar and app launcher button are used.
+* Clean up debug log messages
+
+#### 1.2.3.22 - dev build
+* TEXT_LIST and ACTION_TEXT situation aware
+
+#### 1.2.3.8 - dev build
+* Add new element TEXT_LIST
+
+#### 1.2.3.1 - dev build
+* Add new element ACTION_TEXT
+
 #### 1.2.3.1 for KSP 1.1.2
 * Revert persistence model to config file format and set save path to `GameData\KSEA\Historian\Plugins\PluginData`
 * Fix: BUG - multiple layouts overlaying each other
