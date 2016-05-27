@@ -12,6 +12,7 @@
         Escaping = 64,
         Docked = 128,
         RagDolled = 256,
-        Climbing = 512
+        Clambering = 512,
+        OnLadder = 1024
     }
 }

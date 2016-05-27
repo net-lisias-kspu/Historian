@@ -15,7 +15,7 @@ namespace KSEA.Historian
         Vessel lastVessel = null;
         System.Random rnd = new System.Random();
         DateTime lastDraw = DateTime.Now;
-        TimeSpan minimumInterval = TimeSpan.FromMilliseconds(200);
+        TimeSpan minimumInterval = TimeSpan.FromMilliseconds(80);
 
         protected override void OnLoad(ConfigNode node)
         {
@@ -87,19 +87,18 @@ namespace KSEA.Historian
 
                 var ragDolled = kerbal.isRagdoll;
                 var onLadder = kerbal.OnALadder;
-                var clambering = kerbal.fsm.currentStateName.StartsWith("Clamber");
+                var clambering = kerbal.fsm.currentStateName.StartsWith("Clamber", StringComparison.InvariantCulture);
 
                 // Historian.Print(kerbal.fsm.currentStateName);
 
                 if (ragDolled && situationTexts.ContainsKey(ExtendedSituation.RagDolled))
-                {
                     return ExtendedSituation.RagDolled;
-                }
 
-                if ((onLadder || clambering) && situationTexts.ContainsKey(ExtendedSituation.Climbing))
-                {
-                    return ExtendedSituation.Climbing;
-                }
+                if (clambering && situationTexts.ContainsKey(ExtendedSituation.Clambering))
+                    return ExtendedSituation.Clambering;
+
+                if (onLadder && situationTexts.ContainsKey(ExtendedSituation.OnLadder))
+                    return ExtendedSituation.OnLadder;
             }
 
             return (ExtendedSituation)situation;

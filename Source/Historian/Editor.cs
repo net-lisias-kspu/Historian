@@ -92,109 +92,117 @@ namespace KSEA.Historian
             var configuration = historian.GetConfiguration();
 
             // column one
-            GUILayout.BeginArea(new Rect (5, 20, 380, 450));
-            GUILayout.BeginVertical();
-
-            GUILayout.Space(20);
-            historian.Suppressed = GUILayout.Toggle(historian.Suppressed, "Suppressed");
-            historian.AlwaysActive = GUILayout.Toggle(historian.AlwaysActive, "Always Active");
-
-            configuration.PersistentConfigurationWindow = GUILayout.Toggle(configuration.PersistentConfigurationWindow, "Always Display Configuration Window");
-            enableLauncherButton = GUILayout.Toggle(enableLauncherButton, "Use Stock Launcher");
-            enableToolberButton = GUILayout.Toggle(enableToolberButton, "Use Blizzy's Toolbar");
-
-            ManageButtons();
-
-            GUILayout.Space(20);
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Layout");
-            GUILayout.Space(20);
-            var layouts = historian.GetLayoutNames();
-            if (GUILayout.Button(previousButtonTexture, GUILayout.Width(20), GUILayout.Height(GUI.skin.label.lineHeight)))
+            using (var columnOne = new GUILayout.AreaScope(new Rect(5, 20, 380, 450)))
             {
-                historian.CurrentLayoutIndex = Mathf.Clamp(historian.CurrentLayoutIndex - 1, 0, layouts.Length - 1);
+                using (var col = new GUILayout.VerticalScope())
+                {
+                    GUILayout.Space(20);
+                    historian.Suppressed = GUILayout.Toggle(historian.Suppressed, "Suppressed");
+                    historian.AlwaysActive = GUILayout.Toggle(historian.AlwaysActive, "Always Active");
+
+                    configuration.PersistentConfigurationWindow = GUILayout.Toggle(configuration.PersistentConfigurationWindow, "Always Display Configuration Window");
+                    enableLauncherButton = GUILayout.Toggle(enableLauncherButton, "Use Stock Launcher");
+                    enableToolberButton = GUILayout.Toggle(enableToolberButton, "Use Blizzy's Toolbar");
+
+                    ManageButtons();
+
+                    GUILayout.Space(10);
+                    using (var layout = new GUILayout.HorizontalScope())
+                    {
+                        GUILayout.Label("Layout");
+                        GUILayout.Space(10);
+                        var layouts = historian.GetLayoutNames();
+                        if (GUILayout.Button(previousButtonTexture, GUILayout.Width(20), GUILayout.Height(GUI.skin.label.lineHeight)))
+                        {
+                            historian.CurrentLayoutIndex = Mathf.Clamp(historian.CurrentLayoutIndex - 1, 0, layouts.Length - 1);
+                        }
+                        else if (GUILayout.Button(nextButtonTexture, GUILayout.Width(20), GUILayout.Height(GUI.skin.label.lineHeight)))
+                        {
+                            historian.CurrentLayoutIndex = Mathf.Clamp(historian.CurrentLayoutIndex + 1, 0, layouts.Length - 1);
+                        }
+                        GUILayout.Space(5);
+                        GUILayout.Label(historian.GetCurrentLayoutName(), GUI.skin.textArea, GUILayout.ExpandWidth(true));
+                    }
+
+                    GUILayout.Space(10);
+                    GUILayout.Label("Custom Text:");
+                    configuration.CustomText = GUILayout.TextArea(configuration.CustomText, GUI.skin.textArea, GUILayout.Height(60));
+                    configuration.PersistentCustomText = GUILayout.Toggle(configuration.PersistentCustomText, "Persistent Custom Text");
+
+                    GUILayout.Space(10);
+                    using (var spaceCentre = new GUILayout.HorizontalScope())
+                    {
+                        GUILayout.Label("Default Space Center Name:");
+                        configuration.DefaultSpaceCenterName = GUILayout.TextField(configuration.DefaultSpaceCenterName, GUI.skin.textArea, GUILayout.Width(150));
+                    }
+
+                    GUILayout.Space(10);
+                    GUILayout.Label($"Time to remember action key press: {configuration.TimeToRememberLastAction} ms");
+                    configuration.TimeToRememberLastAction = (int)GUILayout.HorizontalSlider(configuration.TimeToRememberLastAction, 100, 5000, GUILayout.ExpandWidth(true));
+
+                }
             }
-            else if (GUILayout.Button(nextButtonTexture, GUILayout.Width(20), GUILayout.Height(GUI.skin.label.lineHeight)))
-            {
-                historian.CurrentLayoutIndex = Mathf.Clamp(historian.CurrentLayoutIndex + 1, 0, layouts.Length - 1);
-            }
-            GUILayout.Space(5);
-            GUILayout.Label(historian.GetCurrentLayoutName(), GUI.skin.textArea);
-            GUILayout.EndHorizontal();
-
-            GUILayout.Space(20);
-            GUILayout.Label("Custom Text:");
-            configuration.CustomText = GUILayout.TextArea(configuration.CustomText, GUI.skin.textArea, GUILayout.Height(60));
-            configuration.PersistentCustomText = GUILayout.Toggle(configuration.PersistentCustomText, "Persistent Custom Text");
-
-            GUILayout.Space(20);
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Default Space Center Name:");
-            configuration.DefaultSpaceCenterName = GUILayout.TextField(configuration.DefaultSpaceCenterName, GUI.skin.textArea, GUILayout.Width(150));
-            GUILayout.EndHorizontal();
-
-            GUILayout.EndVertical();
-            GUILayout.EndArea();
 
             // column two
-            GUILayout.BeginArea(new Rect (400, 20, 220, 400));
-            GUILayout.BeginVertical();
-
-            GUILayout.Space(20);
-            GUILayout.Label("Kerbin calendar day names:");
-            for (int i = 0; i < configuration.KerbinDayNames.Length; i++)
+            using (var columnTwo = new GUILayout.AreaScope(new Rect(400, 20, 220, 400)))
             {
-                GUILayout.BeginHorizontal();
-                GUILayout.Label($"{i+1}:");
-                GUILayout.FlexibleSpace();
-                configuration.KerbinDayNames[i] = GUILayout.TextField(configuration.KerbinDayNames[i], GUI.skin.textArea, GUILayout.Width(190f));
-                GUILayout.EndHorizontal();
+                using (var col = new GUILayout.VerticalScope())
+                {
+                    GUILayout.Space(20);
+                    GUILayout.Label("Kerbin calendar day names:");
+                    for (int i = 0; i < configuration.KerbinDayNames.Length; i++)
+                    {
+                        using (var item = new GUILayout.HorizontalScope())
+                        {
+                            GUILayout.Label($"{i + 1}:");
+                            GUILayout.FlexibleSpace();
+                            configuration.KerbinDayNames[i] = GUILayout.TextField(configuration.KerbinDayNames[i], GUI.skin.textArea, GUILayout.Width(190f));
+                        }
+                    }
+                }
             }
-
-            GUILayout.EndVertical();
-            GUILayout.EndArea();
 
             // column three
-            GUILayout.BeginArea(new Rect(650, 20, 220, 480));
-            GUILayout.BeginVertical();
-
-            GUILayout.Space(20);
-            GUILayout.Label("Kerbin calendar month names:");
-            for (int i = 0; i < configuration.KerbinMonthNames.Length; i++)
+            using (var columnThree = new GUILayout.AreaScope(new Rect(650, 20, 220, 480)))
             {
-                GUILayout.BeginHorizontal();
-                GUILayout.Label($"{i+1}:");
-                GUILayout.FlexibleSpace();
-                configuration.KerbinMonthNames[i] = GUILayout.TextField(configuration.KerbinMonthNames[i], GUI.skin.textArea, GUILayout.Width(190f));
-                GUILayout.EndHorizontal();
+                using (var col = new GUILayout.VerticalScope())
+                {
+                    GUILayout.Space(20);
+                    GUILayout.Label("Kerbin calendar month names:");
+                    for (int i = 0; i < configuration.KerbinMonthNames.Length; i++)
+                    {
+                        using (var item = new GUILayout.HorizontalScope())
+                        {
+                            GUILayout.Label($"{i + 1}:");
+                            GUILayout.FlexibleSpace();
+                            configuration.KerbinMonthNames[i] = GUILayout.TextField(configuration.KerbinMonthNames[i], GUI.skin.textArea, GUILayout.Width(190f));
+                        }
+                    }
+                }
             }
-
-            GUILayout.EndVertical();
-            GUILayout.EndArea();
 
             // bottom bar
-            GUILayout.BeginArea(new Rect(5,520,890,30));
-            GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-
-            if (GUILayout.Button("Load", GUILayout.Width(100.0f)))
+            using (var buttonBar = new GUILayout.AreaScope(new Rect(5, 520, 890, 30)))
             {
-                historian.Reload();
+                using (var layout = new GUILayout.HorizontalScope())
+                {
+                    GUILayout.FlexibleSpace();
+                    if (GUILayout.Button("Load", GUILayout.Width(100.0f)))
+                    {
+                        historian.Reload();
+                    }
+                    if (GUILayout.Button("Save", GUILayout.Width(100.0f)))
+                    {
+                        configuration.Layout = historian.GetCurrentLayoutName();
+                        configuration.EnableLauncherButton = enableLauncherButton;
+                        configuration.EnableToolbarButton = enableToolberButton;
+
+                        historian.SetConfiguration(configuration);
+                        if (!configuration.PersistentConfigurationWindow) Toggle();
+                    }
+                    GUILayout.FlexibleSpace();
+                }
             }
-
-            if (GUILayout.Button("Save", GUILayout.Width(100.0f)))
-            {
-                configuration.Layout = historian.GetCurrentLayoutName();
-                configuration.EnableLauncherButton = enableLauncherButton;
-                configuration.EnableToolbarButton = enableToolberButton;
-
-                historian.SetConfiguration(configuration);
-                if (!configuration.PersistentConfigurationWindow) Toggle();
-            }
-
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
-            GUILayout.EndArea();
 
             GUI.DragWindow();
         }

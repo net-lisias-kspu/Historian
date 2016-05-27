@@ -41,6 +41,8 @@ The following element types are currently supported by Historian:
 * `PICTURE` Renders a 2D image onto the screen.
 * `FLAG` Renders the current mission's flag onto the screen.
 * `SITUATION_TEXT` Selects a different text to display based on flight situation and renders it on the screen much like `TEXT`.
+* `ACTION_TEXT` Selects a different text to display based on a recent action - staging, abort or an action group button press.
+* `TEXT_LIST` - Selects a different text to display from a list of possible options either randomly or in sequence. Different lists can be specified for different situations
 
 ##### Common Properties
 
@@ -64,9 +66,9 @@ A `RECTANGLE` fills a rectangular area of the screen with a solid color. You can
 
 A `TEXT` element renders a string of text.
 
-* `Text` Value of the text that is to be displayed. Supports rich text and placeholder values. _Default: Empty_
+* `Text` Value of the text that is to be used. Supports rich text and placeholder values. _Default: Empty_
 * `TextAnchor` Alignment of the text relative to the bounds of the element. Supports any one of these values: `UpperLeft`, `UpperCenter`, `UpperRight`, `MiddleLeft`,`MiddleCenter`, `MiddleRight`, `LowerLeft`, `LowerCenter`, and `LowerRight`. _Default: MiddleCenter_
-* `Font` name of OS font to use for text in the element. NOTE: this value is case sensitive and the name must EXACTLY match the name of a font installed in your operating system (e.g. `Arial`, `Comic Sans MS`, `Times New Roman`). _Default_: none.
+* `Font` name of an OS font to use for text in the element. NOTE: this value is case sensitive and the name must EXACTLY match the name of a font installed in your operating system (e.g. `Arial`, `Comic Sans MS`, `Times New Roman`). _Default_: none.
 * `FontSize` Size of the font. Note that rich text format specifiers can override this. _Default: 10_
 * `FontStyle` Style of the font. Supports any one of these values: `Normal`, `Bold`, `Italic`, and `BoldAndItalic`. Note that rich text format specifiers can override this. _Default: Normal_
 * `Color` Color of the font. Note that rich text format specifiers can override this. _Default: 1.0,1.0,1.0,1.0_
@@ -82,7 +84,7 @@ Refer to [Unity's Manual](http://docs.unity3d.com/Manual/StyledText.html) for de
 The following pre-defined placeholder values can be used inside a text element. These placeholders will be replaced with their corresponding values when a screenshot is taken.
 
 * `<N>` Inserts a new line.
-* `<Date>` Formatted date string. Standard Earth calendar dates if game settings is Earth time (24 hour days). "Fake" Kerbin dates based on 12 alternating 35 and 36 day months and six day week if game settings is Kerbin time (6 hour days). e.g. Wednesday 13 January 2016 or Esant 06 Trenam 001. __NOTE__: Kerbin day and month names are currently hardcoded (see below for list) but will be customisable in a future release.
+* `<Date>` Formatted date string. Standard Earth calendar dates if game settings is Earth time (24 hour days). "Fake" Kerbin dates based on 12 alternating 35 and 36 day months and six day week if game settings is Kerbin time (6 hour days). e.g. Wednesday 13 January 2016 or Esant 06 Trenam 001. __NOTE__: Kerbin day and month names can be customised from the settings window - see below for default values.
 * `<DateKAC>` Formatted date string using variable length year †
 * `<UT>` KSP Universal Time. Example: _Y12, D29, 2:02:12_
 * `<Year>` Current year in chosen `CalendarMode`
@@ -126,20 +128,30 @@ The following pre-defined placeholder values can be used inside a text element. 
 * `<PilotsList>, <EngineersList>, <ScientistsList>, <ToursistsList>` As above but formatted as a vertical bullet list of names rather than comma separated.
 * `<PilotsShort>, <EngineersShort>, <ScientistsShort>, <TouristsShort>` As `<CrewShort>` but filtered to single trait.
 * `<Target>` Name of currently targeted vessel or body (if any)
-* `<LaunchSite>` If [KSCSwitcher](http://forum.kerbalspaceprogram.com/index.php?/topic/106206-105-regexs-useful-mod-emporium/) is installed will display the name of the current active space center (e.g. _Cape Canaveral_). If [Kerbal Konstructs](http://forum.kerbalspaceprogram.com/index.php?/topic/94863-112-kerbal-konstructs-v0967_ex-holy-glowing-balls-batman/) is installed then the launchsite most recently set via the menu the VAB or SPH is displayed. If neither mod is present then the __Default Space Center Name__ is displayed.
+* `<LaunchSite>` If [KSCSwitcher](http://forum.kerbalspaceprogram.com/index.php?/topic/106206-105-regexs-useful-mod-emporium/) is installed will display the name of the current active space center (e.g. _Cape Canaveral_). If [Kerbal Konstructs](http://forum.kerbalspaceprogram.com/index.php?/topic/94863-112-kerbal-konstructs-v0967_ex-holy-glowing-balls-batman/) is installed then the launchsite most recently set via the menu the VAB or SPH is used. If neither mod is present then the __Default Space Center Name__ is used.
 * `<RealDate>` the real world date and time.
 * `<VesselType>` the type of the current vessel. Will be one of `Base`, `Debris`, `EVA`, `Flag`, `Lander`, `Probe`, `Rover`, `Ship`, `SpaceObject`, `Station`, `Unknown`
 * `<KK-SpaceCenter> If [Kerbal Konstructs](http://forum.kerbalspaceprogram.com/index.php?/topic/94863-112-kerbal-konstructs-v0967_ex-holy-glowing-balls-batman/) is installed will return the BaseName of the closest open space center. If not installed then `NO KK` will be returned.
 * `<KK-Distance>` If [Kerbal Konstructs](http://forum.kerbalspaceprogram.com/index.php?/topic/94863-112-kerbal-konstructs-v0967_ex-holy-glowing-balls-batman/) is installed will return the distance to the closest open space center. If not installed then `NO KK` will be returned.
+* `<StageNumber>` The number of the currently active stage. This will be the same as the number displayed in the staging controls at the bottom left of the flight screen UI.
 * `<Custom>` The current value of the Custom Text. You can set this value using the configuration window. If custom text is not persistent (default), it will be cleared after the next screenshot.
 
 Note that all placeholder values are case-sensitive.
 
-† Note for Earth calendar dates the game calculates the displayed clock date using fixed 365 day years taking no account of leap years. [Kerbal Alarm Clock](http://forum.kerbalspaceprogram.com/index.php?/topic/22809-11x-kerbal-alarm-clock-v3610-april-25/) calculates based on seconds since start date and takes account of leap years. [RSS](http://forum.kerbalspaceprogram.com/index.php?/topic/50471-112-real-solar-system-v1110-may-1/) only shows the planets in the correct relative locations for an historical date if leap years are accounted for. The different `<Date>` and `<DateKAC>` tags allow you to choose which of these calendar schemes you wish to use.
+The following placeholders are also available mainly for debug purposes or when developing layouts:
+
+* `<DateFormat>` The currently active date format string (e.g. `MM/dd/yyyy`).
+* `<ListFonts>` A (long) comma separated list of the official names of all fonts installed in your OS. For use in identifying the correct name to use with the `Font` property.
+* `<LastAction>` The last recognised action. See `ACTION_TEXT` below.
+* `<EvaState>` The current animation state of an EVA Kerbal.
+
+† Note for Earth calendar dates the game calculates the clock date using fixed 365 day years taking no account of leap years. [Kerbal Alarm Clock](http://forum.kerbalspaceprogram.com/index.php?/topic/22809-11x-kerbal-alarm-clock-v3610-april-25/) and [RSS Date Time Formatter](http://forum.kerbalspaceprogram.com/index.php?/topic/139335-ksp-112-rss-datetime-formatter-v10/) calculates based on seconds since start date and takes account of leap years. [RSS](http://forum.kerbalspaceprogram.com/index.php?/topic/50471-112-real-solar-system-v1110-may-1/) only shows the planets in the correct relative locations for an historical date if leap years are accounted for. The different `<Date>` and `<DateKAC>` tags allow you to choose which of these calendar schemes you wish to use.
 
 ##### Situation Text
 
 A `SITUATION_TEXT` element behaves similar to the `TEXT` element. It has all of its properties except `Text`. Instead, it has the following additional properties, each corresponding to a different flight situation:
+
+* `EvaOnly` Should this element be used only when there is a Kerbal on EVA. Possible values: True, False, Either. __Default__: Either
 
 * `Default` Used when no flight situation is available.
 * `Landed` Used when the vessel is landed.
@@ -151,9 +163,44 @@ A `SITUATION_TEXT` element behaves similar to the `TEXT` element. It has all of 
 * `Escaping` Used when the vessel is escaping from a body.
 * `Docked` Used when the vessel is docked to another.
 
+* `RagDolled` Used when an EVA Kerbal is 'ragdolled' on the ground as the result of a fall or collision
+* `Clambering` Used when an EVA Kerbal is climbing over terrain or a vehicle in response to the 'F' climb key.
+* `OnLadder` Used when an EVA Kerbal is holding on to a ladder
+
 When a screen shot is taken, the `SITUATION_TEXT` element uses only one of the above values for its text, depending on the situation. This is useful for making more descriptive captions such as: `Preparing to launch from <LaunchSite>` or `Landed on <Body>'s <LandingZone>` or `Flying at Mach <Mach> (<Speed>) <Altitude> over <Body>'s <Biome>`.
 
 Note that just like `TEXT`, `SITUATION_TEXT` also supports rich text and placeholder values.
+
+Note also that the special EVA values `RagDolled`, `Clambering` and `OnLadder` take precedence over the flight situations if they have a value text specified. If no value is specified then the appropriate normal situation is used (e.g. `Flying`, `Landed` etc.)
+
+##### ACTION Text
+
+An `ACTION_TEXT` element behaves similarly to a `SITUATION_TEXT` except that the selected text is used only if the corresponding action has occurred recently (how long is considered recent can be configured from the settings window). It has all of its properties except `Text`. Instead, it has the following additional properties, each corresponding to a different action:
+
+* `Default` Used whenever no recent action has taken place. If omitted then this element will normally be blank.
+* `Abort` Used if the abort key (`backspace` by default) or abort button has been pressed recently.
+* `Stage` Used if the stage key (`spacebar` by default) has been pressed recently.
+* `AG1`, `AG2`,... `AG10`: Used if the corresponding action group key (`1`, `2`,... `0` by default) has been pressed recently.
+
+Note that just like `TEXT`, `ACTION_TEXT` also supports rich text and placeholder values.
+
+##### TEXT_LIST
+
+A `TEXT_LIST` element behaves similarly to a `SITUATION_TEXT` element except that it allows a block of alternative `TEXT` values to be specified for each situation. The element has the can specify the same properties as a `TEXT` element with the addition of:
+
+* `EvaOnly` Should this element be used only when there is a Kerbal on EVA. Possible values: True, False, Either. __Default__: Either
+* `Random` Should the different text values be chosen in a random order or sequentially? __Default__: false
+* `ResetOnLaunch` When texts are being chosen in sequence should that sequence be reset when switching to a different vessel? __Default__: false
+
+Each situation block takes the same format with the name of the situation acting as a header then a list of `TEXT` entries enclosed between `{` and `}`. e.g.
+
+    Prelaunch
+	{
+	    Text = Поехали!
+		Text = Let's go!
+	}
+	
+Any of the situations from the `SITUATION_TEXT` element can be used as a block header. As with the `SITUATION_TEXT` element the `Default` block will be used if there is no block specified for the current situation.
 
 ##### Picture
 
@@ -176,11 +223,13 @@ If a `Size` property is not defined (or if the size is a zero vector), the size 
 
 #### Kerbin days and months.
 
-The included Kerbin calendar formatter uses the following day and month names. Odd numbered months have 35 days and even numbered months have 36 days.
+The included Kerbin calendar formatter uses the following day and month names. These names can be customised from the settings window. Odd numbered months have 35 days and even numbered months have 36 days.
 
 __Days__: Akant, Brant, Casant, Dovant, Esant, Flant  (_Note: first letter is A,B,...F_)
 
 __Months__: Unnam, Dosnam, Trenam, Cuatnam, Cinqnam, Seinam, Sietnam, Ocnam, Nuevnam, Diznam, Oncnam, Docenam (_Note: mangled Spanish ("Spangled") numbers with "nam" suffix_)
+
+
 
 ### Sample Configuration
 

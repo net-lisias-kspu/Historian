@@ -8,7 +8,8 @@ namespace KSEA.Historian
         Dictionary<Vessel.Situations, string> situations = new Dictionary<Vessel.Situations, string>();
         string defaultSituation = "";
         string ragDolledSituation = "";
-        string climbingSituation = "";
+        string clamberingSituation = "";
+        string onLadderSituation = "";
 
         TriState evaOnly = TriState.UseDefault;
 
@@ -18,7 +19,8 @@ namespace KSEA.Historian
 
             defaultSituation = node.GetString("Default", "");
             ragDolledSituation = node.GetString("RagDolled", "");
-            climbingSituation = node.GetString("Climbing", "");
+            clamberingSituation = node.GetString("Clambering", "");
+            onLadderSituation = node.GetString("OnLadder", "");
 
             evaOnly = node.GetEnum("EvaOnly", TriState.UseDefault);
 
@@ -47,17 +49,16 @@ namespace KSEA.Historian
 
                 var ragDolled = kerbal.isRagdoll;
                 var onLadder = kerbal.OnALadder;
-                var clambering = kerbal.fsm.currentStateName.StartsWith("Clamber");
+                var clambering = kerbal.fsm.currentStateName.StartsWith("Clamber", System.StringComparison.InvariantCulture);
 
                 if (ragDolled && !string.IsNullOrEmpty(ragDolledSituation))
-                {
                     text = ragDolledSituation;
-                }
 
-                if ((onLadder || clambering) && !string.IsNullOrEmpty(climbingSituation))
-                {
-                    text = climbingSituation;
-                }
+                if (clambering && !string.IsNullOrEmpty(clamberingSituation))
+                    text = clamberingSituation;
+                
+                if (onLadder && !string.IsNullOrEmpty(onLadderSituation))
+                    text = onLadderSituation;
             }
 
             SetText(text);

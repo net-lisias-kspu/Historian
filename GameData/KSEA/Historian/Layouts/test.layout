@@ -13,7 +13,7 @@ KSEA_HISTORIAN_LAYOUT
 	{
 		// lower panel
 		Anchor = 0.0,1.0
-		Size = 1.0,0.05
+		Size = 0.8,0.05
 		Position = 0.0,1.0
 		Color = 0.0,0.0,0.0,0.5
 	}
@@ -27,6 +27,7 @@ KSEA_HISTORIAN_LAYOUT
 		BackgroundTexture = Squad/Flags/minimalistic
 	}
 	
+	// always displayed
 	SITUATION_TEXT {
 		Anchor = 0.0,1.0
 		Size = 1.0,0.05
@@ -45,6 +46,7 @@ KSEA_HISTORIAN_LAYOUT
 		Docked = Docked
 	}
 	
+	// only displayed when a Kerbal is on EVA
 	SITUATION_TEXT {
 		EvaOnly = True
 	
@@ -69,6 +71,7 @@ KSEA_HISTORIAN_LAYOUT
 		Climbing = EVA Climbing
 	}
 	
+	// only displayed when a Kerbal is NOT on EVA
 	SITUATION_TEXT {
 		EvaOnly = False
 		
@@ -90,6 +93,7 @@ KSEA_HISTORIAN_LAYOUT
 		Docked = VESSEL Docked
 	}
 	
+	// Display a message when a specific action occurs
 	ACTION_TEXT
 	{
 		Anchor = 0.0,0.05
@@ -100,9 +104,10 @@ KSEA_HISTORIAN_LAYOUT
 		FontSize = 30
 		FontStyle = Bold
 		
-		Abort = Flight Aborted
+		Abort = Flight Aborted at <MET>!
 		AG1 = Action Group 1
 		AG2 = Action Group 2
+		AG10 = Hey you pressed 0!
 		Stage = Stage <StageNumber>
 	}
 	
@@ -116,7 +121,7 @@ KSEA_HISTORIAN_LAYOUT
 		FontSize = 20
 		FontStyle = Italic
 		Font = Comic Sans MS
-		Random = false
+		Random = false // should the texts in each list be displayed in random order.
 		ResetOnLaunch = true
 		
 		Default 
@@ -158,9 +163,14 @@ KSEA_HISTORIAN_LAYOUT
 			Text = 痛い!
 		}
 		
-		Climbing
+		Clambering
 		{
 			Text = Ever upward
+			Text = I think I'm slipping
+		}
+		
+		OnLadder
+		{
 			Text = I think I'm slipping
 			Text = This ladder's a bit slippery!
 		}

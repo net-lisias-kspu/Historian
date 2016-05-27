@@ -1,5 +1,24 @@
 # Changelog
 
+#### 1.2.4 for KSP 1.1.2
+* Add new elements:
+	* ACTION_TEXT: conditional message when abort, stage or action group pressed
+	* TEXT_LIST: random or sequential list of messages to display based on situation
+* Added `EvaOnly` property toggle to `SITUATION_TEXT` and `TEXT_LIST`
+* Added `Clambering`, `OnLadder` and `RagDolled` situations to `SITUATION_TEXT` and `TEXT_LIST`.
+* Add settings window fields to customise Kerbal day and month names.
+* Add settings window slider for `Time to remember action`
+
+#### 1.2.3.43 - dev build
+* Changed `Climbing` to `OnLadder` and `Clambering`
+
+#### 1.2.3.41 - dev build
+* Settings window field for customising time to 'remember' action key
+
+#### 1.2.3.34 - dev build
+* Added `EvaOnly`, `Climbing` and `RagDolled` situation switches
+* Settings window fields for customising Kerbal day and month names.
+
 #### 1.2.3.24 - dev build
 * Fix toggling of editor menu display when both toolbar and app launcher button are used.
 * Clean up debug log messages
