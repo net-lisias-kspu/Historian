@@ -14,6 +14,10 @@
         AG7,
         AG8,
         AG9,
-        AG10
+        AG10,
+
+        // for conditional checking
+        Any,
+        AnyOrNone
     }
 }

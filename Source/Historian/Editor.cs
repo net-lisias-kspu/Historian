@@ -29,6 +29,7 @@ namespace KSEA.Historian
         Texture previousButtonTexture = null;
         bool enableLauncherButton = true;
         bool enableToolberButton = true;
+        
 
         public Editor(Configuration configuration)
         {
@@ -99,6 +100,7 @@ namespace KSEA.Historian
                     GUILayout.Space(20);
                     historian.Suppressed = GUILayout.Toggle(historian.Suppressed, "Suppressed");
                     historian.AlwaysActive = GUILayout.Toggle(historian.AlwaysActive, "Always Active");
+                    configuration.AutoHideUI = GUILayout.Toggle(configuration.AutoHideUI, "Auto hide UI");
 
                     configuration.PersistentConfigurationWindow = GUILayout.Toggle(configuration.PersistentConfigurationWindow, "Always Display Configuration Window");
                     enableLauncherButton = GUILayout.Toggle(enableLauncherButton, "Use Stock Launcher");
@@ -125,9 +127,13 @@ namespace KSEA.Historian
                     }
 
                     GUILayout.Space(10);
-                    GUILayout.Label("Custom Text:");
+                    using (var customHead = new GUILayout.HorizontalScope())
+                    {
+                        GUILayout.Label("Custom Text:");
+                        GUILayout.FlexibleSpace();
+                        configuration.PersistentCustomText = GUILayout.Toggle(configuration.PersistentCustomText, "Persistent", GUILayout.Width(120));
+                    }
                     configuration.CustomText = GUILayout.TextArea(configuration.CustomText, GUI.skin.textArea, GUILayout.Height(60));
-                    configuration.PersistentCustomText = GUILayout.Toggle(configuration.PersistentCustomText, "Persistent Custom Text");
 
                     GUILayout.Space(10);
                     using (var spaceCentre = new GUILayout.HorizontalScope())
@@ -138,7 +144,7 @@ namespace KSEA.Historian
 
                     GUILayout.Space(10);
                     GUILayout.Label($"Time to remember action key press: {configuration.TimeToRememberLastAction} ms");
-                    configuration.TimeToRememberLastAction = (int)GUILayout.HorizontalSlider(configuration.TimeToRememberLastAction, 100, 5000, GUILayout.ExpandWidth(true));
+                    configuration.TimeToRememberLastAction = (int)GUILayout.HorizontalSlider(configuration.TimeToRememberLastAction, 250, 10000, GUILayout.ExpandWidth(true));
 
                 }
             }

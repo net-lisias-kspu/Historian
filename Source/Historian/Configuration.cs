@@ -33,6 +33,7 @@ namespace KSEA.Historian
             CustomText = "",
             PersistentConfigurationWindow = false,
             PersistentCustomText = false,
+            AutoHideUI = true,
             TimeToRememberLastAction = 2000, // 2000ms = 2s
             DefaultSpaceCenterName = "KSC",
             KerbinMonthNames = new string[] { "Unnam", "Dosnam", "Trenam", "Cuatnam", "Cinqnam", "Seinam", "Sietnam", "Ocnam", "Nuevnam", "Diznam", "Oncnam", "Docenam" },
@@ -55,6 +56,8 @@ namespace KSEA.Historian
 
         public int TimeToRememberLastAction { get; set; }
 
+        public bool AutoHideUI { get; set; }
+
         public string[] KerbinMonthNames;
         public string[] KerbinDayNames;
 
@@ -73,6 +76,8 @@ namespace KSEA.Historian
                     = node.GetBoolean("EnableLauncherButton", Defaults.EnableLauncherButton);
                 configuration.EnableToolbarButton 
                     = node.GetBoolean("EnableToolbarButton", Defaults.EnableToolbarButton);
+                configuration.AutoHideUI
+                    = node.GetBoolean("AutoHideUI", Defaults.AutoHideUI);
                 configuration.CustomText 
                     = node.GetString("CustomText", Defaults.CustomText);
                 configuration.DefaultSpaceCenterName 
@@ -107,6 +112,7 @@ namespace KSEA.Historian
                 configuration.Layout = Defaults.Layout;
                 configuration.EnableLauncherButton = Defaults.EnableLauncherButton;
                 configuration.EnableToolbarButton = Defaults.EnableToolbarButton;
+                configuration.AutoHideUI = Defaults.AutoHideUI;
                 configuration.CustomText = Defaults.CustomText;
                 configuration.PersistentCustomText = Defaults.PersistentCustomText;
                 configuration.PersistentConfigurationWindow = Defaults.PersistentConfigurationWindow;
@@ -135,6 +141,7 @@ namespace KSEA.Historian
                 node.AddValue("Layout", Layout);
                 node.AddValue("EnableLauncherButton", EnableLauncherButton);
                 node.AddValue("EnableToolbarButton", EnableToolbarButton);
+                node.AddValue("AutoHideUI", AutoHideUI);
                 node.AddValue("CustomText", CustomText);
                 node.AddValue("PersistentCustomText", PersistentCustomText);
                 node.AddValue("PersistentConfigurationWindow", PersistentConfigurationWindow);

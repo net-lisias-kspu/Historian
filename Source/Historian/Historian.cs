@@ -41,6 +41,9 @@ namespace KSEA.Historian
         string assemblyVersion = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
         LastAction lastAction = LastAction.None;
         DateTime lastActionTime = DateTime.Now;
+        bool UIHidden;
+        bool restoreUI;
+        TimeSpan actionTimeout;
 
         public LastAction LastAction {
             get
@@ -135,6 +138,8 @@ namespace KSEA.Historian
         {
             this.configuration = configuration;
             this.configuration.Save(Path.Combine(PluginDirectory, "Historian.cfg"));
+
+            actionTimeout = TimeSpan.FromMilliseconds(configuration.TimeToRememberLastAction);
         }
 
         void RemoveOldConfig()
@@ -150,10 +155,12 @@ namespace KSEA.Historian
             DontDestroyOnLoad(this);
             RemoveOldConfig();
             configuration = Configuration.Load(Path.Combine(PluginDirectory, "Historian.cfg"));
-            LoadLayouts();
 
+            LoadLayouts();
             currentLayoutIndex = FindLayoutIndex(configuration.Layout);
             Print("Current Layout Index {0}", currentLayoutIndex);
+
+            actionTimeout = TimeSpan.FromMilliseconds(configuration.TimeToRememberLastAction);
 
             GameEvents.onHideUI.Add(Game_OnHideGUI);
             GameEvents.onShowUI.Add(Game_OnShowGUI);
@@ -196,6 +203,20 @@ namespace KSEA.Historian
                     lastAction = LastAction.None;
                 }
                 CheckForEvents();
+
+                if (UIHidden && restoreUI) // restore UI on next update after forcibly hiding it
+                {
+                    // Historian.Print("Restore UI");
+                    GameEvents.onShowUI.Fire();
+                    restoreUI = false;
+                }
+
+                if (GameSettings.TAKE_SCREENSHOT.GetKeyDown() && configuration.AutoHideUI && !UIHidden)
+                {
+                    // Historian.Print("Hide UI");
+                    restoreUI = true;
+                    GameEvents.onHideUI.Fire();
+                }
                 
                 if (!active)
                 {
@@ -216,40 +237,53 @@ namespace KSEA.Historian
 
         void CheckForEvents()
         {
-            var currentAction = lastAction;
+            var temp = LastAction.None;
+
             var vessel = FlightGlobals.ActiveVessel;
             if (GameSettings.AbortActionGroup.GetKeyDown())
-                lastAction = LastAction.Abort;
+                temp = LastAction.Abort;
             if (GameSettings.LAUNCH_STAGES.GetKeyDown())
             {
                 // ignore stage unless a vessel is active & it's not an EVA kerbal or flag
                 if (vessel != null && vessel.vesselType != VesselType.Flag && !vessel.isEVA)
-                    lastAction = LastAction.Stage;
+                    temp = LastAction.Stage;
             }
                 
             if (GameSettings.CustomActionGroup1.GetKeyDown())
-                lastAction = LastAction.AG1;
+                temp = LastAction.AG1;
             if (GameSettings.CustomActionGroup2.GetKeyDown())
-                lastAction = LastAction.AG2;
+                temp = LastAction.AG2;
             if (GameSettings.CustomActionGroup3.GetKeyDown())
-                lastAction = LastAction.AG3;
+                temp = LastAction.AG3;
             if (GameSettings.CustomActionGroup4.GetKeyDown())
-                lastAction = LastAction.AG4;
+                temp = LastAction.AG4;
             if (GameSettings.CustomActionGroup5.GetKeyDown())
-                lastAction = LastAction.AG5;
+                temp = LastAction.AG5;
             if (GameSettings.CustomActionGroup6.GetKeyDown())
-                lastAction = LastAction.AG6;
+                temp = LastAction.AG6;
             if (GameSettings.CustomActionGroup7.GetKeyDown())
-                lastAction = LastAction.AG7;
+                temp = LastAction.AG7;
             if (GameSettings.CustomActionGroup8.GetKeyDown())
-                lastAction = LastAction.AG8;
+                temp = LastAction.AG8;
             if (GameSettings.CustomActionGroup9.GetKeyDown())
-                lastAction = LastAction.AG9;
+                temp = LastAction.AG9;
             if (GameSettings.CustomActionGroup10.GetKeyDown())
-                lastAction = LastAction.AG10;
+                temp = LastAction.AG10;
 
-            if (currentAction != lastAction)
+            if (temp == LastAction.None && lastAction != LastAction.None && DateTime.Now - lastActionTime > actionTimeout)
+            {
+                // Historian.Print($"Clearing action after timeout. Now: {DateTime.Now}, LastActionTime: {lastActionTime}, timeout: {actionTimeout} ");
+                lastAction = LastAction.None;
                 lastActionTime = DateTime.Now;
+                return;
+            }
+
+            if (temp != lastAction && temp != LastAction.None)
+            {
+                // Historian.Print($"Setting action {temp} at {DateTime.Now}");
+                lastActionTime = DateTime.Now;
+                lastAction = temp;
+            }
         }
 
         void OnGUI()
@@ -270,9 +304,18 @@ namespace KSEA.Historian
             }
         }
 
-        void Game_OnHideGUI() => suppressEditorWindow |= !configuration.PersistentConfigurationWindow;
+        void Game_OnHideGUI()
+        {
+            suppressEditorWindow |= !configuration.PersistentConfigurationWindow;
+            UIHidden = true;
+        }
 
-        void Game_OnShowGUI() => suppressEditorWindow = false;
+        void Game_OnShowGUI()
+        {
+            suppressEditorWindow = false;
+            UIHidden = false;
+        }
+            
 
         void Game_OnUnpause() => suppressEditorWindow = false;
 

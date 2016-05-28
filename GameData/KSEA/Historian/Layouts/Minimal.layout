@@ -1,0 +1,73 @@
+KSEA_HISTORIAN_LAYOUT
+{
+	RECTANGLE
+	{
+		Anchor = 0.0,1.0
+		Size = 1.0,0.03
+		Position = 0.0,1.0
+		Color = 0.0,0.0,0.0,0.8
+	}
+
+	TEXT
+	{
+		Anchor = 0.0,1.0
+		Position = 0.015,0.986
+		Size = 1.0,0.02
+		Color = 1.0,1.0,1.0,1.0
+		TextAnchor = LowerLeft
+		FontSize = 11
+		FontStyle = Normal
+		Text = <b><Vessel></b>, <Crew>
+		PilotsColor = red
+		EngineersColor = yellow
+		ScientistsColor = aqua
+		TouristsColor = green
+	}
+	
+	SITUATION_TEXT
+	{
+		Anchor = 0.0,1.0
+		Position = 0.015,1.001
+		Size = 1.0,0.02
+		Color = 1.0,1.0,1.0,1.0
+		TextAnchor = LowerLeft
+		FontSize = 11
+		FontStyle = Normal
+		Default =
+		Landed =
+		Splashed =
+		Prelaunch = Standing by to launch from <LaunchSite>
+		Flying = Flying at Mach <Mach> (<Speed>) at altitude of <Altitude> bearing <Heading>
+		SubOrbital = At <Altitude> on sub-orbital trajectory with maximum Ap: <Ap>, Inclination: <Inc>, Surface speed: <SrfSpeed>
+		Orbiting = <Orbit> at <Inc>° inclination. Altitude: <Altitude>. Speed: <OrbSpeed>
+		Escaping = Hyperbolic trajectory. Alt: <Altitude>, Pe: <Pe>, Inc: <Inc>, Speed: <OrbSpeed>
+		Docked = Docked
+		Text = [Ap:<Ap> Pe:<Pe> Inc:<Inc> Period:<Period> OrbSpeed:<OrbSpeed>] [Alt:<Altitude> Speed:<SrfSpeed> Mach:<Mach>]
+	}
+
+	TEXT
+	{
+		Anchor = 0.0,1.0
+		Position = -0.015,0.986
+		Size = 1.0,0.02
+		Color = 1.0,1.0,1.0,1.0
+		TextAnchor = LowerRight
+		FontSize = 11
+		Text = <Custom>
+	}
+	
+	TEXT
+	{
+		Anchor = 0.0,1.0
+		Position = -0.015,1.001
+		Size = 1.0,0.02
+		Color = 1.0,1.0,1.0,1.0
+		TextAnchor = LowerRight
+		FontSize = 11
+		FontStyle = Normal
+		DateFormat = dddd, dd MMMM yyyy HH:mm:ss
+		BaseYear = 1951
+		Text = <Body> : <Situation> : <Biome> <LandingZone> : <LatitudeDMS>, <LongitudeDMS> - <DateKAC> <T+>
+	}
+		
+}

@@ -56,23 +56,29 @@ namespace KSEA.Historian
             if (evaOnly != TriState.UseDefault && evaOnly != isEva)
                 return;
 
-            var situation = FlightGlobals.ActiveVessel?.situation;
-            var extendedSituation = situation.HasValue && situationTexts.ContainsKey((ExtendedSituation)situation.Value) 
-                ? Extend(situation, isEva)
-                : ExtendedSituation.Default;
+            var situation = Extend(FlightGlobals.ActiveVessel?.situation, isEva);
+
+            var extendedSituation = situationTexts.ContainsKey(situation) ? situation : ExtendedSituation.Default;
 
             var texts = situationTexts[extendedSituation];
 
             // debug
             // Historian.Print($"Random text: {isRandom}, Reset: {resetOnLaunch}, Index: {messageIndices[extendedSituation]}, isEva: {isEva}, situation: {extendedSituation}, #Messages: {texts.Count}");
 
-            if (texts.Count < 1)
+            if (texts != null && texts.Count < 1)
                 return;
 
             UpdateMessageIndex(extendedSituation);
 
-
-            SetText(texts[messageIndices[extendedSituation]]);
+            try
+            {
+                SetText(texts[messageIndices[extendedSituation]]);
+            }
+            catch (Exception e)
+            {
+                SetText("ERROR");
+                // Historian.Print($"TextList error: {e.Message}, situation: {extendedSituation}, index: {messageIndices[extendedSituation]}");
+            }
             base.OnDraw(bounds);
 
             lastVessel = FlightGlobals.ActiveVessel;
@@ -81,6 +87,9 @@ namespace KSEA.Historian
 
         ExtendedSituation Extend(Vessel.Situations? situation, TriState isEva)
         {
+            if (!situation.HasValue)
+                return ExtendedSituation.Default;
+
             if (isEva == TriState.True)
             {
                 var kerbal = FlightGlobals.ActiveVessel.evaController;
@@ -101,13 +110,16 @@ namespace KSEA.Historian
                     return ExtendedSituation.OnLadder;
             }
 
-            return (ExtendedSituation)situation;
+            if (situationTexts.ContainsKey((ExtendedSituation)situation.Value))
+                return (ExtendedSituation)situation.Value;
+
+            return ExtendedSituation.Default;
         }
 
         void UpdateMessageIndex(ExtendedSituation extendedSituation)
         {
             
-            if (DateTime.Now - lastDraw < minimumInterval)
+            if (DateTime.Now - lastDraw < minimumInterval && messageIndices[extendedSituation] > -1)
             {
                 // Historian.Print("No index update");
             }
