@@ -21,6 +21,14 @@ using UnityEngine;
 
 namespace KSEA.Historian
 {
+    public enum RightClickAction
+    {
+        None = 0,
+        Suppress,
+        AlwaysActive,
+        AutoHideUI
+    }
+
     public class Configuration
     {
         // defaults
@@ -37,7 +45,8 @@ namespace KSEA.Historian
             TimeToRememberLastAction = 2000, // 2000ms = 2s
             DefaultSpaceCenterName = "KSC",
             KerbinMonthNames = new string[] { "Unnam", "Dosnam", "Trenam", "Cuatnam", "Cinqnam", "Seinam", "Sietnam", "Ocnam", "Nuevnam", "Diznam", "Oncnam", "Docenam" },
-            KerbinDayNames = new string[] { "Akant", "Brant", "Casant", "Dovant", "Esant", "Flant" }
+            KerbinDayNames = new string[] { "Akant", "Brant", "Casant", "Dovant", "Esant", "Flant" },
+            RightClickAction = RightClickAction.Suppress
         };
         
         public string Layout { get; set; }
@@ -57,6 +66,8 @@ namespace KSEA.Historian
         public int TimeToRememberLastAction { get; set; }
 
         public bool AutoHideUI { get; set; }
+
+        public RightClickAction RightClickAction { get; set; }
 
         public string[] KerbinMonthNames;
         public string[] KerbinDayNames;
@@ -92,6 +103,8 @@ namespace KSEA.Historian
                     = node.TryReadStringArray("KerbinDayNames", Defaults.KerbinDayNames);
                 configuration.KerbinMonthNames
                     = node.TryReadStringArray("KerbinMonthNames", Defaults.KerbinMonthNames);
+                configuration.RightClickAction
+                    = node.GetEnum("RightClickAction", RightClickAction.Suppress);
 
                 if (version != CurrentVersion)
                 {
@@ -119,6 +132,7 @@ namespace KSEA.Historian
                 configuration.TimeToRememberLastAction = Defaults.TimeToRememberLastAction;
                 configuration.KerbinDayNames = (string[])Defaults.KerbinDayNames.Clone();  
                 configuration.KerbinMonthNames = (string[])Defaults.KerbinMonthNames.Clone();
+                configuration.RightClickAction = Defaults.RightClickAction;
 
                 configuration.Save(file);
 
@@ -149,6 +163,7 @@ namespace KSEA.Historian
                 node.AddValue("TimeToRememberLastAction", TimeToRememberLastAction);
                 node.AddValue("KerbinDayNames", string.Join(";", KerbinDayNames));
                 node.AddValue("KerbinMonthNames", string.Join(";", KerbinMonthNames));
+                node.AddValue("RightClickAction", RightClickAction);
 
                 if (File.Exists(file))
                     File.Delete(file);

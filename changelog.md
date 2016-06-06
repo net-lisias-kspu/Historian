@@ -1,5 +1,8 @@
 # Changelog
 
+#### 1.2.5.1
+* Add setting to configure Blizzy's Toolbar right click action to toggle either "Suppressed", "Always Active" or "Auto Hide UI"
+
 #### 1.2.5 for KSP 1.1.22
 * add `Name` property to all elements
 * add new `INHERIT` element.

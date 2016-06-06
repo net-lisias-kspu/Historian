@@ -36,7 +36,7 @@ namespace KSEA.Historian
             //m_LauncherButton = new LauncherButton();
             toolbarButton = new ToolbarButton();
 
-            var windowHeight = 570f;
+            var windowHeight = 580f;
             var windowWidth = 900f;
             //if (GameSettings.KERBIN_TIME)
             //    windowHeight += 100; // add extra height for Kerbin month/day name fields
@@ -93,18 +93,37 @@ namespace KSEA.Historian
             var configuration = historian.GetConfiguration();
 
             // column one
-            using (var columnOne = new GUILayout.AreaScope(new Rect(5, 20, 380, 450)))
+            using (var columnOne = new GUILayout.AreaScope(new Rect(15, 20, 380, 500)))
             {
                 using (var col = new GUILayout.VerticalScope())
                 {
                     GUILayout.Space(20);
                     historian.Suppressed = GUILayout.Toggle(historian.Suppressed, "Suppressed");
                     historian.AlwaysActive = GUILayout.Toggle(historian.AlwaysActive, "Always Active");
-                    configuration.AutoHideUI = GUILayout.Toggle(configuration.AutoHideUI, "Auto hide UI");
+                    historian.AutoHideUI = GUILayout.Toggle(historian.AutoHideUI, "Auto hide UI");
+                    configuration.AutoHideUI = historian.AutoHideUI;
 
                     configuration.PersistentConfigurationWindow = GUILayout.Toggle(configuration.PersistentConfigurationWindow, "Always Display Configuration Window");
                     enableLauncherButton = GUILayout.Toggle(enableLauncherButton, "Use Stock Launcher");
                     enableToolberButton = GUILayout.Toggle(enableToolberButton, "Use Blizzy's Toolbar");
+
+                    using (var layout = new GUILayout.HorizontalScope())
+                    {
+                        var rightClickOptionsCount = 4;
+                        GUILayout.Space(40);
+                        GUILayout.Label("Right click action");
+                        GUILayout.Space(10);
+                        if (GUILayout.Button(previousButtonTexture, GUILayout.Width(20), GUILayout.Height(GUI.skin.label.lineHeight)))
+                        {
+                            configuration.RightClickAction = (RightClickAction)Mathf.Clamp((int)configuration.RightClickAction - 1, 0, rightClickOptionsCount - 1);
+                        }
+                        else if (GUILayout.Button(nextButtonTexture, GUILayout.Width(20), GUILayout.Height(GUI.skin.label.lineHeight)))
+                        {
+                            configuration.RightClickAction = (RightClickAction)Mathf.Clamp((int)configuration.RightClickAction + 1, 0, rightClickOptionsCount - 1);
+                        }
+                        GUILayout.Space(5);
+                        GUILayout.Label(configuration.RightClickAction.ToString(), GUI.skin.textArea, GUILayout.ExpandWidth(true));
+                    }
 
                     ManageButtons();
 
@@ -150,7 +169,7 @@ namespace KSEA.Historian
             }
 
             // column two
-            using (var columnTwo = new GUILayout.AreaScope(new Rect(400, 20, 220, 400)))
+            using (var columnTwo = new GUILayout.AreaScope(new Rect(410, 20, 220, 400)))
             {
                 using (var col = new GUILayout.VerticalScope())
                 {
@@ -169,7 +188,7 @@ namespace KSEA.Historian
             }
 
             // column three
-            using (var columnThree = new GUILayout.AreaScope(new Rect(650, 20, 220, 480)))
+            using (var columnThree = new GUILayout.AreaScope(new Rect(660, 20, 220, 480)))
             {
                 using (var col = new GUILayout.VerticalScope())
                 {
@@ -188,7 +207,7 @@ namespace KSEA.Historian
             }
 
             // bottom bar
-            using (var buttonBar = new GUILayout.AreaScope(new Rect(5, 520, 890, 30)))
+            using (var buttonBar = new GUILayout.AreaScope(new Rect(5, 525, 890, 30)))
             {
                 using (var layout = new GUILayout.HorizontalScope())
                 {
@@ -252,6 +271,25 @@ namespace KSEA.Historian
 
         void Toggle() => isOpen = !isOpen;
 
-        void Button_OnAlternateClick() => Historian.Instance.Suppressed = !Historian.Instance.Suppressed;
+        void Button_OnAlternateClick()
+        {
+            switch (Historian.Instance.GetConfiguration().RightClickAction)
+            {
+                case RightClickAction.None:
+                    break;
+                case RightClickAction.Suppress:
+                    Historian.Instance.Suppressed = !Historian.Instance.Suppressed;
+                    break;
+                case RightClickAction.AlwaysActive:
+                    Historian.Instance.AlwaysActive = !Historian.Instance.AlwaysActive;
+                    break;
+                case RightClickAction.AutoHideUI:
+                    Historian.Instance.AutoHideUI = !Historian.Instance.AutoHideUI;
+                    break;
+                default:
+                    break;
+            }
+            
+        } 
     }
 }

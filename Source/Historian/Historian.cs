@@ -33,6 +33,7 @@ namespace KSEA.Historian
         bool active = false;
         bool alwaysActive = false;
         bool suppressed = false;
+        bool autoHideUI = false;
         Configuration configuration = null;
         Editor editor = null;
         bool suppressEditorWindow = false;
@@ -82,6 +83,18 @@ namespace KSEA.Historian
             }
         }
 
+        public bool AutoHideUI
+        {
+            get
+            {
+                return autoHideUI;
+            }
+            set
+            {
+                autoHideUI = value;
+            }
+        }
+
         public int CurrentLayoutIndex
         {
             get
@@ -117,6 +130,7 @@ namespace KSEA.Historian
         }
 
         public string AssemblyFileVersion => assemblyVersion;
+
 
         public void Reload()
         {

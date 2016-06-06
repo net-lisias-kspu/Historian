@@ -14,13 +14,14 @@ Orignal mod by [Zenobit](https://github.com/Zeenobit/). Extended development ver
 
 You can open the Historian configuration window by using either the stock application launcher, or [Blizzy's Toolbar](http://forum.kerbalspaceprogram.com/threads/60863).
 
-![Settings window](https://raw.githubusercontent.com/Aelfhe1m/Historian-Expanded/master/Documentation/settings-1.2.4.12.png)
+![Settings window](https://raw.githubusercontent.com/Aelfhe1m/Historian-Expanded/master/Documentation/settings-1.2.5.1.png)
 
-* __Suppressed__: When suppressed, Historian will not display the overlay when taking screenshots. As of version 1.1.0, you can also right click on Blizzy's Toolbar button to toggle this option without having to open the configuration window.
+* __Suppressed__: When suppressed, Historian will not display the overlay when taking screenshots.
 * __Always Active__: If this is turned on, the overlay will always show on top of the game. This is useful when editting layouts.
 * __Auto Hide UI__: Will hide the UI (equivalent to pressing F2) whenever a screenshot is taken with the F1 key. Note: if you are using another mod that also tries to hide the UI (e.g. Automated Screenshots & Saves) then it is recommended you leave this option unset.
 * __Use Stock Launcher__: When selected an Historian button will be displayed in the stock app launcher toolbar
 * __Use Blizzy's Toolbar__: When selected an Historian button will be available to be added to Blizzy's Toolbar.
+    * __Right click action__: cycle through which option (Suppresse, AlwaysActive or AutoHideUI) to toggle when the Historian button on the Blizzy Toolbar is right clicked. 
 * __Layout__: allows you to cycle through the available layouts (see below) to choose which is active
 * __Custom Text__: text to be used by `TEXT` elements `<custom>` placeholders (see below). Will be cleared after first screenshot unless the `Persistent` option is active.
 * __Default Space Center Name__: A preferred name to use when a text parameter returns "KSC"
