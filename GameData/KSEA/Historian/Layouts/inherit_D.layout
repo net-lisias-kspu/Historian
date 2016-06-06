@@ -1,0 +1,17 @@
+KSEA_HISTORIAN_LAYOUT
+{
+	INHERIT
+	{
+		LayoutName = inherit_B.layout
+	}
+	
+	TEXT {
+		Anchor = 0.0,1.0
+		Size = 1.0,0.05
+		Position = 0.1,1.0
+		TextAnchor = LowerLeft
+		FontSize = 14
+
+		Text = Second message - two level inheritance.
+	}
+}

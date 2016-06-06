@@ -52,6 +52,7 @@ The following element types are currently supported by Historian:
 * `SITUATION_TEXT` Selects a different text to display based on flight situation and renders it on the screen much like `TEXT`.
 * `ACTION_TEXT` Selects a different text to display based on a recent action - staging, abort or an action group button press.
 * `TEXT_LIST` - Selects a different text to display from a list of possible options either randomly or in sequence. Different lists can be specified for different situations
+* `INHERIT` - Combine another layout with the current one.
 
 ##### Common Properties
 
@@ -229,6 +230,18 @@ A `FLAG` element can be used to render the current mission's flag onto the scree
 * `Scale` Scale of the image relative to itself. For example, a value of `2.0,2.0` doubles the size of the texture, while maintaining the aspect ratio. _Default: 1.0,1.0_
 
 If a `Size` property is not defined (or if the size is a zero vector), the size of the image is used automatically. Otherwise it denotes  the size of the image relative to screen dimensions. For example, a value of `1.0,1.0` ensures the image takes up the size of the entire screen. _Default: 0.0,0.0_
+
+##### INHERIT
+
+An `INHERIT` element will include all the elements from another layout file (unless they are explicitly excluded) into the current layout.
+
+* `LayoutName` The filename of the layout to include. NOTE: this is case sensitive and MUST end in `.layout`. Invalid layout names will result in the `INHERIT` element being ignored.
+* `EXCLUDE` A block specifying a list of named elements from the inherited layout that should not be displayed. Unrecognised element names will be ignored. Example:
+    EXCLUDE
+	{
+		Element = SmallFlag
+		Element = DetailText
+	}
 
 #### Kerbin days and months.
 

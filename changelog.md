@@ -1,5 +1,12 @@
 # Changelog
 
+#### 1.2.5 for KSP 1.1.22
+* add `Name` property to all elements
+* add new `INHERIT` element.
+	* required `LayoutName` property to specify layout to inherit from (e.g. `LayoutName = test.layout`). NOTE: the layout file name is case sensitive
+	* optional `EXCLUDE` block with list of named `Element` blocks from inherited layout to exclude from combined layout ([Example](https://github.com/Aelfhe1m/Historian-Expanded/blob/master/GameData/KSEA/Historian/Layouts/inherit_C.layout)).
+
+
 #### 1.2.4.12 for KSP 1.1.2
 * Add settings window option to Auto Hide UI when taking screen shot. (Caution do not use this with other mods that also auto-hide the UI)
 * Extend maximum configurable setting for `Time to remember action` to 10s following additional play testing.

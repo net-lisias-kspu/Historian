@@ -1,0 +1,17 @@
+KSEA_HISTORIAN_LAYOUT
+{
+	INHERIT
+	{
+		LayoutName = inherit_A.layout
+	}
+	
+	TEXT {
+		Anchor = 0.0,1.0
+		Size = 1.0,0.05
+		Position = 0.1,1.0
+		TextAnchor = UpperLeft
+		FontSize = 12
+
+		Text = Inherited layout.
+	}
+}

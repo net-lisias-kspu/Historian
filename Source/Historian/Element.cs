@@ -1,32 +1,38 @@
-/**
- * This file is part of Historian.
- * 
- * Historian is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * Historian is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with Historian. If not, see <http://www.gnu.org/licenses/>.
- **/
 
+
+using System;
+/**
+* This file is part of Historian.
+* 
+* Historian is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+* 
+* Historian is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+* 
+* You should have received a copy of the GNU General Public License
+* along with Historian. If not, see <http://www.gnu.org/licenses/>.
+**/
 using UnityEngine;
 
 namespace KSEA.Historian
 {
     public interface IElement
     {
+        string Name { get; set; }
+
         void Draw();
         void Load(ConfigNode node);
     }
 
     public abstract class Element : IElement
     {
+        public string Name { get; set; }
+
         protected Vector2 Anchor { get; set; }
         protected Vector2 Position { get; set; }
         protected Vector2 Size { get; set; }
@@ -49,6 +55,8 @@ namespace KSEA.Historian
                     return new ActionText();
                 case "TEXT_LIST":
                     return new TextList();
+                case "INHERIT":
+                    return new InheritedLayout();
                 default:
                     return null;
             }
@@ -72,6 +80,7 @@ namespace KSEA.Historian
             Anchor = node.GetVector2("Anchor", Vector2.zero);
             Position = node.GetVector2("Position", Vector2.zero);
             Size = node.GetVector2("Size", Vector2.zero);
+            Name = node.GetString("Name", string.Empty);
 
             OnLoad(node);
         }

@@ -16,6 +16,7 @@
  **/
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace KSEA.Historian
 {
@@ -71,6 +72,15 @@ namespace KSEA.Historian
             foreach (var element in elements)
             {
                 element.Draw();
+            }
+        }
+
+        public void DrawExcept(IEnumerable<string> names)
+        {
+            foreach (var element in elements)
+            {
+                if (!names.Contains(element.Name))
+                    element.Draw();
             }
         }
 

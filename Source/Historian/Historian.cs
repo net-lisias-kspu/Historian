@@ -179,7 +179,6 @@ namespace KSEA.Historian
             feflectedMods.Add("kkSpaceCenterManager", Reflect.GetExternalType("KerbalKonstructs.SpaceCenters.SpaceCenterManager"));
         }
 
-
         void RemoveButton()
         {
             if (editor != null)
@@ -315,8 +314,7 @@ namespace KSEA.Historian
             suppressEditorWindow = false;
             UIHidden = false;
         }
-            
-
+ 
         void Game_OnUnpause() => suppressEditorWindow = false;
 
         void Game_OnPause() => suppressEditorWindow = true;
@@ -360,6 +358,12 @@ namespace KSEA.Historian
             }
         }
 
+        public Layout GetLayout(string name)
+        {
+            var index = FindLayoutIndex(name);
+            return (index < 0) ? Layout.Empty : GetLayout(index);
+        }
+
         Layout GetLayout(int index)
         {
             if (index >= 0 && index < layouts.Count)
@@ -374,6 +378,6 @@ namespace KSEA.Historian
 
         public static void Print(string format, params object[] args) => Print(string.Format(format, args));
 
-        public static void Print(string message) => Debug.Log("[KSEA.Historian] " + message);
+        public static void Print(string message) => Debug.Log("[Historian] " + message);
     }
 }
