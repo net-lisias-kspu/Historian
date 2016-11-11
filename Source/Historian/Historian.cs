@@ -261,7 +261,7 @@ namespace KSEA.Historian
                 if (vessel != null && vessel.vesselType != VesselType.Flag && !vessel.isEVA)
                     temp = LastAction.Stage;
             }
-                
+
             if (GameSettings.CustomActionGroup1.GetKeyDown())
                 temp = LastAction.AG1;
             if (GameSettings.CustomActionGroup2.GetKeyDown())

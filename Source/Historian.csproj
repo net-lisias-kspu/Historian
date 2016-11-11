@@ -31,28 +31,23 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\DEV-1.1\KSP\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\..\DEV-1.1\KSP\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
-    </Reference>
-    <Reference Include="KSPCore">
-      <HintPath>..\..\..\DEV-1.1\KSP\KSP_Data\Managed\KSPCore.dll</HintPath>
-    </Reference>
-    <Reference Include="KSPUtil">
-      <HintPath>..\..\..\DEV-1.1\KSP\KSP_Data\Managed\KSPUtil.dll</HintPath>
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\KSP\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="UnityEngine">
-      <HintPath>..\..\..\DEV-1.1\KSP\KSP_Data\Managed\UnityEngine.dll</HintPath>
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\KSP\KSP_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\..\DEV-1.1\KSP\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
+    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\KSP\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Historian\DateTimeHelper.cs" />
     <Compile Include="Historian\ExtendedSituation.cs" />
     <Compile Include="Historian\ActionText.cs" />
     <Compile Include="Historian\Configuration.cs" />
@@ -78,9 +73,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetDir)Historian.dll"  "C:\Games\KSP Installs\DEV-1.0.5\Historian\GameData\KSEA\Historian" /Y
-(robocopy "C:\Games\KSP Installs\DEV-1.0.5\Historian\GameData\KSEA\Historian" "C:\Games\KSP Installs\DEV-1.0.5\KSP\GameData\KSEA\Historian"   /E /V)
-(robocopy "C:\Games\KSP Installs\DEV-1.0.5\Historian\GameData\KSEA\Historian"  "C:\Games\KSP Installs\DEV-1.1\KSP\GameData\KSEA\Historian" /E /V) 
+    <PostBuildEvent>copy "$(TargetDir)Historian.dll"  "$(SolutionDir)\..\GameData\KSEA\Historian" /Y
+(robocopy "$(SolutionDir)\..\GameData\KSEA\Historian" "$(SolutionDir)\..\..\KSP\GameData\KSEA\Historian"   /E /V) ^&amp; exit 0
 (robocopy "C:\Games\KSP Installs\DEV-1.0.5\Historian\GameData\KSEA\Historian"  "C:\Games\KSP Installs\DEV-1.1\KSP - KK\GameData\KSEA\Historian" /E /V) ^&amp; exit 0</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

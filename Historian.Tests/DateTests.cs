@@ -99,7 +99,7 @@ namespace Historian.Tests
         [TestCase(60, "d", "1")]
         public void DateFormatTestsUT(int ut, string format, string expected)
         {
-            var input = KSPUtil.GetKerbinDateFromUT(ut);
+            var input = new SplitDateTimeValue(ut).TimeParts;
             Debug.Write(ut);
             Debug.Write($"{input[0]} {input[1]} {input[2]} {input[3]} {input[4]}");
             Assert.That(input.FormattedDate(format, baseYear: 0), Is.EqualTo(expected));

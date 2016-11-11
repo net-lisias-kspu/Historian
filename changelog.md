@@ -1,5 +1,10 @@
 # Changelog
 
+#### 1.2.6
+* Recompile for 1.2.1
+* Update toolbar wrapper to latest version for compatibility with Contract Configurator
+* Not tested against Kerbal Konstructs or KSCSwitcher as no 1.2 compatible versions exist at this time
+
 #### 1.2.5.1
 * Add setting to configure Blizzy's Toolbar right click action to toggle either "Suppressed", "Always Active" or "Auto Hide UI"
 

@@ -198,9 +198,10 @@ namespace KSEA.Historian
 
             // get common data sources
             var ut = Planetarium.GetUniversalTime();
-            var time = isKerbincalendar 
-                ? dateFormatter.GetKerbinDateFromUT((int)ut) 
-                : dateFormatter.GetEarthDateFromUT((int)ut);
+            
+            //var time = isKerbincalendar 
+            //    ? dateFormatter.GetKerbinDateFromUT((int)ut) 
+            //    : dateFormatter.GetEarthDateFromUT((int)ut);
             var vessel = FlightGlobals.ActiveVessel;
             var orbit = vessel?.GetOrbit();
             var target = vessel?.targetObject;
@@ -209,7 +210,7 @@ namespace KSEA.Historian
             {
                 Vessel = vessel,
                 Orbit = orbit,
-                Time = time,
+                Time = new SplitDateTimeValue(ut).TimeParts,
                 UT = ut,
                 Target = target,
                 TraitColours = new string[] { pilotColor, engineerColor, scientistColor, touristColor },
@@ -315,16 +316,13 @@ namespace KSEA.Historian
         {
             if (info.Vessel != null)
             {
-                int[] t;
-                if (isKerbincalendar)
-                    t = dateFormatter.GetKerbinDateFromUT((int)info.Vessel.missionTime);
-                else
-                    t = dateFormatter.GetEarthDateFromUT((int)info.Vessel.missionTime);
-                return (t[4] > 0)
-                    ? $"T+ {t[4]}y, {t[3]}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
-                    : (t[3] > 0)
-                        ? $"T+ {t[3]}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
-                        : $"T+ {t[2]:D2}:{t[1]:D2}:{t[0]:D2}";
+                var t = new SplitDateTimeValue(info.Vessel.missionTime);
+                return (t.Years > 0)
+                         ? $"{t.Years + 1}y, {t.Days + 1}d, {t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}"
+                         : (t.Days > 0)
+                             ? $"{t.Days + 1}d, {t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}"
+                             : $"{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}";
+                
             }
             return "";
         }
@@ -399,15 +397,13 @@ namespace KSEA.Historian
             if (info.Orbit == null)
                 return "";
 
-             var period = info.Orbit.period;
-            var t = isKerbincalendar
-                ? dateFormatter.GetKerbinDateFromUT((int)period)
-                : dateFormatter.GetEarthDateFromUT((int)period);
-            return (t[4] > 0)
-                     ? $"{t[4] + 1}y, {t[3] + 1}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
-                     : (t[3] > 0)
-                         ? $"{t[3] + 1}d, {t[2]:D2}:{t[1]:D2}:{t[0]:D2}"
-                         : $"{t[2]:D2}:{t[1]:D2}:{t[0]:D2}";
+            var period = info.Orbit.period;
+            var t = new SplitDateTimeValue(period);
+            return (t.Years > 0)
+                     ? $"{t.Years + 1}y, {t.Days + 1}d, {t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}"
+                     : (t.Days > 0)
+                         ? $"{t.Days + 1}d, {t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}"
+                         : $"{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}";
         }
 
         string OrbitParser(CommonInfo info)
