@@ -68,7 +68,7 @@
     <Compile Include="Historian\ToolbarWrapper.cs" />
     <Compile Include="Historian\Utility.cs" />
     <Compile Include="Historian\LastAction.cs" />
-    <Compile Include="InheritedLayout.cs" />
+    <Compile Include="Historian\InheritedLayout.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
