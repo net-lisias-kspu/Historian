@@ -75,7 +75,10 @@
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetDir)Historian.dll"  "$(SolutionDir)\..\GameData\KSEA\Historian" /Y
 (robocopy "$(SolutionDir)\..\GameData\KSEA\Historian" "$(SolutionDir)\..\..\KSP\GameData\KSEA\Historian"   /E /V) ^&amp; exit 0
-(robocopy "C:\Games\KSP Installs\DEV-1.0.5\Historian\GameData\KSEA\Historian"  "C:\Games\KSP Installs\DEV-1.1\KSP - KK\GameData\KSEA\Historian" /E /V) ^&amp; exit 0</PostBuildEvent>
+</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>rd /s /q "$(SolutionDir)\..\..\KSP\GameData\KSEA\Historian"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
