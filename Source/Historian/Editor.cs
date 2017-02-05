@@ -106,11 +106,12 @@ namespace KSEA.Historian
                     configuration.PersistentConfigurationWindow = GUILayout.Toggle(configuration.PersistentConfigurationWindow, "Always Display Configuration Window");
                     enableLauncherButton = GUILayout.Toggle(enableLauncherButton, "Use Stock Launcher");
                     enableToolberButton = GUILayout.Toggle(enableToolberButton, "Use Blizzy's Toolbar");
+                    GUILayout.Space(10);
 
                     using (var layout = new GUILayout.HorizontalScope())
                     {
                         var rightClickOptionsCount = 4;
-                        GUILayout.Space(40);
+                        //GUILayout.Space(40);
                         GUILayout.Label("Right click action");
                         GUILayout.Space(10);
                         if (GUILayout.Button(previousButtonTexture, GUILayout.Width(20), GUILayout.Height(GUI.skin.label.lineHeight)))
@@ -158,14 +159,10 @@ namespace KSEA.Historian
                     using (var spaceCentre = new GUILayout.HorizontalScope())
                     {
                         GUILayout.Label("Default Space Center Name:");
+                        GUILayout.FlexibleSpace();
                         configuration.DefaultSpaceCenterName = GUILayout.TextField(configuration.DefaultSpaceCenterName, GUI.skin.textArea, GUILayout.Width(150));
                     }
-                    GUILayout.Space(10);
-                    using (var noCrewLabel = new GUILayout.HorizontalScope())
-                    {
-                        GUILayout.Label("Default message for no crew:");
-                        configuration.DefaultNoCrewLabel = GUILayout.TextField(configuration.DefaultNoCrewLabel, GUI.skin.textArea, GUILayout.Width(150));
-                    }
+
 
                     GUILayout.Space(10);
                     GUILayout.Label($"Time to remember action key press: {configuration.TimeToRememberLastAction} ms");
@@ -175,7 +172,7 @@ namespace KSEA.Historian
             }
 
             // column two
-            using (var columnTwo = new GUILayout.AreaScope(new Rect(410, 20, 220, 400)))
+            using (var columnTwo = new GUILayout.AreaScope(new Rect(410, 20, 220, 500)))
             {
                 using (var col = new GUILayout.VerticalScope())
                 {
@@ -190,6 +187,23 @@ namespace KSEA.Historian
                             configuration.KerbinDayNames[i] = GUILayout.TextField(configuration.KerbinDayNames[i], GUI.skin.textArea, GUILayout.Width(190f));
                         }
                     }
+
+                    GUILayout.Space(50);
+                    GUILayout.Label("Default empty crew slot labels:");
+                    GUILayout.Space(10);
+                    using (var noCrewLabel = new GUILayout.HorizontalScope())
+                    {
+                        GUILayout.Label("Crewed:");
+                        GUILayout.FlexibleSpace();
+                        configuration.DefaultNoCrewLabel = GUILayout.TextField(configuration.DefaultNoCrewLabel, GUI.skin.textArea, GUILayout.Width(120));
+                    }
+                    using (var noCrewLabel = new GUILayout.HorizontalScope())
+                    {
+                        GUILayout.Label("Uncrewed:");
+                        GUILayout.FlexibleSpace();
+                        configuration.DefaultUnmannedLabel = GUILayout.TextField(configuration.DefaultUnmannedLabel, GUI.skin.textArea, GUILayout.Width(120));
+                    }
+
                 }
             }
 

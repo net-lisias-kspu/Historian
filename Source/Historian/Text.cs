@@ -307,7 +307,7 @@ namespace KSEA.Historian
 
         void UTParser(StringBuilder result, CommonInfo info) => result.Append($"Y{info.Year + 1}, D{(info.Day):D3}, {info.Hour}:{info.Minute:D2}:{info.Second:D2}");
 
-        void YearParser(StringBuilder result, CommonInfo info) => result.Append(info.Year + baseYear);
+        void YearParser(StringBuilder result, CommonInfo info) => result.Append(info.Year + ((isKerbincalendar) ? baseYear+1 : baseYear));
 
         void YearParserKAC(StringBuilder result, CommonInfo info)
         {
@@ -735,7 +735,8 @@ namespace KSEA.Historian
 
             if (crew.Length <= 0)
             {
-                result.Append(isSingleTrait ? "None" : "Unmanned");
+                var cfg = Historian.Instance.GetConfiguration();
+                result.Append(isSingleTrait ? cfg.DefaultNoCrewLabel : cfg.DefaultUnmannedLabel);
                 return;
             }
 

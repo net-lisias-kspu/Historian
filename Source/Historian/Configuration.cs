@@ -47,7 +47,8 @@ namespace KSEA.Historian
             KerbinMonthNames = new string[] { "Unnam", "Dosnam", "Trenam", "Cuatnam", "Cinqnam", "Seinam", "Sietnam", "Ocnam", "Nuevnam", "Diznam", "Oncnam", "Docenam" },
             KerbinDayNames = new string[] { "Akant", "Brant", "Casant", "Dovant", "Esant", "Flant" },
             RightClickAction = RightClickAction.Suppress,
-            DefaultNoCrewLabel = "None"
+            DefaultNoCrewLabel = "None",
+            DefaultUnmannedLabel = "Unmanned"
         };
 
         public Configuration(bool fromDefaults = false)
@@ -68,6 +69,7 @@ namespace KSEA.Historian
                 this.KerbinDayNames = (string[])Defaults.KerbinDayNames.Clone();
                 this.RightClickAction = Defaults.RightClickAction;
                 this.DefaultNoCrewLabel = Defaults.DefaultNoCrewLabel;
+                this.DefaultUnmannedLabel = Defaults.DefaultUnmannedLabel;
             }
         }
         
@@ -92,6 +94,8 @@ namespace KSEA.Historian
         public RightClickAction RightClickAction { get; set; }
 
         public string DefaultNoCrewLabel { get; set; }
+
+        public string DefaultUnmannedLabel { get; set; }
 
         public string[] KerbinMonthNames;
         public string[] KerbinDayNames;
@@ -131,6 +135,8 @@ namespace KSEA.Historian
                     = node.GetEnum("RightClickAction", RightClickAction.Suppress);
                 configuration.DefaultNoCrewLabel
                     = node.GetString("DefaultNoCrewLabel", Defaults.DefaultNoCrewLabel);
+                configuration.DefaultUnmannedLabel
+                    = node.GetString("DefaultUnmannedLabel", Defaults.DefaultUnmannedLabel);
 
                 if (version != CurrentVersion)
                 {
@@ -184,6 +190,7 @@ namespace KSEA.Historian
                 node.AddValue("KerbinMonthNames", string.Join(";", KerbinMonthNames));
                 node.AddValue("RightClickAction", RightClickAction);
                 node.AddValue("DefaultNoCrewLabel", DefaultNoCrewLabel);
+                node.AddValue("DefaultUnmannedLabel", DefaultUnmannedLabel);
 
                 if (File.Exists(file))
                     File.Delete(file);
