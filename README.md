@@ -14,7 +14,7 @@ Orignal mod by [Zenobit](https://github.com/Zeenobit/). Extended development ver
 
 You can open the Historian configuration window by using either the stock application launcher, or [Blizzy's Toolbar](http://forum.kerbalspaceprogram.com/threads/60863).
 
-![Settings window](https://raw.githubusercontent.com/Aelfhe1m/Historian-Expanded/master/Documentation/settings-1.2.5.1.png)
+![Settings window](https://raw.githubusercontent.com/Aelfhe1m/Historian-Expanded/master/Documentation/settings-1.2.7.png)
 
 * __Suppressed__: When suppressed, Historian will not display the overlay when taking screenshots.
 * __Always Active__: If this is turned on, the overlay will always show on top of the game. This is useful when editting layouts.
@@ -26,6 +26,7 @@ You can open the Historian configuration window by using either the stock applic
 * __Custom Text__: text to be used by `TEXT` elements `<custom>` placeholders (see below). Will be cleared after first screenshot unless the `Persistent` option is active.
 * __Default Space Center Name__: A preferred name to use when a text parameter returns "KSC"
 * __Time to remember action key press__: The time an action key will be remembered for use in an `ACTION_TEXT` element (see below).
+* __Default empty crew slot labels__: apply to the various crew tags (see below). Specifies the text to show when no crew (of the appropriate type) are in the vessel. For example if the TEXT is `<Pilots> <Scientists>` and only one pilot (Jeb) is on board this will show `Jeb None` with the default setting. Setting the field to empty will change this to show just `Jeb`. The probe field only applies to the generic `<Crew> <CrewList> <CrewShort>` tags and will always be blank for the crew type specific tags for an uncrewed vessel.
 * __Load__: Reloads all layouts while the game is running.
 * __Save__: Saves the current layout as the default layout (selected automatically everytime you launch KSP).
 

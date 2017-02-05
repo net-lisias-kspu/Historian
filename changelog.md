@@ -1,5 +1,13 @@
 # Changelog
 
+#### 1.2.7 for KSP 1.2.2
+* Fix issue #10 where configuration dialog would not show correctly if settings.cfg file had to be created during start-up (e.g. after first installing mod and add action to Visual Studio build sequence to automatically delete settings.cfg so I don't overlook this breaking in the future
+*  Add configuration option to allow setting text to be shown for empty crew slots i.e. in `pilot`, `scientist`, `engineer` (and short or list variants) tags when no crew of that type are present in vessel. *Default = None (same as previous version)*
+* Add configuration option to allow setting text to be shown in `Crew`, `CrewShort` or `CrewList` tags for a vessel with no crew. *Default = unmanned (same as previous version)*.
+* Fix #13 Out by one error when displaying Kerbin formatted dates.
+* Modify text parsing routines to remove many temporary strings and to use cached stringbuilder if available. Should reduce garbage collection footprint.
+
+
 #### 1.2.6
 * Recompile for 1.2.1
 * Update toolbar wrapper to latest version for compatibility with Contract Configurator
