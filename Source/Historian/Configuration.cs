@@ -32,9 +32,9 @@ namespace KSEA.Historian
     public class Configuration
     {
         // defaults
-        static readonly Version CurrentVersion = new Version("1.1.2");
+        static readonly Version CurrentVersion = new Version("1.2.7");
 
-        static Configuration Defaults = new Configuration {
+        public static Configuration Defaults = new Configuration {
             Layout = "Default",
             EnableLauncherButton = true,
             EnableToolbarButton = true,
@@ -46,8 +46,30 @@ namespace KSEA.Historian
             DefaultSpaceCenterName = "KSC",
             KerbinMonthNames = new string[] { "Unnam", "Dosnam", "Trenam", "Cuatnam", "Cinqnam", "Seinam", "Sietnam", "Ocnam", "Nuevnam", "Diznam", "Oncnam", "Docenam" },
             KerbinDayNames = new string[] { "Akant", "Brant", "Casant", "Dovant", "Esant", "Flant" },
-            RightClickAction = RightClickAction.Suppress
+            RightClickAction = RightClickAction.Suppress,
+            DefaultNoCrewLabel = "None"
         };
+
+        public Configuration(bool fromDefaults = false)
+        {
+            if (fromDefaults)
+            {
+                Historian.Print("Creating from defaults");
+                this.Layout = Defaults.Layout;
+                this.EnableLauncherButton = Defaults.EnableLauncherButton;
+                this.EnableToolbarButton = Defaults.EnableToolbarButton;
+                this.CustomText = Defaults.CustomText;
+                this.PersistentConfigurationWindow = Defaults.PersistentConfigurationWindow;
+                this.PersistentCustomText = Defaults.PersistentCustomText;
+                this.AutoHideUI = Defaults.AutoHideUI;
+                this.TimeToRememberLastAction = Defaults.TimeToRememberLastAction;
+                this.DefaultSpaceCenterName = Defaults.DefaultSpaceCenterName;
+                this.KerbinMonthNames = (string[])Defaults.KerbinMonthNames.Clone();
+                this.KerbinDayNames = (string[])Defaults.KerbinDayNames.Clone();
+                this.RightClickAction = Defaults.RightClickAction;
+                this.DefaultNoCrewLabel = Defaults.DefaultNoCrewLabel;
+            }
+        }
         
         public string Layout { get; set; }
 
@@ -68,6 +90,8 @@ namespace KSEA.Historian
         public bool AutoHideUI { get; set; }
 
         public RightClickAction RightClickAction { get; set; }
+
+        public string DefaultNoCrewLabel { get; set; }
 
         public string[] KerbinMonthNames;
         public string[] KerbinDayNames;
@@ -105,6 +129,8 @@ namespace KSEA.Historian
                     = node.TryReadStringArray("KerbinMonthNames", Defaults.KerbinMonthNames);
                 configuration.RightClickAction
                     = node.GetEnum("RightClickAction", RightClickAction.Suppress);
+                configuration.DefaultNoCrewLabel
+                    = node.GetString("DefaultNoCrewLabel", Defaults.DefaultNoCrewLabel);
 
                 if (version != CurrentVersion)
                 {
@@ -117,23 +143,16 @@ namespace KSEA.Historian
             {
                 Historian.Print($"Failed to load configuration file '{file}'. Attempting recovery ...");
 
+                // ensure save directory exists.
+                var dir = Path.GetDirectoryName(file);
+                Directory.CreateDirectory(dir);
+
                 if (File.Exists(file))
                     File.Delete(file);
 
-                var configuration = new Configuration();
-
-                configuration.Layout = Defaults.Layout;
-                configuration.EnableLauncherButton = Defaults.EnableLauncherButton;
-                configuration.EnableToolbarButton = Defaults.EnableToolbarButton;
-                configuration.AutoHideUI = Defaults.AutoHideUI;
-                configuration.CustomText = Defaults.CustomText;
-                configuration.PersistentCustomText = Defaults.PersistentCustomText;
-                configuration.PersistentConfigurationWindow = Defaults.PersistentConfigurationWindow;
-                configuration.TimeToRememberLastAction = Defaults.TimeToRememberLastAction;
-                configuration.KerbinDayNames = (string[])Defaults.KerbinDayNames.Clone();  
-                configuration.KerbinMonthNames = (string[])Defaults.KerbinMonthNames.Clone();
-                configuration.RightClickAction = Defaults.RightClickAction;
-
+                Historian.Print("Creating configuration from default values");
+                var configuration = new Configuration(fromDefaults: true);
+                Historian.Print("Saving configuration file");
                 configuration.Save(file);
 
                 return configuration;
@@ -164,6 +183,7 @@ namespace KSEA.Historian
                 node.AddValue("KerbinDayNames", string.Join(";", KerbinDayNames));
                 node.AddValue("KerbinMonthNames", string.Join(";", KerbinMonthNames));
                 node.AddValue("RightClickAction", RightClickAction);
+                node.AddValue("DefaultNoCrewLabel", DefaultNoCrewLabel);
 
                 if (File.Exists(file))
                     File.Delete(file);
