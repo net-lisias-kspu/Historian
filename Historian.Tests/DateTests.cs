@@ -10,6 +10,12 @@ namespace Historian.Tests
 {
     public class DateTests
     {
+        [TestFixtureSetUp]
+        public static void TestSetUp()
+        {
+            KerbinDates.config = Configuration.Defaults;
+        }
+
         public static string[] KerbinMonthNames = { "Unnam", "Dosnam", "Trenam", "Cuatnam", "Cinqnam", "Seinam", "Sietnam", "Ocnam", "Nuevnam", "Diznam", "Oncnam", "Docenam" };
 
         [TestCase(1, "Unnam")]
@@ -90,6 +96,7 @@ namespace Historian.Tests
         [TestCase(new int[] { 4, 3, 2, 0, 1 }, "y", "2")]
         [TestCase(new int[] { 4, 3, 2, 0, 1 }, "yyy", "002")]
         [TestCase(new int[] { 4, 3, 2, 0, 1 }, "d/M/y", "1/1/2")]
+        [TestCase(new int[] { 4, 3, 2, 349, 0}, "dddd d MMMM yyy", "Brant 31 Diznam 001")]
         public void DateFormatTests(int[] input, string format, string expected)
         {
             Assert.That(input.FormattedDate(format, baseYear: 0), Is.EqualTo(expected));
@@ -103,6 +110,17 @@ namespace Historian.Tests
             Debug.Write(ut);
             Debug.Write($"{input[0]} {input[1]} {input[2]} {input[3]} {input[4]}");
             Assert.That(input.FormattedDate(format, baseYear: 0), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void DateSplitterTest()
+        {
+            var input = 21600 * 350 + 12345; // some time in Y1 D350
+            Debug.Write(input);
+            
+            var result = new SplitDateTimeValue(input);
+            Debug.Write(SplitDateTimeValue.dateFormatter.PrintDate(input, true));
+            Assert.That(result.Years, Is.EqualTo(0));
         }
     }
 }

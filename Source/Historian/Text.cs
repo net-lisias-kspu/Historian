@@ -37,7 +37,7 @@ namespace KSEA.Historian
         public int Year { get { return Time[4]; } }
         public int Day { get { return Time[3] + 1; } }
         public int Hour { get { return Time[2]; } }
-        public int Minute {  get { return Time[1]; } }
+        public int Minute { get { return Time[1]; } }
         public int Second { get { return Time[0]; } }
 
         public string[] TraitColours { get; set; }
@@ -59,13 +59,13 @@ namespace KSEA.Historian
         bool isKerbincalendar;
 
         static string[] OSFonts = Font.GetOSInstalledFontNames();
-        static Dictionary<string,Font> createdFonts = new Dictionary<string, Font>();
+        static Dictionary<string, Font> createdFonts = new Dictionary<string, Font>();
         string fontName;
-        
+
         static DefaultDateTimeFormatter dateFormatter = new DefaultDateTimeFormatter();
 
-        static readonly Dictionary<string, Func<CommonInfo, string>> parsers 
-            = new Dictionary<string, Func<CommonInfo, string>>();
+        static readonly Dictionary<string, Action<StringBuilder, CommonInfo>> parsers
+            = new Dictionary<string, Action<StringBuilder, CommonInfo>>();
 
         readonly static string[] allTraits = { "Pilot", "Engineer", "Scientist", "Tourist" };
 
@@ -79,9 +79,10 @@ namespace KSEA.Historian
 
         protected override void OnDraw(Rect bounds)
         {
-            var style = new GUIStyle(GUI.skin.label);
-
-            style.alignment = textAnchor;
+            var style = new GUIStyle(GUI.skin.label)
+            {
+                alignment = textAnchor
+            };
             style.normal.textColor = color;
             if (createdFonts.ContainsKey(fontName))
                 style.font = createdFonts[fontName];
@@ -89,9 +90,10 @@ namespace KSEA.Historian
             style.fontStyle = fontStyle;
             style.richText = true;
 
-            var content = new GUIContent();
-            content.text = Parse(text);
-
+            var content = new GUIContent()
+            {
+                text = Parse(text)
+            };
             GUI.Label(bounds, content, style);
         }
 
@@ -107,7 +109,7 @@ namespace KSEA.Historian
                 fontName = DEFAULT_FONT_NAME;
             }
             else if (!createdFonts.ContainsKey(fontName))
-                    createdFonts.Add(fontName, Font.CreateDynamicFontFromOSFont(fontName, 12));
+                createdFonts.Add(fontName, Font.CreateDynamicFontFromOSFont(fontName, 12));
             fontSize = node.GetInteger("FontSize", 10);
             fontStyle = node.GetEnum("FontStyle", FontStyle.Normal);
 
@@ -117,15 +119,16 @@ namespace KSEA.Historian
             touristColor = node.GetString("TouristColor", "clear");
 
             isKerbincalendar = GameSettings.KERBIN_TIME;
-            baseYear = node.GetInteger("BaseYear", isKerbincalendar ? 1 : 1951);
+            baseYear = node.GetInteger("BaseYear", isKerbincalendar ? 0 : 1951);
             dateFormat = node.GetString("DateFormat", "");
             if (string.IsNullOrEmpty(dateFormat))
                 dateFormat = CultureInfo.CurrentUICulture.DateTimeFormat.LongDatePattern;
-                // looks like this doesn't work properly - CultuireInfo.*.name always returns en-US in KSP during my testing
+            // looks like this doesn't work properly - CultuireInfo.*.name always returns en-US in KSP during my testing
         }
 
         void InitializeParameterDictionary()
         {
+            // each parser is an action that appends its result to the passed in stringbuilder
             parsers.Add("N", NewLineParser);
             parsers.Add("Custom", CustomParser);
             parsers.Add("Date", DateParser);
@@ -194,11 +197,19 @@ namespace KSEA.Historian
 
         protected string Parse(string text)
         {
-            var result = new StringBuilder();
+            var result = StringBuilderCache.Acquire();
+            if (result == null)
+                result = new StringBuilder();
+            ParseIntoBuilder(result, text);
+            return result.ToStringAndRelease();
+        }
+
+        protected void ParseIntoBuilder(StringBuilder result, string text)
+        {
 
             // get common data sources
             var ut = Planetarium.GetUniversalTime();
-            
+
             //var time = isKerbincalendar 
             //    ? dateFormatter.GetKerbinDateFromUT((int)ut) 
             //    : dateFormatter.GetEarthDateFromUT((int)ut);
@@ -233,8 +244,8 @@ namespace KSEA.Historian
                         // check if recognised
                         if (parsers.ContainsKey(token))
                         {
-                            // run parser for matching token
-                            result.Append(parsers[token](info));
+                            // run parser for matching token - each action must append to the stringbuilder
+                            parsers[token](result, info);
                         }
                         else
                         {
@@ -262,201 +273,305 @@ namespace KSEA.Historian
                 i += tokenLen;
             }
 
-            var output = result.ToString();
 
-            return output;
         }
 
         int GetTokenLength(string rawText, int pos) => rawText.IndexOf('>', pos) - pos - 1;
 
         #region Parsers
 
-        string NewLineParser(CommonInfo info) => Environment.NewLine;
+        void NewLineParser(StringBuilder result, CommonInfo info) => result.Append(Environment.NewLine);
 
-        string CustomParser(CommonInfo info) => Parse(Historian.Instance.GetConfiguration().CustomText.Replace("<Custom>", "")); // avoid recurssion.
+        void CustomParser(StringBuilder result, CommonInfo info) => ParseIntoBuilder(result, Historian.Instance.GetConfiguration().CustomText.Replace("<Custom>", "")); // avoid recurssion.
 
-        string DateFormatParser(CommonInfo info) => info.DateFormat;
+        void DateFormatParser(StringBuilder result, CommonInfo info) => result.Append(info.DateFormat);
 
-        string RealDateParser(CommonInfo info)
-            => DateTime.Now.ToString(info.DateFormat);
+        void RealDateParser(StringBuilder result, CommonInfo info)
+            => result.Append(DateTime.Now.ToString(info.DateFormat));
 
-        string DateParser(CommonInfo info) 
-            => isKerbincalendar
-                ? info.Time.FormattedDate(info.DateFormat, baseYear)
-                : new DateTime(info.Year + baseYear, 1, 1, info.Hour, info.Minute, info.Second).AddDays(info.Day - 1).ToString(info.DateFormat);
+        void DateParser(StringBuilder result, CommonInfo info)
+        {
+            if (isKerbincalendar)
+                result.Append(info.Time.FormattedDate(info.DateFormat, baseYear));
+            else
+                result.Append(new DateTime(info.Year + baseYear, 1, 1, info.Hour, info.Minute, info.Second).AddDays(info.Day - 1).ToString(info.DateFormat));
+        }
 
-        string DateParserKAC(CommonInfo info)
-            => isKerbincalendar
-                ? info.Time.FormattedDate(info.DateFormat, baseYear)
-                : new DateTime(baseYear, 1, 1).AddSeconds(info.UT).ToString(info.DateFormat);
+        void DateParserKAC(StringBuilder result, CommonInfo info)
+        {
+            if (isKerbincalendar)
+                result.Append(info.Time.FormattedDate(info.DateFormat, baseYear));
+            else
+                result.Append(new DateTime(baseYear, 1, 1).AddSeconds(info.UT).ToString(info.DateFormat));
+        }
 
-        string UTParser(CommonInfo info) => $"Y{info.Year + 1}, D{(info.Day):D3}, {info.Hour}:{info.Minute:D2}:{info.Second:D2}";
+        void UTParser(StringBuilder result, CommonInfo info) => result.Append($"Y{info.Year + 1}, D{(info.Day):D3}, {info.Hour}:{info.Minute:D2}:{info.Second:D2}");
 
-        string YearParser(CommonInfo info) => (info.Year + baseYear).ToString();
+        void YearParser(StringBuilder result, CommonInfo info) => result.Append(info.Year + baseYear);
 
-        string YearParserKAC(CommonInfo info)
-            => (isKerbincalendar)
-                ? (info.Year + baseYear).ToString()
-                : new DateTime(baseYear, 1, 1).AddSeconds(info.UT).ToString("yyyy");
+        void YearParserKAC(StringBuilder result, CommonInfo info)
+        {
+            if (isKerbincalendar)
+                result.Append(info.Year + baseYear);
+            else
+                result.Append(new DateTime(baseYear, 1, 1).AddSeconds(info.UT).ToString("yyyy"));
+        }
 
-        string DayParser(CommonInfo info) => info.Day.ToString();
+        void DayParser(StringBuilder result, CommonInfo info) => result.Append(info.Day);
 
-        string DayParserKAC(CommonInfo info)
-            => (isKerbincalendar)
-                ? (info.Day.ToString())
-                : new DateTime(baseYear, 1, 1).AddSeconds(info.UT).DayOfYear.ToString();
+        void DayParserKAC(StringBuilder result, CommonInfo info)
+        {
 
-        string HourParser(CommonInfo info) => info.Hour.ToString();
+            if (isKerbincalendar)
+                result.Append(info.Day);
+            else
+                result.Append(new DateTime(baseYear, 1, 1).AddSeconds(info.UT).DayOfYear);
+        }
 
-        string MinuteParser(CommonInfo info) => info.Minute.ToString();
+        void HourParser(StringBuilder result, CommonInfo info) => result.Append(info.Hour);
 
-        string SecondParser(CommonInfo info) => info.Second.ToString();
+        void MinuteParser(StringBuilder result, CommonInfo info) => result.Append(info.Minute);
 
-        string METParser(CommonInfo info)
+        void SecondParser(StringBuilder result, CommonInfo info) => result.Append(info.Second);
+
+        void METParser(StringBuilder result, CommonInfo info)
         {
             if (info.Vessel != null)
             {
                 var t = new SplitDateTimeValue(info.Vessel.missionTime);
-                return (t.Years > 0)
-                         ? $"{t.Years + 1}y, {t.Days + 1}d, {t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}"
-                         : (t.Days > 0)
-                             ? $"{t.Days + 1}d, {t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}"
-                             : $"{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}";
-                
+                if (t.Years > 0)
+                    result.Append($"{t.Years + 1}y, {t.Days + 1}d, {t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}");
+                else
+                    if (t.Days > 0)
+                        result.Append($"{t.Days + 1}d, {t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}");
+                    else
+                        result.Append($"{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}");
+
             }
-            return "";
         }
 
-        string VesselParser(CommonInfo info) => info.Vessel?.vesselName;
+        void VesselParser(StringBuilder result, CommonInfo info) => result.Append(info.Vessel?.vesselName);
 
-        string BodyParser(CommonInfo info) => info.Vessel != null ? Planetarium.fetch.CurrentMainBody.bodyName : "";
-
-        string SituationParser(CommonInfo info)
-            => (info.Vessel == null) 
-                    ? "" 
-                    : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(info.Vessel.situation.ToString().Replace("_", "-").ToLower());
-
-        string BiomeParser(CommonInfo info)
-            => (info.Vessel == null) 
-                    ? "" 
-                    : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(ScienceUtil.GetExperimentBiome(info.Vessel.mainBody, info.Vessel.latitude, info.Vessel.longitude).ToLower());
-
-        string LandingZoneParser(CommonInfo info)
+        void BodyParser(StringBuilder result, CommonInfo info)
         {
-            if (info.Vessel == null) return "";
-            var landedAt = (string.IsNullOrEmpty(info.Vessel.landedAt))
-                ? ScienceUtil.GetExperimentBiome(info.Vessel.mainBody, info.Vessel.latitude, info.Vessel.longitude)
-                : Vessel.GetLandedAtString(info.Vessel.landedAt); // http://forum.kerbalspaceprogram.com/threads/123896-Human-Friendly-Landing-Zone-Title
-            return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(landedAt.ToLower());
+            if (info.Vessel != null) result.Append(Planetarium.fetch.CurrentMainBody.bodyName);
         }
 
-        string LatitudeParser(CommonInfo info) => info.Vessel == null ? "" : info.Vessel.latitude.ToString("F3");
-
-        string LatitudeDMSParser(CommonInfo info) 
-            => info.Vessel == null ? "" : AngleToDMS(info.Vessel.latitude) + (info.Vessel.latitude > 0 ? " N" : " S");
-
-        string LongitudeParser(CommonInfo info)
+        void SituationParser(StringBuilder result, CommonInfo info)
         {
-            if (info.Vessel == null) return "";
-            return ClampTo180(info.Vessel.longitude).ToString("F3");
+            if (info.Vessel != null)
+                result.Append(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(info.Vessel.situation.ToString().Replace("_", "-").ToLower()));
         }
 
-        string LongitudeDMSParser(CommonInfo info)
+        void BiomeParser(StringBuilder result, CommonInfo info)
         {
-            if (info.Vessel == null)return "";
-            var longitude = ClampTo180(info.Vessel.longitude);
-            return AngleToDMS(longitude) + (longitude > 0 ? " E" : " W");
+            if (info.Vessel != null)
+                result.Append( CultureInfo.CurrentCulture.TextInfo.ToTitleCase(ScienceUtil.GetExperimentBiome(info.Vessel.mainBody, info.Vessel.latitude, info.Vessel.longitude).ToLower()));
         }
 
-        string HeadingParser(CommonInfo info) => FlightGlobals.ship_heading.ToString("F1");
-
-        string AltitudeParser(CommonInfo info) => info.Vessel == null ? "" : SimplifyDistance(info.Vessel.altitude);
-
-        string MachParser(CommonInfo info) => info.Vessel == null ? "" : info.Vessel.mach.ToString("F1");
-
-        string SpeedParser(CommonInfo info) => info.Vessel == null ? "" : SimplifyDistance(info.Vessel.srfSpeed) + @"/s";
-
-        string SurfaceSpeedParser(CommonInfo info) => info.Vessel == null ? "" : SimplifyDistance(info.Vessel.srfSpeed) + @"/s";
-
-        string OrbitalSpeedParser(CommonInfo info) => info.Orbit == null ? "" : SimplifyDistance(info.Vessel.obt_speed) + @"/s";
-
-        string ApParser(CommonInfo info) => info.Orbit == null ? "" : SimplifyDistance(info.Orbit.ApA);
-
-        string PeParser(CommonInfo info) => info.Orbit == null ? "" : SimplifyDistance(info.Orbit.PeA);
-
-        string IncParser(CommonInfo info) => info.Orbit == null ? "" : info.Orbit.inclination.ToString("F2") + "°";
-
-        string EccParser(CommonInfo info) => info.Orbit == null ? "" : info.Orbit.eccentricity.ToString("F3");
-
-        string LanParser(CommonInfo info) => info.Orbit == null ? "" : info.Orbit.LAN.ToString("F1") + "°";
-
-        string ArgPeParser(CommonInfo info) => info.Orbit == null ? "" : info.Orbit.argumentOfPeriapsis.ToString("F1") + "°";
-
-        string PeriodParser(CommonInfo info)
+        void LandingZoneParser(StringBuilder result, CommonInfo info)
         {
-            if (info.Orbit == null)
-                return "";
-
-            var period = info.Orbit.period;
-            var t = new SplitDateTimeValue(period);
-            return (t.Years > 0)
-                     ? $"{t.Years + 1}y, {t.Days + 1}d, {t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}"
-                     : (t.Days > 0)
-                         ? $"{t.Days + 1}d, {t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}"
-                         : $"{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}";
+            if (info.Vessel != null)
+            {
+                var landedAt = (string.IsNullOrEmpty(info.Vessel.landedAt))
+                    ? ScienceUtil.GetExperimentBiome(info.Vessel.mainBody, info.Vessel.latitude, info.Vessel.longitude)
+                    : Vessel.GetLandedAtString(info.Vessel.landedAt); // http://forum.kerbalspaceprogram.com/threads/123896-Human-Friendly-Landing-Zone-Title
+                result.Append(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(landedAt.ToLower()));
+            }
         }
 
-        string OrbitParser(CommonInfo info)
-            => info.Orbit == null ? "" : $"{SimplifyDistance(info.Orbit.ApA)} x {SimplifyDistance(info.Orbit.PeA)}";
+        void LatitudeParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Vessel != null)
+                result.Append(info.Vessel.latitude.ToString("F3"));
+        }
 
-        string CrewParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: allTraits, traitColours: info.TraitColours);
+        void LatitudeDMSParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Vessel != null)
+            {
+                result.AppendAngleAsDMS(info.Vessel.latitude);
+                result.Append(info.Vessel.latitude > 0 ? " N" : " S");
+            }
 
-        string CrewShortParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: allTraits, traitColours: info.TraitColours);
+        }
 
-        string CrewListParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: allTraits, traitColours: info.TraitColours);
+        void LongitudeParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Vessel != null) 
+                result.Append(ClampTo180(info.Vessel.longitude).ToString("F3"));
+        }
 
-        string PilotsParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: new string[] { "Pilot" }, traitColours: info.TraitColours);
+        void LongitudeDMSParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Vessel != null)
+            {
+                var longitude = ClampTo180(info.Vessel.longitude);
+                result.AppendAngleAsDMS(longitude);
+                result.Append(longitude > 0 ? " E" : " W");
+            }
+        }
 
-        string PilotsShortParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: new string[] { "Pilot" }, traitColours: info.TraitColours);
+        void HeadingParser(StringBuilder result, CommonInfo info) => result.Append(FlightGlobals.ship_heading.ToString("F1"));
 
-        string PilotsListParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: new string[] { "Pilot" }, traitColours: info.TraitColours);
+        void AltitudeParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Vessel != null)
+                result.AppendDistance(info.Vessel.altitude);
+        }
 
-        string EngineersParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: new string[] { "Engineer" }, traitColours: info.TraitColours);
+        void MachParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Vessel != null)
+                result.Append(info.Vessel.mach.ToString("F1"));
+        }
 
-        string EngineersShortParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: new string[] { "Engineer" }, traitColours: info.TraitColours);
+        void SpeedParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Vessel != null)
+                result.AppendSpeed(info.Vessel.srfSpeed);
+        }
 
-        string EngineersListParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: new string[] { "Engineer" }, traitColours: info.TraitColours);
+        void SurfaceSpeedParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Vessel != null)
+                result.AppendSpeed(info.Vessel.srfSpeed);
+        }
 
-        string ScientistsParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: new string[] { "Scientist" }, traitColours: info.TraitColours);
+        void OrbitalSpeedParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Orbit != null)
+                result.AppendSpeed(info.Vessel.obt_speed);
+        }
 
-        string ScientistsShortParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: new string[] { "Scientist" }, traitColours: info.TraitColours);
+        void ApParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Orbit != null)
+                result.AppendDistance(info.Orbit.ApA);
+        }
 
-        string ScientistsListParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: new string[] { "Scientist" }, traitColours: info.TraitColours);
+        void PeParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Orbit != null)
+                result.AppendDistance(info.Orbit.PeA);
+        }
 
-        string TouristsParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: false, traits: new string[] { "Tourist" }, traitColours: info.TraitColours);
 
-        string TouristsShortParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: false, isShort: true, traits: new string[] { "Tourist" }, traitColours: info.TraitColours);
+        void IncParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Orbit != null)
+            {
+                result.Append(info.Orbit.inclination.ToString("F2"));
+                result.Append("°");
+            }
+        }
 
-        string TouristsListParser(CommonInfo info)
-            => GenericCrewParser(info.Vessel, isList: true, isShort: false, traits: new string[] { "Tourist" }, traitColours: info.TraitColours);
+        void EccParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Orbit != null)
+                result.Append(info.Orbit.eccentricity.ToString("F3"));
+        }
 
-        string TargetParser(CommonInfo info) => info.Target == null ? "" : info.Target.GetName();
+        void LanParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Orbit != null)
+            {
+                result.Append(info.Orbit.LAN.ToString("F1"));
+                result.Append("°");
+            }
+        }
 
-        string LaunchSiteParser(CommonInfo info)
+        void ArgPeParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Orbit != null)
+            {
+                result.Append(info.Orbit.argumentOfPeriapsis.ToString("F1"));
+                result.Append("°");
+            }
+        }
+
+        void PeriodParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Orbit != null)
+            {
+
+                var period = info.Orbit.period;
+                var t = new SplitDateTimeValue(period);
+                if (t.Years > 0)
+                {
+                    result.Append($"{t.Years + 1}y, {t.Days + 1}d, {t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}");
+                }
+                else {
+                    if (t.Days > 0) 
+                        result.Append($"{t.Days + 1}d, {t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}");
+                    else
+                        result.Append( $"{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}");
+                }
+            }
+        }
+
+        void OrbitParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Orbit != null)
+            {
+                result.AppendDistance(info.Orbit.ApA);
+                result.Append(" x ");
+                result.AppendDistance(info.Orbit.PeA);
+            }
+        }
+
+        void CrewParser(StringBuilder result, CommonInfo info)
+             => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, traits: allTraits, traitColours: info.TraitColours);
+
+        void CrewShortParser(StringBuilder result, CommonInfo info)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, traits: allTraits, traitColours: info.TraitColours);
+
+        void CrewListParser(StringBuilder result, CommonInfo info)
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, traits: allTraits, traitColours: info.TraitColours);
+
+        void PilotsParser(StringBuilder result, CommonInfo info)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, traits: new string[] { "Pilot" }, traitColours: info.TraitColours);
+
+        void PilotsShortParser(StringBuilder result, CommonInfo info)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, traits: new string[] { "Pilot" }, traitColours: info.TraitColours);
+
+        void PilotsListParser(StringBuilder result, CommonInfo info)
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, traits: new string[] { "Pilot" }, traitColours: info.TraitColours);
+
+        void EngineersParser(StringBuilder result, CommonInfo info)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, traits: new string[] { "Engineer" }, traitColours: info.TraitColours);
+
+        void EngineersShortParser(StringBuilder result, CommonInfo info)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, traits: new string[] { "Engineer" }, traitColours: info.TraitColours);
+
+        void EngineersListParser(StringBuilder result, CommonInfo info)
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, traits: new string[] { "Engineer" }, traitColours: info.TraitColours);
+
+        void ScientistsParser(StringBuilder result, CommonInfo info)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, traits: new string[] { "Scientist" }, traitColours: info.TraitColours);
+
+        void ScientistsShortParser(StringBuilder result, CommonInfo info)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, traits: new string[] { "Scientist" }, traitColours: info.TraitColours);
+
+        void ScientistsListParser(StringBuilder result, CommonInfo info)
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, traits: new string[] { "Scientist" }, traitColours: info.TraitColours);
+
+        void TouristsParser(StringBuilder result, CommonInfo info)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, traits: new string[] { "Tourist" }, traitColours: info.TraitColours);
+
+        void TouristsShortParser(StringBuilder result, CommonInfo info)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, traits: new string[] { "Tourist" }, traitColours: info.TraitColours);
+
+        void TouristsListParser(StringBuilder result, CommonInfo info)
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, traits: new string[] { "Tourist" }, traitColours: info.TraitColours);
+
+        void TargetParser(StringBuilder result, CommonInfo info)
+        {
+            if (info.Target != null)
+                result.Append(info.Target.GetName());
+        }
+
+        void LaunchSiteParser(StringBuilder result, CommonInfo info)
         {
             var defaultSpaceCenter = Historian.Instance.GetConfiguration().DefaultSpaceCenterName;
             var switcher = Historian.Instance.ReflectedClassType("switcherLoader");
@@ -470,10 +585,10 @@ namespace KSEA.Historian
                     var node = (ConfigNode)Reflect.GetMethodResult(siteManager, "getSiteByName", lastSite);
 
                     if (node == null)
-                        return lastSite == "KSC" ? defaultSpaceCenter : lastSite;
+                        result.Append(lastSite == "KSC" ? defaultSpaceCenter : lastSite);
 
                     var displayName = node.GetValue("displayName");
-                    return displayName == "KSC" ? defaultSpaceCenter : displayName;
+                    result.Append(displayName == "KSC" ? defaultSpaceCenter : displayName);
                 }
                 catch
                 {
@@ -487,40 +602,43 @@ namespace KSEA.Historian
                 try
                 {
                     var current = Reflect.GetStaticMethodResult(kkSiteManager, "getCurrentLaunchSite").ToString();
-                    return current == "KSC" ? defaultSpaceCenter : current;
+                    result.Append(current == "KSC" ? defaultSpaceCenter : current);
                 }
                 catch (Exception ex)
                 {
                     Historian.Print("Exception getting launchsite from Kerbal Konstructs");
+                    Historian.Print(ex.Message);
                 }
             }
-            return defaultSpaceCenter;
+            result.Append(defaultSpaceCenter);
         }
 
-        string ListFontsParser(CommonInfo info) => string.Join(", ", OSFonts);
+        void ListFontsParser(StringBuilder result, CommonInfo info) => result.Append(string.Join(", ", OSFonts));
 
-        string VesselTypeParser(CommonInfo info) => info.Vessel?.vesselType.ToString();
+        void VesselTypeParser(StringBuilder result, CommonInfo info) => result.Append(info.Vessel?.vesselType);
 
-        string StageNumberParser(CommonInfo info) => info.Vessel?.currentStage.ToString();
+        void StageNumberParser(StringBuilder result, CommonInfo info) => result.Append(info.Vessel?.currentStage);
 
-        string LastActionParser(CommonInfo info) => Historian.Instance.LastAction.ToString();
+        void LastActionParser(StringBuilder result, CommonInfo info) => result.Append(Historian.Instance.LastAction);
 
-        string EvaStateParser(CommonInfo info)
+        void EvaStateParser(StringBuilder result, CommonInfo info)
         {
             if (info.Vessel == null || !info.Vessel.isEVA)
-                return "";
+                return;
             try
             {
-                var message = "";
                 if (info.Vessel.evaController.JetpackDeployed)
-                    message = "Jetpack ";
+                    result.Append( "Jetpack ");
                 if (info.Vessel.evaController.JetpackIsThrusting)
-                    message += "thrusting ";
-                return message + info.Vessel.evaController.fsm.currentStateName;
-            } catch(Exception e) {
-                return $"Error: {e.Message}";
+                    result.Append("thrusting ");
+                result.Append(info.Vessel.evaController.fsm.currentStateName);
             }
-            
+            catch (Exception e)
+            {
+                result.Append("Error: ");
+                result.Append(e.Message);
+            }
+
         }
 
         class KerbalKonstructsInfo
@@ -551,36 +669,48 @@ namespace KSEA.Historian
             return kkInfo;
         }
 
-        string KKSpaceCenterParser(CommonInfo info)
+        void KKSpaceCenterParser(StringBuilder result, CommonInfo info)
         {
             var scManager = Historian.Instance.ReflectedClassType("kkSpaceCenterManager");
             if (scManager == null)
-                return "NO KK";
+            {
+                result.Append("NO KK");
+                return;
+            }
             if (info.Vessel == null)
-                return "N/A";
-            try {
-                return GetKerbalKonstructsSpaceCenterInfo(info, scManager).BaseName;
+            {
+                result.Append("N/A");
+                return;
+            }
+            try
+            {
+                result.Append(GetKerbalKonstructsSpaceCenterInfo(info, scManager).BaseName);
             }
             catch (Exception ex)
             {
-                return ex.Message + "\n" + ex.StackTrace;
+                result.AppendLine(ex.Message);
+                result.Append(ex.StackTrace);
             }
         }
 
-        string KKDistanceParser(CommonInfo info)
+        void KKDistanceParser(StringBuilder result, CommonInfo info)
         {
             var scManager = Historian.Instance.ReflectedClassType("kkSpaceCenterManager");
             if (scManager == null)
-                return "NO KK";
+            {
+                result.Append("NO KK");
+                return;
+            }
             if (info.Vessel == null)
-                return "";
+                return;
             try
             {
-                return SimplifyDistance(GetKerbalKonstructsSpaceCenterInfo(info, scManager).Distance);
+               result.AppendDistance(GetKerbalKonstructsSpaceCenterInfo(info, scManager).Distance);
             }
             catch (Exception ex)
             {
-                return ex.Message + "\n" + ex.StackTrace;
+                result.AppendLine(ex.Message);
+                result.Append(ex.StackTrace);
             }
         }
 
@@ -588,10 +718,10 @@ namespace KSEA.Historian
 
         // ############# Helper functions
 
-        string GenericCrewParser(Vessel vessel, bool isList, bool isShort, string[] traits, string[] traitColours)
+        void GenericCrewParser(StringBuilder result, Vessel vessel, bool isList, bool isShort, string[] traits, string[] traitColours)
         {
             if (vessel == null || vessel.isEVA || !vessel.isCommandable)
-                return "";
+                return;
 
             var isSingleTrait = traits.Length == 1;
 
@@ -604,12 +734,20 @@ namespace KSEA.Historian
                 .ToArray();
 
             if (crew.Length <= 0)
-                return isSingleTrait ? "None" : "Unmanned";
+            {
+                result.Append(isSingleTrait ? "None" : "Unmanned");
+                return;
+            }
 
             if (isList)
-                return "• " + string.Join(Environment.NewLine + "• ", crew);
+            {
+                result.Append("• ");
+                result.Append(string.Join(Environment.NewLine + "• ", crew));
+                return;
+            }
 
-            return string.Join(", ", crew) + (isShort ? (isSingleTrait ? TraitColor(traits[0], traitColours) + " Kerman</color>" : " Kerman") : "");
+            result.Append(string.Join(", ", crew));
+            result.Append(isShort ? (isSingleTrait ? TraitColor(traits[0], traitColours) + " Kerman</color>" : " Kerman") : "");
         }
 
 
@@ -630,32 +768,10 @@ namespace KSEA.Historian
             }
         }
 
-        static readonly string[] m_units = { "m", "km", "Mm", "Gm", "Tm", "Pm" };
+        
 
-        protected static string SimplifyDistance(double meters)
-        {
-            double d = meters;
-            int i = 0;
-
-            while (d > 1000.0)
-            {
-                d /= 1000.0f;
-                ++i;
-            }
-
-            return $"{d:F1} {m_units[i]}";
-        }
-
-        // AngleToDMS and ClanpTo180 converted from MechJeb at https://github.com/MuMech/MechJeb2/blob/master/MechJeb2/MuUtils.cs
-        // and https://github.com/MuMech/MechJeb2/blob/master/MechJeb2/GuiUtils.cs
-        public static string AngleToDMS(double angle)
-        {
-            var degrees = (int)Math.Floor(Math.Abs(angle));
-            var minutes = (int)Math.Floor(60 * (Math.Abs(angle) - degrees));
-            var seconds = (int)Math.Floor(3600 * (Math.Abs(angle) - degrees - minutes / 60.0));
-
-            return $"{degrees:0}° {minutes:00}' {seconds:00}\"";
-        }
+       
+ 
 
         public static double ClampTo180(double angle)
         {
@@ -667,4 +783,5 @@ namespace KSEA.Historian
         }
 
     }
+
 }

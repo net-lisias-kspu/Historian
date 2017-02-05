@@ -19,6 +19,7 @@ using System;
 using UnityEngine;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace KSEA.Historian
 {
@@ -56,6 +57,43 @@ namespace KSEA.Historian
                 return self.Value ? TriState.True : TriState.False;
             }
             return TriState.UseDefault;
+        }
+
+        static readonly string[] m_units = { "m", "km", "Mm", "Gm", "Tm", "Pm" };
+
+        public static void AppendDistance(this StringBuilder result, double meters)
+        {
+            double d = meters;
+            int i = 0;
+
+            while (d > 1000.0)
+            {
+                d /= 1000.0f;
+                ++i;
+            }
+
+            result.Append(d.ToString("F1"));
+            result.Append(" ");
+            result.Append(m_units[i]);
+        }
+
+        public static void AppendSpeed(this StringBuilder result, double speed)
+        {
+            result.AppendDistance(speed);
+            result.Append(@"/s");
+        }
+
+        // AngleToDMS and ClanpTo180 converted from MechJeb at https://github.com/MuMech/MechJeb2/blob/master/MechJeb2/MuUtils.cs
+        // and https://github.com/MuMech/MechJeb2/blob/master/MechJeb2/GuiUtils.cs
+        public static void AppendAngleAsDMS(this StringBuilder result, double angle)
+        {
+            if (result == null)
+                Historian.Print("Result is null");
+            var degrees = (int)Math.Floor(Math.Abs(angle));
+            var minutes = (int)Math.Floor(60 * (Math.Abs(angle) - degrees));
+            var seconds = (int)Math.Floor(3600 * (Math.Abs(angle) - degrees - minutes / 60.0));
+
+            result.Append($"{degrees:0}° {minutes:00}' {seconds:00}\"");
         }
     }
 

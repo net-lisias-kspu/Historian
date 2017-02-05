@@ -5,7 +5,13 @@ namespace KSEA.Historian
 {
     public static class KerbinDates
     {
-        public static string KerbinMonthName(this int dayNumber) => Historian.Instance.GetConfiguration().KerbinMonthNames[KerbinMonth(dayNumber) - 1];
+#if DEBUG
+        public static Configuration config;
+#else
+        public static Configuration config = Historian.Instance.GetConfiguration();
+#endif
+
+        public static string KerbinMonthName(this int dayNumber) => config.KerbinMonthNames[KerbinMonth(dayNumber) - 1];
 
         public static int KerbinMonth(this int dayNumber) => (int)Math.Floor((dayNumber - 0.01f) / 35.5) + 1;
 
@@ -127,7 +133,7 @@ namespace KSEA.Historian
 
         static string FormatMonth(int month, int tokenLen)
         {
-            var config = Historian.Instance.GetConfiguration();
+            //var config = Historian.Instance.GetConfiguration();
             switch (tokenLen)
             {
                 case 1:
@@ -144,7 +150,7 @@ namespace KSEA.Historian
 
         static string FormatDayOfWeek(int dayOfWeek, int tokenLen)
         {
-            var config = Historian.Instance.GetConfiguration();
+            //var config = Historian.Instance.GetConfiguration();
             switch (tokenLen)
             {
                 case 3:

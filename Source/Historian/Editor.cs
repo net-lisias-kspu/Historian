@@ -93,7 +93,7 @@ namespace KSEA.Historian
             var configuration = historian.GetConfiguration();
 
             // column one
-            using (var columnOne = new GUILayout.AreaScope(new Rect(15, 20, 380, 500)))
+            using (var columnOne = new GUILayout.AreaScope(new Rect(15, 20, 380, 550)))
             {
                 using (var col = new GUILayout.VerticalScope())
                 {
@@ -160,6 +160,12 @@ namespace KSEA.Historian
                         GUILayout.Label("Default Space Center Name:");
                         configuration.DefaultSpaceCenterName = GUILayout.TextField(configuration.DefaultSpaceCenterName, GUI.skin.textArea, GUILayout.Width(150));
                     }
+                    GUILayout.Space(10);
+                    using (var noCrewLabel = new GUILayout.HorizontalScope())
+                    {
+                        GUILayout.Label("Default message for no crew:");
+                        configuration.DefaultNoCrewLabel = GUILayout.TextField(configuration.DefaultNoCrewLabel, GUI.skin.textArea, GUILayout.Width(150));
+                    }
 
                     GUILayout.Space(10);
                     GUILayout.Label($"Time to remember action key press: {configuration.TimeToRememberLastAction} ms");
@@ -225,7 +231,8 @@ namespace KSEA.Historian
                         historian.SetConfiguration(configuration);
                         if (!configuration.PersistentConfigurationWindow) Toggle();
                     }
-                    GUILayout.FlexibleSpace();
+                    GUILayout.Space(20);
+                    // GUILayout.FlexibleSpace();
                 }
             }
 

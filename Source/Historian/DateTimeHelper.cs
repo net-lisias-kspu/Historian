@@ -8,7 +8,7 @@ namespace KSEA.Historian
 {
     public class SplitDateTimeValue
     {
-        static DefaultDateTimeFormatter dateFormatter = new DefaultDateTimeFormatter();
+        public static DefaultDateTimeFormatter dateFormatter = new DefaultDateTimeFormatter();
         public int[] TimeParts = new int[] { 0, 0, 0, 0, 0 };
         public int Years
         {

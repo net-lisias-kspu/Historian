@@ -77,7 +77,7 @@ namespace KSEA.Historian
             catch (Exception e)
             {
                 SetText("ERROR");
-                // Historian.Print($"TextList error: {e.Message}, situation: {extendedSituation}, index: {messageIndices[extendedSituation]}");
+                Historian.Print($"TextList error: {e.Message}, situation: {extendedSituation}, index: {messageIndices[extendedSituation]}");
             }
             base.OnDraw(bounds);
 
