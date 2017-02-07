@@ -1,4 +1,21 @@
-﻿using System;
+﻿/**
+ * This file is part of Historian.
+ * 
+ * Historian is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Historian is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Historian. If not, see <http://www.gnu.org/licenses/>.
+ **/
+ 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,7 +23,8 @@ namespace KSEA.Historian
 {
     class TextList : Text
     {
-        Dictionary<ExtendedSituation, List<string>> situationTexts = new Dictionary<ExtendedSituation, List<string>>();
+        Dictionary<ExtendedSituation, List<List<Token>>> situationTokenizedTexts 
+            = new Dictionary<ExtendedSituation, List<List<Token>>>();
         TriState evaOnly = TriState.UseDefault;
 
         bool isRandom = false;
@@ -21,7 +39,7 @@ namespace KSEA.Historian
         {
             base.OnLoad(node);
 
-            situationTexts = new Dictionary<ExtendedSituation, List<string>>();
+            situationTokenizedTexts = new Dictionary<ExtendedSituation, List<List<Token>>>();
 
             isRandom = node.GetBoolean("Random", false);
             resetOnLaunch = node.GetBoolean("ResetOnLaunch", false);
@@ -35,13 +53,12 @@ namespace KSEA.Historian
                 {
                     var situation = (ExtendedSituation)(object)ConfigNode.ParseEnum(typeof(ExtendedSituation), name);
                     
-                    if (!situationTexts.ContainsKey(situation))
+                    if (!situationTokenizedTexts.ContainsKey(situation))
                     {
-                        situationTexts.Add(situation, new List<string>());
+                        situationTokenizedTexts.Add(situation, new List<List<Token>>());
                         messageIndices.Add(situation, -1);
                     }
-                    situationTexts[situation].AddRange(section.GetValues("Text"));
-                    // Historian.Print($"Adding text list for {situation} - total items {situationTexts[situation].Count}");
+                    situationTokenizedTexts[situation].AddTokenizedRange(section.GetValues("Text"));
                 }
                 catch
                 {
@@ -56,11 +73,11 @@ namespace KSEA.Historian
             if (evaOnly != TriState.UseDefault && evaOnly != isEva)
                 return;
 
-            var situation = Extend(FlightGlobals.ActiveVessel?.situation, isEva);
+            var situation = SituationExtensions.Extend(FlightGlobals.ActiveVessel?.situation, isEva, false);
+            var fallback = SituationExtensions.Extend(FlightGlobals.ActiveVessel?.situation, isEva, true);
 
-            var extendedSituation = situationTexts.ContainsKey(situation) ? situation : ExtendedSituation.Default;
-
-            var texts = situationTexts[extendedSituation];
+            var extendedSituation = situationTokenizedTexts.ContainsKey(situation) ? situation : fallback;
+            var texts = situationTokenizedTexts[extendedSituation];
 
             // debug
             // Historian.Print($"Random text: {isRandom}, Reset: {resetOnLaunch}, Index: {messageIndices[extendedSituation]}, isEva: {isEva}, situation: {extendedSituation}, #Messages: {texts.Count}");
@@ -72,48 +89,17 @@ namespace KSEA.Historian
 
             try
             {
-                SetText(texts[messageIndices[extendedSituation]]);
+                TokenizedText = texts[messageIndices[extendedSituation]];
             }
             catch (Exception e)
             {
-                SetText("ERROR");
+                TokenizedText = TokenizedError;
                 Historian.Print($"TextList error: {e.Message}, situation: {extendedSituation}, index: {messageIndices[extendedSituation]}");
             }
             base.OnDraw(bounds);
 
             lastVessel = FlightGlobals.ActiveVessel;
             lastDraw = DateTime.Now;
-        }
-
-        ExtendedSituation Extend(Vessel.Situations? situation, TriState isEva)
-        {
-            if (!situation.HasValue)
-                return ExtendedSituation.Default;
-
-            if (isEva == TriState.True)
-            {
-                var kerbal = FlightGlobals.ActiveVessel.evaController;
-
-                var ragDolled = kerbal.isRagdoll;
-                var onLadder = kerbal.OnALadder;
-                var clambering = kerbal.fsm.currentStateName.StartsWith("Clamber", StringComparison.InvariantCulture);
-
-                // Historian.Print(kerbal.fsm.currentStateName);
-
-                if (ragDolled && situationTexts.ContainsKey(ExtendedSituation.RagDolled))
-                    return ExtendedSituation.RagDolled;
-
-                if (clambering && situationTexts.ContainsKey(ExtendedSituation.Clambering))
-                    return ExtendedSituation.Clambering;
-
-                if (onLadder && situationTexts.ContainsKey(ExtendedSituation.OnLadder))
-                    return ExtendedSituation.OnLadder;
-            }
-
-            if (situationTexts.ContainsKey((ExtendedSituation)situation.Value))
-                return (ExtendedSituation)situation.Value;
-
-            return ExtendedSituation.Default;
         }
 
         void UpdateMessageIndex(ExtendedSituation extendedSituation)
@@ -129,7 +115,7 @@ namespace KSEA.Historian
 
                 if (isRandom)
                 {
-                    messageIndices[extendedSituation] = rnd.Next(0, situationTexts[extendedSituation].Count - 1);
+                    messageIndices[extendedSituation] = rnd.Next(0, situationTokenizedTexts[extendedSituation].Count - 1);
                 }
                 else
                 {
@@ -140,7 +126,7 @@ namespace KSEA.Historian
                     }
                 }
 
-                if (messageIndices[extendedSituation] >= situationTexts[extendedSituation].Count)
+                if (messageIndices[extendedSituation] >= situationTokenizedTexts[extendedSituation].Count)
                     messageIndices[extendedSituation] = 0; // wrap around after end of list
             }
         }
