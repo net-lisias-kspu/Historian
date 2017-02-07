@@ -1,5 +1,14 @@
 # Changelog
 
+#### Dev Build 1.2.9
+* Updated `SITUATION_TEXT`, `ACTION_TEXT` and `TEXT_LIST` to use new tokenized string loader and evaluator
+* Update source files with consistent licecnse header
+* Moved readme and changelog into Historian folder rather than root of archive
+
+__BREAKING CHANGE__
+* Move Historian install folder from `GameData/KSEA/Historian` to `GameData/Historian` - any custom layouts must be copied to the new location
+
+
 #### Dev build 1.2.8
 * Refactor text parsing to move tokenizer into layout load rather than OnDraw should improve performance of layouts with large number of tags substantially with no penalty to simple layouts
 * Add unit tests for text parser tokenizing and reconstituting

@@ -46,8 +46,8 @@ namespace KSEA.Historian
             position = new Rect(0.5f * Screen.width - windowWidth / 2, 0.5f * Screen.height - windowHeight / 2, windowWidth, windowHeight);
             windowId = (new System.Random()).Next(876543210, 987654321); // 9 digit random number
 
-            nextButtonTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Button_Next", false);
-            previousButtonTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Button_Previous", false);
+            nextButtonTexture = GameDatabase.Instance.GetTexture("Historian/Historian_Button_Next", false);
+            previousButtonTexture = GameDatabase.Instance.GetTexture("Historian/Historian_Button_Previous", false);
 
             enableLauncherButton = configuration.EnableLauncherButton;
             enableToolberButton = configuration.EnableToolbarButton;

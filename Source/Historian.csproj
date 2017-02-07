@@ -74,12 +74,12 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetDir)Historian.dll"  "$(SolutionDir)\..\GameData\KSEA\Historian" /Y
-(robocopy "$(SolutionDir)\..\GameData\KSEA\Historian" "$(SolutionDir)\..\..\KSP\GameData\KSEA\Historian"   /E /V) ^&amp; exit 0
+    <PostBuildEvent>copy "$(TargetDir)Historian.dll"  "$(SolutionDir)\..\GameData\Historian" /Y
+(robocopy "$(SolutionDir)\..\GameData\Historian" "$(SolutionDir)\..\..\KSP\GameData\Historian"   /E /V) ^&amp; exit 0
 </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>rd /s /q "$(SolutionDir)\..\..\KSP\GameData\KSEA\Historian"</PreBuildEvent>
+    <PreBuildEvent>rd /s /q "$(SolutionDir)\..\..\KSP\GameData\Historian"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

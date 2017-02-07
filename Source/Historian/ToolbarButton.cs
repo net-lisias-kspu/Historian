@@ -41,7 +41,7 @@ namespace KSEA.Historian
 
                 button.Text = "Historian";
                 button.ToolTip = "Click to open Historian configuration window.";
-                button.TexturePath = "KSEA/Historian/Historian_Toolbar";
+                button.TexturePath = "Historian/Historian_Toolbar";
                 button.OnClick += Button_OnClick;
 
                 IsRegistered = true;
@@ -65,11 +65,11 @@ namespace KSEA.Historian
 
             if (historian.Suppressed)
             {
-                button.TexturePath = "KSEA/Historian/Historian_Toolbar_Suppressed";
+                button.TexturePath = "Historian/Historian_Toolbar_Suppressed";
             }
             else
             {
-                button.TexturePath = "KSEA/Historian/Historian_Toolbar";
+                button.TexturePath = "Historian/Historian_Toolbar";
             }
         }
 

@@ -33,8 +33,8 @@ namespace KSEA.Historian
 
         public LauncherButton()
         {
-            normalTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Launcher", false);
-            suppressedTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Launcher_Suppressed", false);
+            normalTexture = GameDatabase.Instance.GetTexture("Historian/Historian_Launcher", false);
+            suppressedTexture = GameDatabase.Instance.GetTexture("Historian/Historian_Launcher_Suppressed", false);
         }
 
         public void Register()
