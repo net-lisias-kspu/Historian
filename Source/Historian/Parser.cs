@@ -1,21 +1,4 @@
-﻿/**
- * This file is part of Historian.
- * 
- * Historian is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * Historian is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with Historian. If not, see <http://www.gnu.org/licenses/>.
- **/
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -44,7 +27,7 @@ namespace KSEA.Historian
             var tokens = new List<Token>();
             var args = new List<string>();
             // scan template text string for parameter tokens
-            int i = 0, ti = 0, pi = 0, tokenStart = 0, paramStart = 0;
+            int i = 0, ti = 0, pi = 0, tokenStart = 0, paramStart = 0, tokenEnd = 0, paramEnd = 0;
 
             var mode = ParseMode.Undefined;
 
@@ -174,14 +157,6 @@ namespace KSEA.Historian
             }
 
             return sb;
-        }
-
-        public static void AddTokenizedRange(this List<List<Token>> target, IEnumerable<string> rawTexts)
-        {
-            foreach (var text in rawTexts)
-            {
-                target.Add(GetTokens(text));
-            }
         }
     }
 

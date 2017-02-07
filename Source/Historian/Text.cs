@@ -79,10 +79,8 @@ namespace KSEA.Historian
             = new Dictionary<string, Action<StringBuilder, CommonInfo, string[]>>();
 
         string[] allTraits;
-        protected List<Token> TokenizedText;
-        protected List<Token> TokenizedCustomText;
-        protected static List<Token> TokenizedError 
-            = new List<Token> { new Token { IsLiteral = true, Key = "ERROR" } };
+        List<Token> TokenizedText;
+        List<Token> TokenizedCustomText;
 
         public Text()
         {
@@ -90,7 +88,7 @@ namespace KSEA.Historian
                 InitializeParameterDictionary();
         }
 
-        //public void SetText(string text) => this.text = text;
+        public void SetText(string text) => this.text = text;
 
         protected override void OnDraw(Rect bounds)
         {
@@ -107,7 +105,7 @@ namespace KSEA.Historian
 
             var content = new GUIContent()
             {
-                text = ExpandTokens()
+                text = Parse(text)
             };
             GUI.Label(bounds, content, style);
         }
@@ -243,8 +241,10 @@ namespace KSEA.Historian
             parsers.Add("EvaState", EvaStateParser);
         }
 
-        protected string ExpandTokens()
+        protected string Parse(string text)
         {
+            
+
             // get common data sources
             var ut = Planetarium.GetUniversalTime();
 
@@ -266,6 +266,29 @@ namespace KSEA.Historian
             var result = StringBuilderCache.Acquire();
             result.ExpandTokenizedText(TokenizedText, info, parsers, allowCustomTag: true);
             return result.ToStringAndRelease();
+            //Token token;
+            //for (int i = 0; i < TokenizedText.Count; i++)
+            //{
+            //    token = TokenizedText[i];
+            //    if (token.IsLiteral)
+            //    {
+            //        result.Append(token.Key);
+            //    }
+            //    if (parsers.ContainsKey(TokenizedText[i].Key))
+            //    {
+            //        // run parser for matching token - each action must append to the stringbuilder
+            //        parsers[tokens[i].Key](result, info, tokens[i].Args);
+            //    }
+            //    else
+            //    {
+            //        // token not found copy as literal
+            //        result.Append("<");
+            //        result.Append(tokens[i].Key);
+            //        if (tokens[i].Args != null)
+            //            result.Append("(").Append(tokens[i].Args).Append(")");
+            //        result.Append(">");
+            //    }
+            //}
 
         }
 

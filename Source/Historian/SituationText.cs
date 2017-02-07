@@ -1,20 +1,3 @@
-/**
- * This file is part of Historian.
- * 
- * Historian is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * Historian is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with Historian. If not, see <http://www.gnu.org/licenses/>.
- **/
-
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,19 +5,33 @@ namespace KSEA.Historian
 {
     public class SituationText : Text
     {
-        Dictionary<ExtendedSituation, List<Token>> situations = new Dictionary<ExtendedSituation, List<Token>>();
+        Dictionary<Vessel.Situations, string> situations = new Dictionary<Vessel.Situations, string>();
+        string defaultSituation = "";
+        string ragDolledSituation = "";
+        string clamberingSituation = "";
+        string onLadderSituation = "";
+
         TriState evaOnly = TriState.UseDefault;
 
         protected override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
 
-            foreach (ExtendedSituation key in System.Enum.GetValues(typeof(ExtendedSituation)))
-            {
-                situations.Add(key, Parser.GetTokens(node.GetString(key.ToString(), "")));
-            }
+            defaultSituation = node.GetString("Default", "");
+            ragDolledSituation = node.GetString("RagDolled", "");
+            clamberingSituation = node.GetString("Clambering", "");
+            onLadderSituation = node.GetString("OnLadder", "");
 
             evaOnly = node.GetEnum("EvaOnly", TriState.UseDefault);
+
+            situations.Add(Vessel.Situations.LANDED, node.GetString("Landed", ""));
+            situations.Add(Vessel.Situations.FLYING, node.GetString("Flying", ""));
+            situations.Add(Vessel.Situations.SPLASHED, node.GetString("Splashed", ""));
+            situations.Add(Vessel.Situations.PRELAUNCH, node.GetString("Prelaunch", ""));
+            situations.Add(Vessel.Situations.SUB_ORBITAL, node.GetString("SubOrbital", ""));
+            situations.Add(Vessel.Situations.ORBITING, node.GetString("Orbiting", ""));
+            situations.Add(Vessel.Situations.ESCAPING, node.GetString("Escaping", ""));
+            situations.Add(Vessel.Situations.DOCKED, node.GetString("Docked", ""));
         }
 
         protected override void OnDraw(Rect bounds)
@@ -43,10 +40,28 @@ namespace KSEA.Historian
             if (evaOnly != TriState.UseDefault && evaOnly != isEva)
                 return;
 
-            var situation = SituationExtensions.Extend(FlightGlobals.ActiveVessel?.situation, isEva, false);
-            var fallback = SituationExtensions.Extend(FlightGlobals.ActiveVessel?.situation, isEva, true);
+            var situation = FlightGlobals.ActiveVessel?.situation;
+            var text = (situation.HasValue && situations.ContainsKey(situation.Value)) ? situations[situation.Value] : defaultSituation;
 
-            TokenizedText = (situations.ContainsKey(situation)) ? situations[situation] : situations[fallback];
+            if (isEva == TriState.True)
+            {
+                var kerbal = FlightGlobals.ActiveVessel.evaController;
+
+                var ragDolled = kerbal.isRagdoll;
+                var onLadder = kerbal.OnALadder;
+                var clambering = kerbal.fsm.currentStateName.StartsWith("Clamber", System.StringComparison.InvariantCulture);
+
+                if (ragDolled && !string.IsNullOrEmpty(ragDolledSituation))
+                    text = ragDolledSituation;
+
+                if (clambering && !string.IsNullOrEmpty(clamberingSituation))
+                    text = clamberingSituation;
+                
+                if (onLadder && !string.IsNullOrEmpty(onLadderSituation))
+                    text = onLadderSituation;
+            }
+
+            SetText(text);
             base.OnDraw(bounds);
         }
     }
