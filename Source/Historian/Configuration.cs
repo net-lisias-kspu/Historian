@@ -16,7 +16,6 @@
  **/
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -101,8 +100,6 @@ namespace KSEA.Historian
         public string[] KerbinMonthNames;
         public string[] KerbinDayNames;
 
-        public List<Token> TokenizedCustomText;
-
         public static Configuration Load(string file)
         {
             try
@@ -140,9 +137,6 @@ namespace KSEA.Historian
                     = node.GetString("DefaultNoCrewLabel", Defaults.DefaultNoCrewLabel);
                 configuration.DefaultUnmannedLabel
                     = node.GetString("DefaultUnmannedLabel", Defaults.DefaultUnmannedLabel);
-
-                if (!String.IsNullOrEmpty(configuration.CustomText))
-                    configuration.TokenizedCustomText = Parser.GetTokens(configuration.CustomText);
 
                 if (version != CurrentVersion)
                 {

@@ -14,7 +14,6 @@
 * You should have received a copy of the GNU General Public License
 * along with Historian. If not, see <http://www.gnu.org/licenses/>.
 **/
-using System;
 using UnityEngine;
 
 namespace KSEA.Historian
@@ -245,9 +244,6 @@ namespace KSEA.Historian
 
                         historian.SetConfiguration(configuration);
                         if (!configuration.PersistentConfigurationWindow) Toggle();
-
-                        if (!String.IsNullOrEmpty(configuration.CustomText))
-                            configuration.TokenizedCustomText = Parser.GetTokens(configuration.CustomText);
                     }
                     GUILayout.Space(20);
                     // GUILayout.FlexibleSpace();
