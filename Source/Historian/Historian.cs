@@ -1,6 +1,4 @@
-﻿
-
-/**
+﻿/**
 * This file is part of Historian.
 * 
 * Historian is free software: you can redistribute it and/or modify
@@ -16,6 +14,7 @@
 * You should have received a copy of the GNU General Public License
 * along with Historian. If not, see <http://www.gnu.org/licenses/>.
 **/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
