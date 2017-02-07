@@ -1,5 +1,14 @@
 # Changelog
 
+#### Dev build 1.2.8
+* Refactor text parsing to move tokenizer into layout load rather than OnDraw should improve performance of layouts with large number of tags substantially with no penalty to simple layouts
+* Add unit tests for text parser tokenizing and reconstituting
+* Add initial support for parameterized tags (e.g. `Crew(Medics)`) - actual tags still to be implemented
+* Add `TRAIT { Name Suffix Color }` block level node on TEXT element definition for specifying trait names, colours and abbreviations (to support for custom traits e.g. from USI MKS) - legacy PilotColor etc. still supported
+
+__KNOWN ISSUES__
+* Tokenized parsing not yet implemented for layout blocks inheriting from TEXT so they currently show blank
+
 #### 1.2.7 for KSP 1.2.2
 * Fix issue #10 where configuration dialog would not show correctly if settings.cfg file had to be created during start-up (e.g. after first installing mod and add action to Visual Studio build sequence to automatically delete settings.cfg so I don't overlook this breaking in the future
 *  Add configuration option to allow setting text to be shown for empty crew slots i.e. in `pilot`, `scientist`, `engineer` (and short or list variants) tags when no crew of that type are present in vessel. *Default = None (same as previous version)*

@@ -40,9 +40,19 @@ namespace KSEA.Historian
         public int Minute { get { return Time[1]; } }
         public int Second { get { return Time[0]; } }
 
-        public string[] TraitColours { get; set; }
         public string DateFormat { get; set; }
+
+        public Dictionary<string, TraitInfo> Traits { get; set; }
     }
+
+    public struct TraitInfo
+    {
+        public string Name;
+        public string Suffix;
+        public string Colour;
+    }
+
+
 
     public class Text : Element
     {
@@ -54,6 +64,7 @@ namespace KSEA.Historian
         int fontSize = 10;
         FontStyle fontStyle = FontStyle.Normal;
         string pilotColor, engineerColor, scientistColor, touristColor;
+        Dictionary<string, TraitInfo> Traits = new Dictionary<string, TraitInfo>();
         int baseYear;
         string dateFormat = "dd MMM yyyy";
         bool isKerbincalendar;
@@ -64,10 +75,12 @@ namespace KSEA.Historian
 
         static DefaultDateTimeFormatter dateFormatter = new DefaultDateTimeFormatter();
 
-        static readonly Dictionary<string, Action<StringBuilder, CommonInfo>> parsers
-            = new Dictionary<string, Action<StringBuilder, CommonInfo>>();
+        static readonly Dictionary<string, Action<StringBuilder, CommonInfo, string[]>> parsers
+            = new Dictionary<string, Action<StringBuilder, CommonInfo, string[]>>();
 
-        readonly static string[] allTraits = { "Pilot", "Engineer", "Scientist", "Tourist" };
+        string[] allTraits;
+        List<Token> TokenizedText;
+        List<Token> TokenizedCustomText;
 
         public Text()
         {
@@ -124,6 +137,39 @@ namespace KSEA.Historian
             if (string.IsNullOrEmpty(dateFormat))
                 dateFormat = CultureInfo.CurrentUICulture.DateTimeFormat.LongDatePattern;
             // looks like this doesn't work properly - CultuireInfo.*.name always returns en-US in KSP during my testing
+
+            Traits.Clear();
+            var traits = node.GetNodes("TRAIT");
+            for (int i = 0; i < traits.Length; i++)
+            {
+                var t = new TraitInfo();
+                t.Name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(traits[i].GetString("Name", "UNKNOWN").ToLower());
+                t.Suffix = traits[i].GetString("Suffix", t.Name.Substring(0, 1));
+                t.Colour = traits[i].GetString("Color", "clear");
+                Traits.Add(t.Name,t);
+            }
+            AddLegacyTraits();
+
+            if (!Traits.ContainsKey("UNKNOWN"))
+                Traits.Add("UNKNOWN", new TraitInfo { Name = "UNKNOWN", Suffix = "?", Colour = "clear" });
+
+            allTraits = Traits.Select(t => t.Key).ToArray();
+
+            // run parser over text to generate tokenized form
+            TokenizedText = Parser.GetTokens(text);
+            
+        }
+
+        private void AddLegacyTraits()
+        {
+            if (!Traits.ContainsKey("Pilot"))
+                Traits.Add("Pilot", new TraitInfo { Name = "Pilot", Suffix = "P", Colour = pilotColor });
+            if (!Traits.ContainsKey("Engineer"))
+                Traits.Add("Engineer", new TraitInfo { Name = "Engineer", Suffix = "E", Colour = engineerColor });
+            if (!Traits.ContainsKey("Scientist"))
+                Traits.Add("Scientist", new TraitInfo { Name = "Scientist", Suffix = "S", Colour = scientistColor });
+            if (!Traits.ContainsKey("Tourist"))
+                Traits.Add("Tourist", new TraitInfo { Name = "Tourist", Suffix = "T", Colour = touristColor });
         }
 
         void InitializeParameterDictionary()
@@ -197,22 +243,11 @@ namespace KSEA.Historian
 
         protected string Parse(string text)
         {
-            var result = StringBuilderCache.Acquire();
-            if (result == null)
-                result = new StringBuilder();
-            ParseIntoBuilder(result, text);
-            return result.ToStringAndRelease();
-        }
-
-        protected void ParseIntoBuilder(StringBuilder result, string text)
-        {
+            
 
             // get common data sources
             var ut = Planetarium.GetUniversalTime();
 
-            //var time = isKerbincalendar 
-            //    ? dateFormatter.GetKerbinDateFromUT((int)ut) 
-            //    : dateFormatter.GetEarthDateFromUT((int)ut);
             var vessel = FlightGlobals.ActiveVessel;
             var orbit = vessel?.GetOrbit();
             var target = vessel?.targetObject;
@@ -224,72 +259,60 @@ namespace KSEA.Historian
                 Time = new SplitDateTimeValue(ut).TimeParts,
                 UT = ut,
                 Target = target,
-                TraitColours = new string[] { pilotColor, engineerColor, scientistColor, touristColor },
-                DateFormat = dateFormat
+                DateFormat = dateFormat,
+                Traits = Traits
             };
 
-            // scan template text string for parameter tokens
-            int i = 0, tokenLen;
-            while (i < text.Length)
-            {
-                char ch = text[i];
-                if (ch == '<')
-                {
-                    // possible token found
-                    tokenLen = GetTokenLength(text, i);
-                    if (tokenLen >= 0)
-                    {
-                        // extract token
-                        var token = text.Substring(i + 1, tokenLen);
-                        // check if recognised
-                        if (parsers.ContainsKey(token))
-                        {
-                            // run parser for matching token - each action must append to the stringbuilder
-                            parsers[token](result, info);
-                        }
-                        else
-                        {
-                            // token not found copy as literal
-                            result.Append("<");
-                            result.Append(token);
-                            result.Append(">");
-                        }
-                        // include < and > in counted tokenlength
-                        tokenLen += 2;
-                    }
-                    else
-                    {
-                        // no end token found treat as literal
-                        tokenLen = 1;
-                        result.Append(ch);
-                    }
-                }
-                else
-                {
-                    // literal
-                    tokenLen = 1;
-                    result.Append(ch);
-                }
-                i += tokenLen;
-            }
-
+            var result = StringBuilderCache.Acquire();
+            result.ExpandTokenizedText(TokenizedText, info, parsers, allowCustomTag: true);
+            return result.ToStringAndRelease();
+            //Token token;
+            //for (int i = 0; i < TokenizedText.Count; i++)
+            //{
+            //    token = TokenizedText[i];
+            //    if (token.IsLiteral)
+            //    {
+            //        result.Append(token.Key);
+            //    }
+            //    if (parsers.ContainsKey(TokenizedText[i].Key))
+            //    {
+            //        // run parser for matching token - each action must append to the stringbuilder
+            //        parsers[tokens[i].Key](result, info, tokens[i].Args);
+            //    }
+            //    else
+            //    {
+            //        // token not found copy as literal
+            //        result.Append("<");
+            //        result.Append(tokens[i].Key);
+            //        if (tokens[i].Args != null)
+            //            result.Append("(").Append(tokens[i].Args).Append(")");
+            //        result.Append(">");
+            //    }
+            //}
 
         }
 
-        int GetTokenLength(string rawText, int pos) => rawText.IndexOf('>', pos) - pos - 1;
-
         #region Parsers
 
-        void NewLineParser(StringBuilder result, CommonInfo info) => result.Append(Environment.NewLine);
+        void NewLineParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(Environment.NewLine);
 
-        void CustomParser(StringBuilder result, CommonInfo info) => ParseIntoBuilder(result, Historian.Instance.GetConfiguration().CustomText.Replace("<Custom>", "")); // avoid recurssion.
+        void CustomParser(StringBuilder result, CommonInfo info, string[] args)
+        {
+            var config = Historian.Instance.GetConfiguration();
+            if (!string.IsNullOrEmpty(config.CustomText))
+            {
+                if (config.TokenizedCustomText == null)
+                    config.TokenizedCustomText = Parser.GetTokens(config.CustomText);
+                result.ExpandTokenizedText(config.TokenizedCustomText, info, parsers, allowCustomTag: false);
+            }
+        }
 
-        void DateFormatParser(StringBuilder result, CommonInfo info) => result.Append(info.DateFormat);
+        void DateFormatParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.DateFormat);
 
-        void RealDateParser(StringBuilder result, CommonInfo info)
+        void RealDateParser(StringBuilder result, CommonInfo info, string[] args)
             => result.Append(DateTime.Now.ToString(info.DateFormat));
 
-        void DateParser(StringBuilder result, CommonInfo info)
+        void DateParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (isKerbincalendar)
                 result.Append(info.Time.FormattedDate(info.DateFormat, baseYear));
@@ -297,7 +320,7 @@ namespace KSEA.Historian
                 result.Append(new DateTime(info.Year + baseYear, 1, 1, info.Hour, info.Minute, info.Second).AddDays(info.Day - 1).ToString(info.DateFormat));
         }
 
-        void DateParserKAC(StringBuilder result, CommonInfo info)
+        void DateParserKAC(StringBuilder result, CommonInfo info, string[] args)
         {
             if (isKerbincalendar)
                 result.Append(info.Time.FormattedDate(info.DateFormat, baseYear));
@@ -305,11 +328,11 @@ namespace KSEA.Historian
                 result.Append(new DateTime(baseYear, 1, 1).AddSeconds(info.UT).ToString(info.DateFormat));
         }
 
-        void UTParser(StringBuilder result, CommonInfo info) => result.Append($"Y{info.Year + 1}, D{(info.Day):D3}, {info.Hour}:{info.Minute:D2}:{info.Second:D2}");
+        void UTParser(StringBuilder result, CommonInfo info, string[] args) => result.Append($"Y{info.Year + 1}, D{(info.Day):D3}, {info.Hour}:{info.Minute:D2}:{info.Second:D2}");
 
-        void YearParser(StringBuilder result, CommonInfo info) => result.Append(info.Year + ((isKerbincalendar) ? baseYear+1 : baseYear));
+        void YearParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Year + ((isKerbincalendar) ? baseYear+1 : baseYear));
 
-        void YearParserKAC(StringBuilder result, CommonInfo info)
+        void YearParserKAC(StringBuilder result, CommonInfo info, string[] args)
         {
             if (isKerbincalendar)
                 result.Append(info.Year + baseYear);
@@ -317,9 +340,9 @@ namespace KSEA.Historian
                 result.Append(new DateTime(baseYear, 1, 1).AddSeconds(info.UT).ToString("yyyy"));
         }
 
-        void DayParser(StringBuilder result, CommonInfo info) => result.Append(info.Day);
+        void DayParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Day);
 
-        void DayParserKAC(StringBuilder result, CommonInfo info)
+        void DayParserKAC(StringBuilder result, CommonInfo info, string[] args)
         {
 
             if (isKerbincalendar)
@@ -328,13 +351,13 @@ namespace KSEA.Historian
                 result.Append(new DateTime(baseYear, 1, 1).AddSeconds(info.UT).DayOfYear);
         }
 
-        void HourParser(StringBuilder result, CommonInfo info) => result.Append(info.Hour);
+        void HourParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Hour);
 
-        void MinuteParser(StringBuilder result, CommonInfo info) => result.Append(info.Minute);
+        void MinuteParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Minute);
 
-        void SecondParser(StringBuilder result, CommonInfo info) => result.Append(info.Second);
+        void SecondParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Second);
 
-        void METParser(StringBuilder result, CommonInfo info)
+        void METParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Vessel != null)
             {
@@ -350,26 +373,26 @@ namespace KSEA.Historian
             }
         }
 
-        void VesselParser(StringBuilder result, CommonInfo info) => result.Append(info.Vessel?.vesselName);
+        void VesselParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Vessel?.vesselName);
 
-        void BodyParser(StringBuilder result, CommonInfo info)
+        void BodyParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Vessel != null) result.Append(Planetarium.fetch.CurrentMainBody.bodyName);
         }
 
-        void SituationParser(StringBuilder result, CommonInfo info)
+        void SituationParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Vessel != null)
                 result.Append(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(info.Vessel.situation.ToString().Replace("_", "-").ToLower()));
         }
 
-        void BiomeParser(StringBuilder result, CommonInfo info)
+        void BiomeParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Vessel != null)
                 result.Append( CultureInfo.CurrentCulture.TextInfo.ToTitleCase(ScienceUtil.GetExperimentBiome(info.Vessel.mainBody, info.Vessel.latitude, info.Vessel.longitude).ToLower()));
         }
 
-        void LandingZoneParser(StringBuilder result, CommonInfo info)
+        void LandingZoneParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Vessel != null)
             {
@@ -380,13 +403,13 @@ namespace KSEA.Historian
             }
         }
 
-        void LatitudeParser(StringBuilder result, CommonInfo info)
+        void LatitudeParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Vessel != null)
                 result.Append(info.Vessel.latitude.ToString("F3"));
         }
 
-        void LatitudeDMSParser(StringBuilder result, CommonInfo info)
+        void LatitudeDMSParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Vessel != null)
             {
@@ -396,13 +419,13 @@ namespace KSEA.Historian
 
         }
 
-        void LongitudeParser(StringBuilder result, CommonInfo info)
+        void LongitudeParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Vessel != null) 
                 result.Append(ClampTo180(info.Vessel.longitude).ToString("F3"));
         }
 
-        void LongitudeDMSParser(StringBuilder result, CommonInfo info)
+        void LongitudeDMSParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Vessel != null)
             {
@@ -412,52 +435,52 @@ namespace KSEA.Historian
             }
         }
 
-        void HeadingParser(StringBuilder result, CommonInfo info) => result.Append(FlightGlobals.ship_heading.ToString("F1"));
+        void HeadingParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(FlightGlobals.ship_heading.ToString("F1"));
 
-        void AltitudeParser(StringBuilder result, CommonInfo info)
+        void AltitudeParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Vessel != null)
                 result.AppendDistance(info.Vessel.altitude);
         }
 
-        void MachParser(StringBuilder result, CommonInfo info)
+        void MachParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Vessel != null)
                 result.Append(info.Vessel.mach.ToString("F1"));
         }
 
-        void SpeedParser(StringBuilder result, CommonInfo info)
+        void SpeedParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Vessel != null)
                 result.AppendSpeed(info.Vessel.srfSpeed);
         }
 
-        void SurfaceSpeedParser(StringBuilder result, CommonInfo info)
+        void SurfaceSpeedParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Vessel != null)
                 result.AppendSpeed(info.Vessel.srfSpeed);
         }
 
-        void OrbitalSpeedParser(StringBuilder result, CommonInfo info)
+        void OrbitalSpeedParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Orbit != null)
                 result.AppendSpeed(info.Vessel.obt_speed);
         }
 
-        void ApParser(StringBuilder result, CommonInfo info)
+        void ApParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Orbit != null)
                 result.AppendDistance(info.Orbit.ApA);
         }
 
-        void PeParser(StringBuilder result, CommonInfo info)
+        void PeParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Orbit != null)
                 result.AppendDistance(info.Orbit.PeA);
         }
 
 
-        void IncParser(StringBuilder result, CommonInfo info)
+        void IncParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Orbit != null)
             {
@@ -466,13 +489,13 @@ namespace KSEA.Historian
             }
         }
 
-        void EccParser(StringBuilder result, CommonInfo info)
+        void EccParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Orbit != null)
                 result.Append(info.Orbit.eccentricity.ToString("F3"));
         }
 
-        void LanParser(StringBuilder result, CommonInfo info)
+        void LanParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Orbit != null)
             {
@@ -481,7 +504,7 @@ namespace KSEA.Historian
             }
         }
 
-        void ArgPeParser(StringBuilder result, CommonInfo info)
+        void ArgPeParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Orbit != null)
             {
@@ -490,7 +513,7 @@ namespace KSEA.Historian
             }
         }
 
-        void PeriodParser(StringBuilder result, CommonInfo info)
+        void PeriodParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Orbit != null)
             {
@@ -510,7 +533,7 @@ namespace KSEA.Historian
             }
         }
 
-        void OrbitParser(StringBuilder result, CommonInfo info)
+        void OrbitParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Orbit != null)
             {
@@ -520,58 +543,58 @@ namespace KSEA.Historian
             }
         }
 
-        void CrewParser(StringBuilder result, CommonInfo info)
-             => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, traits: allTraits, traitColours: info.TraitColours);
+        void CrewParser(StringBuilder result, CommonInfo info, string[] args)
+             => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix:false, traitsFilter: allTraits, traitsInfo: info.Traits);
 
-        void CrewShortParser(StringBuilder result, CommonInfo info)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, traits: allTraits, traitColours: info.TraitColours);
+        void CrewShortParser(StringBuilder result, CommonInfo info, string[] args)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, traitsFilter: allTraits, traitsInfo: info.Traits);
 
-        void CrewListParser(StringBuilder result, CommonInfo info)
-            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, traits: allTraits, traitColours: info.TraitColours);
+        void CrewListParser(StringBuilder result, CommonInfo info, string[] args)
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, traitsFilter: allTraits, traitsInfo: info.Traits);
 
-        void PilotsParser(StringBuilder result, CommonInfo info)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, traits: new string[] { "Pilot" }, traitColours: info.TraitColours);
+        void PilotsParser(StringBuilder result, CommonInfo info, string[] args)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix: false, traitsFilter: new string[] { "Pilot" }, traitsInfo: info.Traits);
 
-        void PilotsShortParser(StringBuilder result, CommonInfo info)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, traits: new string[] { "Pilot" }, traitColours: info.TraitColours);
+        void PilotsShortParser(StringBuilder result, CommonInfo info, string[] args)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, traitsFilter: new string[] { "Pilot" }, traitsInfo: info.Traits);
 
-        void PilotsListParser(StringBuilder result, CommonInfo info)
-            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, traits: new string[] { "Pilot" }, traitColours: info.TraitColours);
+        void PilotsListParser(StringBuilder result, CommonInfo info, string[] args)
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, traitsFilter: new string[] { "Pilot" }, traitsInfo: info.Traits);
 
-        void EngineersParser(StringBuilder result, CommonInfo info)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, traits: new string[] { "Engineer" }, traitColours: info.TraitColours);
+        void EngineersParser(StringBuilder result, CommonInfo info, string[] args)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix: false, traitsFilter: new string[] { "Engineer" }, traitsInfo: info.Traits);
 
-        void EngineersShortParser(StringBuilder result, CommonInfo info)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, traits: new string[] { "Engineer" }, traitColours: info.TraitColours);
+        void EngineersShortParser(StringBuilder result, CommonInfo info, string[] args)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, traitsFilter: new string[] { "Engineer" }, traitsInfo: info.Traits);
 
-        void EngineersListParser(StringBuilder result, CommonInfo info)
-            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, traits: new string[] { "Engineer" }, traitColours: info.TraitColours);
+        void EngineersListParser(StringBuilder result, CommonInfo info, string[] args)
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, traitsFilter: new string[] { "Engineer" }, traitsInfo: info.Traits);
 
-        void ScientistsParser(StringBuilder result, CommonInfo info)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, traits: new string[] { "Scientist" }, traitColours: info.TraitColours);
+        void ScientistsParser(StringBuilder result, CommonInfo info, string[] args)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix: false, traitsFilter: new string[] { "Scientist" }, traitsInfo: info.Traits);
 
-        void ScientistsShortParser(StringBuilder result, CommonInfo info)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, traits: new string[] { "Scientist" }, traitColours: info.TraitColours);
+        void ScientistsShortParser(StringBuilder result, CommonInfo info, string[] args)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, traitsFilter: new string[] { "Scientist" }, traitsInfo: info.Traits);
 
-        void ScientistsListParser(StringBuilder result, CommonInfo info)
-            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, traits: new string[] { "Scientist" }, traitColours: info.TraitColours);
+        void ScientistsListParser(StringBuilder result, CommonInfo info, string[] args)
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, traitsFilter: new string[] { "Scientist" }, traitsInfo: info.Traits);
 
-        void TouristsParser(StringBuilder result, CommonInfo info)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, traits: new string[] { "Tourist" }, traitColours: info.TraitColours);
+        void TouristsParser(StringBuilder result, CommonInfo info, string[] args)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix: false, traitsFilter: new string[] { "Tourist" }, traitsInfo: info.Traits);
 
-        void TouristsShortParser(StringBuilder result, CommonInfo info)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, traits: new string[] { "Tourist" }, traitColours: info.TraitColours);
+        void TouristsShortParser(StringBuilder result, CommonInfo info, string[] args)
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, traitsFilter: new string[] { "Tourist" }, traitsInfo: info.Traits);
 
-        void TouristsListParser(StringBuilder result, CommonInfo info)
-            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, traits: new string[] { "Tourist" }, traitColours: info.TraitColours);
+        void TouristsListParser(StringBuilder result, CommonInfo info, string[] args)
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, traitsFilter: new string[] { "Tourist" }, traitsInfo: info.Traits);
 
-        void TargetParser(StringBuilder result, CommonInfo info)
+        void TargetParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Target != null)
                 result.Append(info.Target.GetName());
         }
 
-        void LaunchSiteParser(StringBuilder result, CommonInfo info)
+        void LaunchSiteParser(StringBuilder result, CommonInfo info, string[] args)
         {
             var defaultSpaceCenter = Historian.Instance.GetConfiguration().DefaultSpaceCenterName;
             var switcher = Historian.Instance.ReflectedClassType("switcherLoader");
@@ -613,15 +636,15 @@ namespace KSEA.Historian
             result.Append(defaultSpaceCenter);
         }
 
-        void ListFontsParser(StringBuilder result, CommonInfo info) => result.Append(string.Join(", ", OSFonts));
+        void ListFontsParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(string.Join(", ", OSFonts));
 
-        void VesselTypeParser(StringBuilder result, CommonInfo info) => result.Append(info.Vessel?.vesselType);
+        void VesselTypeParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Vessel?.vesselType);
 
-        void StageNumberParser(StringBuilder result, CommonInfo info) => result.Append(info.Vessel?.currentStage);
+        void StageNumberParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Vessel?.currentStage);
 
-        void LastActionParser(StringBuilder result, CommonInfo info) => result.Append(Historian.Instance.LastAction);
+        void LastActionParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(Historian.Instance.LastAction);
 
-        void EvaStateParser(StringBuilder result, CommonInfo info)
+        void EvaStateParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Vessel == null || !info.Vessel.isEVA)
                 return;
@@ -669,7 +692,7 @@ namespace KSEA.Historian
             return kkInfo;
         }
 
-        void KKSpaceCenterParser(StringBuilder result, CommonInfo info)
+        void KKSpaceCenterParser(StringBuilder result, CommonInfo info, string[] args)
         {
             var scManager = Historian.Instance.ReflectedClassType("kkSpaceCenterManager");
             if (scManager == null)
@@ -693,7 +716,7 @@ namespace KSEA.Historian
             }
         }
 
-        void KKDistanceParser(StringBuilder result, CommonInfo info)
+        void KKDistanceParser(StringBuilder result, CommonInfo info, string[] args)
         {
             var scManager = Historian.Instance.ReflectedClassType("kkSpaceCenterManager");
             if (scManager == null)
@@ -718,61 +741,87 @@ namespace KSEA.Historian
 
         // ############# Helper functions
 
-        void GenericCrewParser(StringBuilder result, Vessel vessel, bool isList, bool isShort, string[] traits, string[] traitColours)
+        void GenericCrewParser(StringBuilder result, Vessel vessel, bool isList, bool isShort, bool showSuffix, string[] traitsFilter, Dictionary<string, TraitInfo> traitsInfo)
         {
             if (vessel == null || vessel.isEVA || !vessel.isCommandable)
                 return;
 
-            var isSingleTrait = traits.Length == 1;
+            var isSingleTrait = traitsFilter.Length == 1;
 
-            Func<string, string> nameFilter = x => x;
-            if (isShort) nameFilter = x => x.Replace(" Kerman", "");
+            var crewCount = 0;
+            var crew = vessel.GetVesselCrew();
+            TraitInfo trait;
 
-            var crew = vessel.GetVesselCrew()
-                .Where(c => traits.Contains(c.trait))
-                .Select(c => TraitColor(c.trait, traitColours) + nameFilter(c.name) + "</color>")
-                .ToArray();
+            for (int i = 0; i < crew.Count; i++)
+            {
+                var crewMember = crew[i];
+                // allow filter to be either singular or plural
+                if (traitsFilter.Contains(crewMember.trait) || traitsFilter.Contains(crewMember.trait + "s"))
+                {
+                    crewCount++;
+                    if (isList)
+                        result.Append("• ");
+                    else
+                    {
+                        if (crewCount > 1)
+                            result.Append(", ");
+                    }
 
-            if (crew.Length <= 0)
+                    trait = traitsInfo["UNKNOWN"];
+                    if (traitsInfo.ContainsKey(crewMember.trait))
+                        trait = traitsInfo[crewMember.trait];
+
+                    result.AppendTraitColor(trait.Name, traitsInfo);
+                    if (isShort)
+                        result.Append(crewMember.name.Replace(" Kerman", ""));
+                    else
+                        result.Append(crewMember.name);
+
+                    if (showSuffix)
+                        result.Append(" (").Append(trait.Suffix).Append(")");
+                    result.Append("</color>");
+
+                    if (isList)
+                        result.AppendLine();
+                }
+            }
+            if (crewCount == 0)
             {
                 var cfg = Historian.Instance.GetConfiguration();
                 result.Append(isSingleTrait ? cfg.DefaultNoCrewLabel : cfg.DefaultUnmannedLabel);
-                return;
             }
+            else
+                if (isShort)
+                {
+                    if (isSingleTrait)
+                        result.AppendTraitColor(traitsFilter[0], traitsInfo).Append(" Kerman</color>");
+                    else
+                        result.Append(" Kerman");
+                }
 
-            if (isList)
-            {
-                result.Append("• ");
-                result.Append(string.Join(Environment.NewLine + "• ", crew));
-                return;
-            }
 
-            result.Append(string.Join(", ", crew));
-            result.Append(isShort ? (isSingleTrait ? TraitColor(traits[0], traitColours) + " Kerman</color>" : " Kerman") : "");
+            //var crew = vessel.GetVesselCrew()
+            //    .Where(c => traitsFilter.Contains(c.trait))
+            //    .Select(c => TraitColor(c.trait, traitColours) + nameFilter(c.name) + "</color>")
+            //    .ToArray();
+
+            //if (crew.Length <= 0)
+            //{
+            //    var cfg = Historian.Instance.GetConfiguration();
+            //    result.Append(isSingleTrait ? cfg.DefaultNoCrewLabel : cfg.DefaultUnmannedLabel);
+            //    return;
+            //}
+
+            //if (isList)
+            //{
+            //    result.Append("• ");
+            //    result.Append(string.Join(Environment.NewLine + "• ", crew));
+            //    return;
+            //}
+
+            //result.Append(string.Join(", ", crew));
+            //result.Append(isShort ? (isSingleTrait ? TraitColor(traitsFilter[0], traitColours) + " Kerman</color>" : " Kerman") : "");
         }
-
-
-        string TraitColor(string trait, string[] traitColours)
-        {
-            switch (trait)
-            {
-                case "Pilot":
-                    return "<color=" + traitColours[0] + ">";
-                case "Engineer":
-                    return "<color=" + traitColours[1] + ">";
-                case "Scientist":
-                    return "<color=" + traitColours[2] + ">";
-                case "Tourist":
-                    return "<color=" + traitColours[3] + ">";
-                default:
-                    return "<color=clear>";
-            }
-        }
-
-        
-
-       
- 
 
         public static double ClampTo180(double angle)
         {
@@ -784,5 +833,20 @@ namespace KSEA.Historian
         }
 
     }
+
+    public static class StringBuilderExtensions
+    {
+        public static StringBuilder AppendTraitColor(this StringBuilder sb, string trait, Dictionary<string, TraitInfo> traits)
+        {
+            sb.Append("<color=");
+            if (traits.ContainsKey(trait))
+                sb.Append(traits[trait].Colour);
+            else
+                sb.Append("clear");
+            sb.Append(">");
+            return sb;
+        }
+    }
+
 
 }

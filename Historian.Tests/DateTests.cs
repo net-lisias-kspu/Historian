@@ -8,6 +8,7 @@ using NUnit.Framework;
 
 namespace Historian.Tests
 {
+    [TestFixture(Category = "Dates")]
     public class DateTests
     {
         [TestFixtureSetUp]
@@ -117,10 +118,15 @@ namespace Historian.Tests
         {
             var input = 21600 * 350 + 12345; // some time in Y1 D350
             Debug.Write(input);
+
+            GameSettings.KERBIN_TIME = true;
+            
             
             var result = new SplitDateTimeValue(input);
+            Debug.Write($"Y:{SplitDateTimeValue.dateFormatter.Year}, D:{SplitDateTimeValue.dateFormatter.Day}, H:{SplitDateTimeValue.dateFormatter.Hour}");
             Debug.Write(SplitDateTimeValue.dateFormatter.PrintDate(input, true));
             Assert.That(result.Years, Is.EqualTo(0));
+            Assert.That(result.Days, Is.EqualTo(350));
         }
     }
 }

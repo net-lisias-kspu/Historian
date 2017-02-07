@@ -64,6 +64,7 @@
     <Compile Include="Historian\SituationText.cs" />
     <Compile Include="Historian\Text.cs" />
     <Compile Include="Historian\TextList.cs" />
+    <Compile Include="Historian\Parser.cs" />
     <Compile Include="Historian\ToolbarButton.cs" />
     <Compile Include="Historian\ToolbarWrapper.cs" />
     <Compile Include="Historian\Utility.cs" />
