@@ -36,10 +36,6 @@ The origin point of the element expressed relative to itself. This is the point 
 
 __If omitted then the default value of 0.0, 0.0 is used__
 
---
-
-Each different Element type also
-
 
 --
 ### [Documentation Index](../README.md)
