@@ -1,6 +1,6 @@
 {
     "NAME":"Historian Extended",
-    "URL":"https://raw.githubusercontent.com/Aelfhe1m/Historian-Expanded/master/GameData/Historian/Historian.version",
+    "URL":"https://raw.githubusercontent.com/Aelfhe1m/Historian-Expanded/master/GameData/KSEA/Historian/Historian.version",
     "GITHUB":
     {
         "USERNAME":"Aelfhe1m",
@@ -10,25 +10,22 @@
     "VERSION":
     {
         "MAJOR":1,
-        "MINOR":2,
-        "PATCH":9
+        "MINOR":3,
+        "PATCH":0
     },
     "KSP_VERSION":
     {
         "MAJOR":1,
-        "MINOR":2,
-		"PATCH":2
+        "MINOR":3
     },
     "KSP_VERSION_MIN":
     {
         "MAJOR":1,
-        "MINOR":2,
-		"PATCH":2
+        "MINOR":3
     },
     "KSP_VERSION_MAX":
     {
         "MAJOR":1,
-        "MINOR":2,
-		"PATCH":99
+        "MINOR":3
     }
 }

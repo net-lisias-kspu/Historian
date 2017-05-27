@@ -159,16 +159,24 @@ namespace KSEA.Historian
                 }
                 else
                 {
-                    if (parsers.ContainsKey(token.Key) && (token.Key != "Custom" || allowCustomTag))
+                    try
                     {
-                        parsers[token.Key](sb, info, token.Args);
+                        if (parsers.ContainsKey(token.Key) && (token.Key != "Custom" || allowCustomTag))
+                        {
+                            parsers[token.Key](sb, info, token.Args);
+                        }
+                        else
+                        {
+                            sb.Append("<").Append(token.Key);
+                            if (token.Args != null && token.Args.Length > 0)
+                                sb.Append("(").Append(String.Join(",", token.Args)).Append(")");
+                            sb.Append(">");
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        sb.Append("<").Append(token.Key);
-                        if (token.Args != null && token.Args.Length > 0)
-                            sb.Append("(").Append(String.Join(",", token.Args)).Append(")");
-                        sb.Append(">");
+                        sb.Append("Error expanding <").Append(token.Key).Append(">");
+                        Historian.Print($"Exception: {e.Message} - {e.StackTrace}");
                     }
                 }
             }

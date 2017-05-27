@@ -21,7 +21,7 @@ namespace KSEA.Historian
 {
     public class SplitDateTimeValue
     {
-        public static DefaultDateTimeFormatter dateFormatter = new DefaultDateTimeFormatter();
+        // public static DefaultDateTimeFormatter dateFormatter = new DefaultDateTimeFormatter();
         public int[] TimeParts = new int[] { 0, 0, 0, 0, 0 };
         public int Years
         {
@@ -51,8 +51,8 @@ namespace KSEA.Historian
 
         public SplitDateTimeValue(double ut)
         {
-            this.Years = (int)ut / dateFormatter.Year;
-            this.Days = (int)ut % dateTimeFormatter.Year / dateFormatter.Day;
+            this.Years = (int)ut / dateTimeFormatter.Year;
+            this.Days = (int)ut % dateTimeFormatter.Year / dateTimeFormatter.Day;
             this.Hours = (int)ut % dateTimeFormatter.Day / dateTimeFormatter.Hour;
             this.Minutes = (int)ut % dateTimeFormatter.Hour / dateTimeFormatter.Minute;
             this.Seconds = (int)ut % dateTimeFormatter.Minute;

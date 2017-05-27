@@ -136,8 +136,8 @@ namespace Historian.Tests
             
             
             var result = new SplitDateTimeValue(input);
-            Debug.Write($"Y:{SplitDateTimeValue.dateFormatter.Year}, D:{SplitDateTimeValue.dateFormatter.Day}, H:{SplitDateTimeValue.dateFormatter.Hour}");
-            Debug.Write(SplitDateTimeValue.dateFormatter.PrintDate(input, true));
+            Debug.Write($"Y:{KSPUtil.dateTimeFormatter.Year}, D:{KSPUtil.dateTimeFormatter.Day}, H:{KSPUtil.dateTimeFormatter.Hour}");
+            Debug.Write(KSPUtil.dateTimeFormatter.PrintDate(input, true));
             Assert.That(result.Years, Is.EqualTo(0));
             Assert.That(result.Days, Is.EqualTo(350));
         }

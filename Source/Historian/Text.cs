@@ -15,6 +15,7 @@
  * along with Historian. If not, see <http://www.gnu.org/licenses/>.
  **/
 
+using KSP.Localization;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -144,16 +145,18 @@ namespace KSEA.Historian
             var traits = node.GetNodes("TRAIT");
             for (int i = 0; i < traits.Length; i++)
             {
-                var t = new TraitInfo();
-                t.Name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(traits[i].GetString("Name", "UNKNOWN").ToLower());
+                var t = new TraitInfo()
+                {
+                    Name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(traits[i].GetString("Name", "Unknown").ToLower())
+                };
                 t.Suffix = traits[i].GetString("Suffix", t.Name.Substring(0, 1));
                 t.Colour = traits[i].GetString("Color", "clear");
                 Traits.Add(t.Name,t);
             }
             AddLegacyTraits();
 
-            if (!Traits.ContainsKey("UNKNOWN"))
-                Traits.Add("UNKNOWN", new TraitInfo { Name = "UNKNOWN", Suffix = "?", Colour = "clear" });
+            if (!Traits.ContainsKey("Unknown"))
+                Traits.Add("Unknown", new TraitInfo { Name = "Unknown", Suffix = "?", Colour = "clear" });
 
             allTraits = Traits.Select(t => t.Key).ToArray();
 
@@ -287,25 +290,47 @@ namespace KSEA.Historian
         void DateFormatParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.DateFormat);
 
         void RealDateParser(StringBuilder result, CommonInfo info, string[] args)
-            => result.Append(DateTime.Now.ToString(info.DateFormat));
+        {
+            if (args != null)
+                result.Append(args[0]);
+            else
+                result.Append(DateTime.Now.ToString(info.DateFormat));
+        }
 
         void DateParser(StringBuilder result, CommonInfo info, string[] args)
         {
-            if (isKerbincalendar)
-                result.Append(info.Time.FormattedDate(info.DateFormat, baseYear));
+            if (args != null)
+            {
+                if (isKerbincalendar)
+                    result.Append(info.Time.FormattedDate(args[0], baseYear));
+                else
+                    result.Append(new DateTime(info.Year + baseYear, 1, 1, info.Hour, info.Minute, info.Second).AddDays(info.Day - 1).ToString(args[0]));
+            }
             else
-                result.Append(new DateTime(info.Year + baseYear, 1, 1, info.Hour, info.Minute, info.Second).AddDays(info.Day - 1).ToString(info.DateFormat));
+                result.Append(KSPUtil.dateTimeFormatter.PrintDate(info.UT, false));
         }
 
         void DateParserKAC(StringBuilder result, CommonInfo info, string[] args)
         {
-            if (isKerbincalendar)
-                result.Append(info.Time.FormattedDate(info.DateFormat, baseYear));
+            if (args != null)
+            {
+                if (isKerbincalendar)
+                    result.Append(info.Time.FormattedDate(args[0], baseYear));
+                else
+                    result.Append(new DateTime(baseYear, 1, 1).AddSeconds(info.UT).ToString(args[0]));
+            }
             else
-                result.Append(new DateTime(baseYear, 1, 1).AddSeconds(info.UT).ToString(info.DateFormat));
+            {
+                if (isKerbincalendar)
+                    result.Append(info.Time.FormattedDate(info.DateFormat, baseYear));
+                else
+                    result.Append(new DateTime(baseYear, 1, 1).AddSeconds(info.UT).ToString(info.DateFormat));
+            }
         }
 
-        void UTParser(StringBuilder result, CommonInfo info, string[] args) => result.Append($"Y{info.Year + 1}, D{(info.Day):D3}, {info.Hour}:{info.Minute:D2}:{info.Second:D2}");
+        void UTParser(StringBuilder result, CommonInfo info, string[] args)
+         => result.Append(KSPUtil.dateTimeFormatter.PrintDateCompact(info.UT, true, true)); 
+        //result.Append($"Y{info.Year + 1}, D{(info.Day):D3}, {info.Hour}:{info.Minute:D2}:{info.Second:D2}");
 
         void YearParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Year + ((isKerbincalendar) ? baseYear+1 : baseYear));
 
@@ -339,14 +364,7 @@ namespace KSEA.Historian
             if (info.Vessel != null)
             {
                 var t = new SplitDateTimeValue(info.Vessel.missionTime);
-                if (t.Years > 0)
-                    result.Append($"{t.Years + 1}y, {t.Days + 1}d, {t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}");
-                else
-                    if (t.Days > 0)
-                        result.Append($"{t.Days + 1}d, {t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}");
-                    else
-                        result.Append($"{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}");
-
+                result.Append(KSPUtil.dateTimeFormatter.PrintTimeStampCompact(info.Vessel.missionTime, t.Days > 0, t.Years > 0));
             }
         }
 
@@ -354,19 +372,19 @@ namespace KSEA.Historian
 
         void BodyParser(StringBuilder result, CommonInfo info, string[] args)
         {
-            if (info.Vessel != null) result.Append(Planetarium.fetch.CurrentMainBody.bodyName);
+            if (info.Vessel != null) result.Append(Planetarium.fetch.CurrentMainBody.bodyDisplayName.Replace("^N", ""));
         }
 
         void SituationParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Vessel != null)
-                result.Append(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(info.Vessel.situation.ToString().Replace("_", "-").ToLower()));
+                result.Append(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(info.Vessel.SituationString).Replace("_", "-").ToLower());
         }
 
         void BiomeParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Vessel != null)
-                result.Append( CultureInfo.CurrentCulture.TextInfo.ToTitleCase(ScienceUtil.GetExperimentBiome(info.Vessel.mainBody, info.Vessel.latitude, info.Vessel.longitude).ToLower()));
+                result.Append( CultureInfo.CurrentCulture.TextInfo.ToTitleCase(ScienceUtil.GetExperimentBiomeLocalized(info.Vessel.mainBody, info.Vessel.latitude, info.Vessel.longitude).ToLower()));
         }
 
         void LandingZoneParser(StringBuilder result, CommonInfo info, string[] args)
@@ -374,8 +392,8 @@ namespace KSEA.Historian
             if (info.Vessel != null)
             {
                 var landedAt = (string.IsNullOrEmpty(info.Vessel.landedAt))
-                    ? ScienceUtil.GetExperimentBiome(info.Vessel.mainBody, info.Vessel.latitude, info.Vessel.longitude)
-                    : Vessel.GetLandedAtString(info.Vessel.landedAt); // http://forum.kerbalspaceprogram.com/threads/123896-Human-Friendly-Landing-Zone-Title
+                    ? ScienceUtil.GetExperimentBiomeLocalized(info.Vessel.mainBody, info.Vessel.latitude, info.Vessel.longitude)
+                    : Localizer.Format(info.Vessel.displaylandedAt); // http://forum.kerbalspaceprogram.com/threads/123896-Human-Friendly-Landing-Zone-Title
                 result.Append(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(landedAt.ToLower()));
             }
         }
@@ -391,7 +409,7 @@ namespace KSEA.Historian
             if (info.Vessel != null)
             {
                 result.AppendAngleAsDMS(info.Vessel.latitude);
-                result.Append(info.Vessel.latitude > 0 ? " N" : " S");
+                result.Append(info.Vessel.latitude > 0 ? Internationalisation.North : Internationalisation.South);
             }
 
         }
@@ -408,7 +426,7 @@ namespace KSEA.Historian
             {
                 var longitude = ClampTo180(info.Vessel.longitude);
                 result.AppendAngleAsDMS(longitude);
-                result.Append(longitude > 0 ? " E" : " W");
+                result.Append(longitude > 0 ? Internationalisation.East : Internationalisation.West);
             }
         }
 
@@ -497,16 +515,8 @@ namespace KSEA.Historian
 
                 var period = info.Orbit.period;
                 var t = new SplitDateTimeValue(period);
-                if (t.Years > 0)
-                {
-                    result.Append($"{t.Years + 1}y, {t.Days + 1}d, {t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}");
-                }
-                else {
-                    if (t.Days > 0) 
-                        result.Append($"{t.Days + 1}d, {t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}");
-                    else
-                        result.Append( $"{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}");
-                }
+                result.Append(KSPUtil.PrintTimeStampCompact(period, t.Days > 0, t.Years > 0));
+
             }
         }
 
@@ -521,7 +531,25 @@ namespace KSEA.Historian
         }
 
         void CrewParser(StringBuilder result, CommonInfo info, string[] args)
-             => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix:false, traitsFilter: allTraits, traitsInfo: info.Traits);
+        {
+            var isList = false;
+            var isShort = false;
+            var showSuffix = true;
+            var traitsFilter = allTraits;
+
+            if (args != null)
+            {
+                if (args.Length < 4)
+                    throw new ApplicationException("Not enough arguments for <Crew()>");
+
+                isList = bool.Parse(args[0]);
+                isShort = bool.Parse(args[1]);
+                showSuffix = bool.Parse(args[2]);
+
+            }
+            GenericCrewParser(result, info.Vessel, isList, isShort, showSuffix, traitsFilter, traitsInfo: info.Traits);
+        }
+             
 
         void CrewShortParser(StringBuilder result, CommonInfo info, string[] args)
             => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, traitsFilter: allTraits, traitsInfo: info.Traits);
@@ -568,7 +596,7 @@ namespace KSEA.Historian
         void TargetParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (info.Target != null)
-                result.Append(info.Target.GetName());
+                result.Append(info.Target.GetDisplayName());
         }
 
         void LaunchSiteParser(StringBuilder result, CommonInfo info, string[] args)
@@ -615,7 +643,7 @@ namespace KSEA.Historian
 
         void ListFontsParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(string.Join(", ", OSFonts));
 
-        void VesselTypeParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Vessel?.vesselType);
+        void VesselTypeParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Vessel?.vesselType.displayDescription());
 
         void StageNumberParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Vessel?.currentStage);
 
@@ -674,12 +702,12 @@ namespace KSEA.Historian
             var scManager = Historian.Instance.ReflectedClassType("kkSpaceCenterManager");
             if (scManager == null)
             {
-                result.Append("NO KK");
+                result.Append(Localizer.GetStringByTag("#Historian_NoKerbalKonstructs"));
                 return;
             }
             if (info.Vessel == null)
             {
-                result.Append("N/A");
+                result.Append(Localizer.GetStringByTag("#Historian_NotApplicable"));
                 return;
             }
             try
@@ -698,7 +726,7 @@ namespace KSEA.Historian
             var scManager = Historian.Instance.ReflectedClassType("kkSpaceCenterManager");
             if (scManager == null)
             {
-                result.Append("NO KK");
+                result.Append(Localizer.GetStringByTag("#Historian_NoKerbalKonstructs"));
                 return;
             }
             if (info.Vessel == null)
@@ -744,13 +772,13 @@ namespace KSEA.Historian
                             result.Append(", ");
                     }
 
-                    trait = traitsInfo["UNKNOWN"];
+                    trait = traitsInfo["Unknown"];
                     if (traitsInfo.ContainsKey(crewMember.trait))
                         trait = traitsInfo[crewMember.trait];
 
                     result.AppendTraitColor(trait.Name, traitsInfo);
                     if (isShort)
-                        result.Append(crewMember.name.Replace(" Kerman", ""));
+                        result.Append(crewMember.name.Replace(Internationalisation.Kerman , ""));
                     else
                         result.Append(crewMember.name);
 
@@ -771,9 +799,9 @@ namespace KSEA.Historian
                 if (isShort)
                 {
                     if (isSingleTrait)
-                        result.AppendTraitColor(traitsFilter[0], traitsInfo).Append(" Kerman</color>");
+                        result.AppendTraitColor(traitsFilter[0], traitsInfo).Append($" {Internationalisation.Kerman }</color>");
                     else
-                        result.Append(" Kerman");
+                        result.Append(" ").Append(Internationalisation.Kerman);
                 }
 
 
