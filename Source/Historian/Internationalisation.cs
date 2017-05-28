@@ -15,5 +15,12 @@ namespace KSEA.Historian
         public static string East = Localizer.GetStringByTag(NKey);
         public const string WKey = "#autoLOC_7003275";
         public static string West = Localizer.GetStringByTag(NKey);
+
+        // http://forum.kerbalspaceprogram.com/index.php?/topic/158018-addon-localization-home/&do=findComment&comment=3068733
+        public static string LocalizeBodyName(this string input) 
+        {
+            return Localizer.Format("<<1>>", input);
+        }
+                
     }
 }

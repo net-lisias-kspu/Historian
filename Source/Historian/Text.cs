@@ -372,7 +372,7 @@ namespace KSEA.Historian
 
         void BodyParser(StringBuilder result, CommonInfo info, string[] args)
         {
-            if (info.Vessel != null) result.Append(Planetarium.fetch.CurrentMainBody.bodyDisplayName.Replace("^N", ""));
+            if (info.Vessel != null) result.Append(Planetarium.fetch.CurrentMainBody.bodyDisplayName.LocalizeBodyName());
         }
 
         void SituationParser(StringBuilder result, CommonInfo info, string[] args)
