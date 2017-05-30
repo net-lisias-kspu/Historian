@@ -1,12 +1,36 @@
 # Changelog
 
+#### 1.3 for KSP 1.3
+* Recompiled for KSP 1.3 - __NOT compatible with KSP 1.2.2__
+
+__BREAKING CHANGE__
+* Move Historian install folder from `GameData/KSEA/Historian` to `GameData/Historian`. If upgrading from Historian version 1.2.8 or earlier then any custom layouts must be copied to the new location and the old folder deleted.
+
+* Localisation support 
+	* where stock game provides localised values these will be displayed by `TEXT` tags. e.g. planet names, biomes, vessel types etc.
+	* the file `GameData/Historian/Localisation.cfg` contains all the non-stock text strings used by Historian. This can be used to localise these values also (I don't know any of the other languages well enough to attempt this myself)
+	* Date and Time formatting is delegated to the ingame default dateTimeFormatter allowing standard localised Kerbin and Earth calendar dates (as well as UT and MET) to be displayed
+* Parsing of `TEXT` (and associated) blocks occurs only once when the layout is loaded rather than on every draw event as in previous versions. A parsed expression tree is cached and executed on each draw instead. This should improve both memory usage and performance in all but trivial layouts.
+* Improvements to tag parser and evaluator to allow tags to accept parameters
+	* `<Date(format)>` override the default dateTimeFormatter using a standard .NET date/time formatting string e.g. *<Date(dd/MM/yyyy)>*. See [documentation](Tags-Date.md) for more details.
+	* `<Crew(isList, isShort, showSuffix, traits)>` replaces the existing `<Crew>`, `<CrewShort>`, `<CrewList>`, `<Pilots>`, `<PilotsShort>` etc. with a single configurable tag (previous tags are retained for backwards compatibility but are now deprecated and support may be dropped in a future version).
+		* `isList` - if true displays crew names in a verticle bulleted list. If false names are displayed inline separated by commas
+		* `isShort` - if true the surname (Kerman or localised equivalent) is displayed only once at end of list.  __This setting is ignored if `isList=true`.__
+		* `showSuffix` - if true then a trait abbreviation will be shown after each name e.g. *Jebediah Kerman (P), Bill Kerman (E)`. The abbreviations can be defined in the new `[TRAIT](Traits.md)` block or `[TRAITDEFINITIONS](Traits.md)` file.
+		* `traits` - a comma separated list of which types of crew should be listed or ALL to list everyone
+		* Example: `<Crew(false, true, true, Pilots, Scouts)>` will be a comma separated list of the first names of all piots or scouts on the current vessel. See [the documentation](Tags-Crew.md) for full details and more examples.
+* The `TEXT` element property `DateFormat` is now deprecated in favour of the parameterised `<Date>` tag described above
+* The `TEXT` element properties `PilotColor`, `ScientistColor`, `EngineerColor` and `TouristColor` are now deprecated in favour of using `[TRAIT](Traits.md)` or `[TRAITDEFINITIONS](Traits.md)`. See [documentation](Traits.md) for details.
+* Revised and reformatted [documentation](../README.md)
+* Additional [example layouts](Example.md)
+
 #### Dev Build 1.2.9
 * Updated `SITUATION_TEXT`, `ACTION_TEXT` and `TEXT_LIST` to use new tokenized string loader and evaluator
 * Update source files with consistent licecnse header
 * Moved readme and changelog into Historian folder rather than root of archive
 
 __BREAKING CHANGE__
-* Move Historian install folder from `GameData/KSEA/Historian` to `GameData/Historian` - any custom layouts must be copied to the new location
+* Move Historian install folder from `GameData/KSEA/Historian` to `GameData/Historian` - any custom layouts must be copied to the new location and the old folder deleted.
 
 
 #### Dev build 1.2.8
