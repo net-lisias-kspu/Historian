@@ -1,0 +1,31 @@
+TRAIT
+{
+	Name = Pilot
+	DisplayName = #autoLOC_500101
+	Suffix = P
+	Color = clear
+}
+
+TRAIT
+{
+	Name = Engineer
+	DisplayName = #autoLOC_500103
+	Suffix = E
+	Color = clear
+}
+
+TRAIT
+{
+	Name = Scientist
+	DisplayName = #autoLOC_500105
+	Suffix = S
+	Color = clear
+}
+
+TRAIT
+{
+	Name = Tourist
+	DisplayName = #autoLOC_500107
+	Suffix = T
+	Color = clear
+}
