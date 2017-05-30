@@ -21,6 +21,7 @@ __BREAKING CHANGE__
 		* Example: `<Crew(false, true, true, Pilots, Scouts)>` will be a comma separated list of the first names of all piots or scouts on the current vessel. See [the documentation](Tags-Crew.md) for full details and more examples.
 * The `TEXT` element property `DateFormat` is now deprecated in favour of the parameterised `<Date>` tag described above
 * The `TEXT` element properties `PilotColor`, `ScientistColor`, `EngineerColor` and `TouristColor` are now deprecated in favour of using `[TRAIT](Traits.md)` or `[TRAITDEFINITIONS](Traits.md)`. See [documentation](Traits.md) for details.
+* Fix: -ve values were always displayed in base units instead of most appropriate unit (i.e. -99999m instead of -99.999km)
 * Revised and reformatted [documentation](../README.md)
 * Additional [example layouts](Example.md)
 

@@ -65,6 +65,11 @@ namespace KSEA.Historian
         {
             double d = meters;
             int i = 0;
+            if (d < 0)
+            {
+                result.Append("-");
+                d = Math.Abs(d);
+            }
 
             while (d > 1000.0)
             {
