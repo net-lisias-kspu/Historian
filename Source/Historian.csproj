@@ -72,6 +72,7 @@
     <Compile Include="Historian\Parser.cs" />
     <Compile Include="Historian\ToolbarButton.cs" />
     <Compile Include="Historian\ToolbarWrapper.cs" />
+    <Compile Include="Historian\Traits.cs" />
     <Compile Include="Historian\Utility.cs" />
     <Compile Include="Historian\LastAction.cs" />
     <Compile Include="Historian\InheritedLayout.cs" />
@@ -80,11 +81,20 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetDir)Historian.dll"  "$(SolutionDir)\..\GameData\Historian" /Y
-(robocopy "$(SolutionDir)\..\GameData\Historian" "$(SolutionDir)\..\..\KSP\GameData\Historian"   /E /V) ^&amp; exit 0
-</PostBuildEvent>
+(robocopy "$(SolutionDir)\..\GameData\Historian" "$(SolutionDir)\..\..\KSP\GameData\Historian"   /E /V) 
+(robocopy "$(SolutionDir)\..\GameData\Historian" "$(SolutionDir)\..\..\KSP en\GameData\Historian"   /E /V) 
+(robocopy "$(SolutionDir)\..\GameData\Historian" "$(SolutionDir)\..\..\KSP es\GameData\Historian"   /E /V) 
+(robocopy "$(SolutionDir)\..\GameData\Historian" "$(SolutionDir)\..\..\KSP ru\GameData\Historian"   /E /V) 
+(robocopy "$(SolutionDir)\..\GameData\Historian" "$(SolutionDir)\..\..\KSP jp\GameData\Historian"   /E /V) 
+(robocopy "$(SolutionDir)\..\GameData\Historian" "$(SolutionDir)\..\..\KSP zh\GameData\Historian"   /E /V) ^&amp; exit 0</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>rd /s /q "$(SolutionDir)\..\..\KSP\GameData\Historian"</PreBuildEvent>
+    <PreBuildEvent>rd /s /q "$(SolutionDir)\..\..\KSP\GameData\Historian"
+rd /s /q "$(SolutionDir)\..\..\KSP en\GameData\Historian"
+rd /s /q "$(SolutionDir)\..\..\KSP es\GameData\Historian"
+rd /s /q "$(SolutionDir)\..\..\KSP ja\GameData\Historian"
+rd /s /q "$(SolutionDir)\..\..\KSP zh\GameData\Historian"
+rd /s /q "$(SolutionDir)\..\..\KSP ru\GameData\Historian"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
