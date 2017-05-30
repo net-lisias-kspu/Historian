@@ -2,7 +2,7 @@ TRAIT
 {
 	Name = Pilot
 	DisplayName = #autoLOC_500101
-	Suffix = P
+	Suffix = (P)
 	Color = red
 }
 
@@ -10,7 +10,7 @@ TRAIT
 {
 	Name = Engineer
 	DisplayName = #autoLOC_500103
-	Suffix = E
+	Suffix = (E)
 	Color = yellow
 }
 
@@ -18,7 +18,7 @@ TRAIT
 {
 	Name = Scientist
 	DisplayName = #autoLOC_500105
-	Suffix = S
+	Suffix = (S)
 	Color = aqua
 }
 
@@ -26,6 +26,6 @@ TRAIT
 {
 	Name = Tourist
 	DisplayName = #autoLOC_500107
-	Suffix = T
+	Suffix = (T)
 	Color = green
 }

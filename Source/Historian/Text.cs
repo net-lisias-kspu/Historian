@@ -22,7 +22,6 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using static KSPUtil;
 
 namespace KSEA.Historian
 {
@@ -46,15 +45,6 @@ namespace KSEA.Historian
         public Dictionary<string, TraitInfo> Traits { get; set; }
     }
 
-    public struct TraitInfo
-    {
-        public string Name;
-        public string Suffix;
-        public string Colour;
-    }
-
-
-
     public class Text : Element
     {
         const string DEFAULT_FONT_NAME = "NO DEFAULT";
@@ -64,8 +54,10 @@ namespace KSEA.Historian
         TextAnchor textAnchor = TextAnchor.MiddleCenter;
         int fontSize = 10;
         FontStyle fontStyle = FontStyle.Normal;
-        string pilotColor, engineerColor, scientistColor, touristColor;
+        LegacyTraitColors legacyColors = new LegacyTraitColors();
+
         Dictionary<string, TraitInfo> Traits = new Dictionary<string, TraitInfo>();
+
         int baseYear;
         string dateFormat = "dd MMM yyyy";
         bool isKerbincalendar;
@@ -74,7 +66,7 @@ namespace KSEA.Historian
         static Dictionary<string, Font> createdFonts = new Dictionary<string, Font>();
         string fontName;
 
-        static DefaultDateTimeFormatter dateFormatter = new DefaultDateTimeFormatter();
+        //static DefaultDateTimeFormatter dateFormatter = new DefaultDateTimeFormatter();
 
         static readonly Dictionary<string, Action<StringBuilder, CommonInfo, string[]>> parsers
             = new Dictionary<string, Action<StringBuilder, CommonInfo, string[]>>();
@@ -129,10 +121,10 @@ namespace KSEA.Historian
             fontSize = node.GetInteger("FontSize", 10);
             fontStyle = node.GetEnum("FontStyle", FontStyle.Normal);
 
-            pilotColor = node.GetString("PilotColor", "clear");
-            engineerColor = node.GetString("EngineerColor", "clear");
-            scientistColor = node.GetString("ScientistColor", "clear");
-            touristColor = node.GetString("TouristColor", "clear");
+            legacyColors.PilotColor = node.GetString("PilotColor", "clear");
+            legacyColors.EngineerColor = node.GetString("EngineerColor", "clear");
+            legacyColors.ScientistColor = node.GetString("ScientistColor", "clear");
+            legacyColors.TouristColor = node.GetString("TouristColor", "clear");
 
             isKerbincalendar = GameSettings.KERBIN_TIME;
             baseYear = node.GetInteger("BaseYear", isKerbincalendar ? 0 : 1951);
@@ -141,40 +133,18 @@ namespace KSEA.Historian
                 dateFormat = CultureInfo.CurrentUICulture.DateTimeFormat.LongDatePattern;
             // looks like this doesn't work properly - CultuireInfo.*.name always returns en-US in KSP during my testing
 
-            Traits.Clear();
-            var traits = node.GetNodes("TRAIT");
-            for (int i = 0; i < traits.Length; i++)
-            {
-                var t = new TraitInfo()
-                {
-                    Name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(traits[i].GetString("Name", "Unknown").ToLower())
-                };
-                t.Suffix = traits[i].GetString("Suffix", t.Name.Substring(0, 1));
-                t.Colour = traits[i].GetString("Color", "clear");
-                Traits.Add(t.Name,t);
-            }
-            AddLegacyTraits();
+            // load crew traits from file
+            var traitsConfigFileName = node.GetString("TRAITDEFINITIONS", "default.traitsconfig");
+            Traits = TraitsLoader.Load(traitsConfigFileName, legacyColors);
 
-            if (!Traits.ContainsKey("Unknown"))
-                Traits.Add("Unknown", new TraitInfo { Name = "Unknown", Suffix = "?", Colour = "clear" });
+            // allow individual traits to be overwritten
+            var nodes = node.GetNodes("TRAIT");
+            Traits = TraitsLoader.Load(Traits, nodes, legacyColors);
 
             allTraits = Traits.Select(t => t.Key).ToArray();
 
             // run parser over text to generate tokenized form
             TokenizedText = Parser.GetTokens(text);
-            
-        }
-
-        private void AddLegacyTraits()
-        {
-            if (!Traits.ContainsKey("Pilot"))
-                Traits.Add("Pilot", new TraitInfo { Name = "Pilot", Suffix = "P", Colour = pilotColor });
-            if (!Traits.ContainsKey("Engineer"))
-                Traits.Add("Engineer", new TraitInfo { Name = "Engineer", Suffix = "E", Colour = engineerColor });
-            if (!Traits.ContainsKey("Scientist"))
-                Traits.Add("Scientist", new TraitInfo { Name = "Scientist", Suffix = "S", Colour = scientistColor });
-            if (!Traits.ContainsKey("Tourist"))
-                Traits.Add("Tourist", new TraitInfo { Name = "Tourist", Suffix = "T", Colour = touristColor });
         }
 
         void InitializeParameterDictionary()
@@ -240,6 +210,7 @@ namespace KSEA.Historian
             parsers.Add("KK-Distance", KKDistanceParser);
             parsers.Add("KK-SpaceCenter", KKSpaceCenterParser);
             parsers.Add("DateFormat", DateFormatParser);
+            parsers.Add("ListTraits", ListTraitsParser);
 
             parsers.Add("StageNumber", StageNumberParser);
             parsers.Add("LastAction", LastActionParser);
@@ -289,12 +260,14 @@ namespace KSEA.Historian
 
         void DateFormatParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.DateFormat);
 
+        void ListTraitsParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(string.Join(", ", allTraits));
+
         void RealDateParser(StringBuilder result, CommonInfo info, string[] args)
         {
             if (args != null)
                 result.Append(args[0]);
             else
-                result.Append(DateTime.Now.ToString(info.DateFormat));
+                result.Append(DateTime.Now.ToString());
         }
 
         void DateParser(StringBuilder result, CommonInfo info, string[] args)
@@ -307,7 +280,7 @@ namespace KSEA.Historian
                     result.Append(new DateTime(info.Year + baseYear, 1, 1, info.Hour, info.Minute, info.Second).AddDays(info.Day - 1).ToString(args[0]));
             }
             else
-                result.Append(KSPUtil.dateTimeFormatter.PrintDate(info.UT, false));
+                result.Append(KSPUtil.dateTimeFormatter.PrintDateCompact(info.UT, false));
         }
 
         void DateParserKAC(StringBuilder result, CommonInfo info, string[] args)
@@ -330,9 +303,9 @@ namespace KSEA.Historian
 
         void UTParser(StringBuilder result, CommonInfo info, string[] args)
          => result.Append(KSPUtil.dateTimeFormatter.PrintDateCompact(info.UT, true, true)); 
-        //result.Append($"Y{info.Year + 1}, D{(info.Day):D3}, {info.Hour}:{info.Minute:D2}:{info.Second:D2}");
 
-        void YearParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Year + ((isKerbincalendar) ? baseYear+1 : baseYear));
+        void YearParser(StringBuilder result, CommonInfo info, string[] args) 
+            => result.Append(info.Year + ((isKerbincalendar) ? baseYear+1 : baseYear));
 
         void YearParserKAC(StringBuilder result, CommonInfo info, string[] args)
         {
@@ -342,7 +315,8 @@ namespace KSEA.Historian
                 result.Append(new DateTime(baseYear, 1, 1).AddSeconds(info.UT).ToString("yyyy"));
         }
 
-        void DayParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Day);
+        void DayParser(StringBuilder result, CommonInfo info, string[] args) 
+            => result.Append(info.Day);
 
         void DayParserKAC(StringBuilder result, CommonInfo info, string[] args)
         {
@@ -353,11 +327,14 @@ namespace KSEA.Historian
                 result.Append(new DateTime(baseYear, 1, 1).AddSeconds(info.UT).DayOfYear);
         }
 
-        void HourParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Hour);
+        void HourParser(StringBuilder result, CommonInfo info, string[] args) 
+            => result.Append(info.Hour);
 
-        void MinuteParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Minute);
+        void MinuteParser(StringBuilder result, CommonInfo info, string[] args) 
+            => result.Append(info.Minute);
 
-        void SecondParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Second);
+        void SecondParser(StringBuilder result, CommonInfo info, string[] args) 
+            => result.Append(info.Second);
 
         void METParser(StringBuilder result, CommonInfo info, string[] args)
         {
@@ -430,7 +407,8 @@ namespace KSEA.Historian
             }
         }
 
-        void HeadingParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(FlightGlobals.ship_heading.ToString("F1"));
+        void HeadingParser(StringBuilder result, CommonInfo info, string[] args) 
+            => result.Append(FlightGlobals.ship_heading.ToString("F1"));
 
         void AltitudeParser(StringBuilder result, CommonInfo info, string[] args)
         {
@@ -534,7 +512,8 @@ namespace KSEA.Historian
         {
             var isList = false;
             var isShort = false;
-            var showSuffix = true;
+            var showSuffix = false;
+            var all = true;
             var traitsFilter = allTraits;
 
             if (args != null)
@@ -546,52 +525,72 @@ namespace KSEA.Historian
                 isShort = bool.Parse(args[1]);
                 showSuffix = bool.Parse(args[2]);
 
+                if (args[3].ToUpper() != "ALL")
+                {
+                    all = false;
+                    traitsFilter = new string[args.Length - 3];
+                    Array.Copy(args, 3, traitsFilter, 0, args.Length - 3);
+                }
+
             }
-            GenericCrewParser(result, info.Vessel, isList, isShort, showSuffix, traitsFilter, traitsInfo: info.Traits);
+            GenericCrewParser(result, info.Vessel, isList, isShort, showSuffix, all, traitsFilter, traitsInfo: info.Traits);
         }
              
-
+        [Obsolete]
         void CrewShortParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, traitsFilter: allTraits, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, all: true, traitsFilter: allTraits, traitsInfo: info.Traits);
 
+        [Obsolete]
         void CrewListParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, traitsFilter: allTraits, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, all: true, traitsFilter: allTraits, traitsInfo: info.Traits);
 
+        [Obsolete]
         void PilotsParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix: false, traitsFilter: new string[] { "Pilot" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix: false, all: true, traitsFilter: new string[] { "Pilot" }, traitsInfo: info.Traits);
 
+        [Obsolete]
         void PilotsShortParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, traitsFilter: new string[] { "Pilot" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, all: false, traitsFilter: new string[] { "Pilot" }, traitsInfo: info.Traits);
 
+        [Obsolete]
         void PilotsListParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, traitsFilter: new string[] { "Pilot" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, all: false, traitsFilter: new string[] { "Pilot" }, traitsInfo: info.Traits);
 
+        [Obsolete]
         void EngineersParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix: false, traitsFilter: new string[] { "Engineer" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix: false, all: false, traitsFilter: new string[] { "Engineer" }, traitsInfo: info.Traits);
 
+        [Obsolete]
         void EngineersShortParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, traitsFilter: new string[] { "Engineer" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, all: false, traitsFilter: new string[] { "Engineer" }, traitsInfo: info.Traits);
 
+        [Obsolete]
         void EngineersListParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, traitsFilter: new string[] { "Engineer" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, all: false, traitsFilter: new string[] { "Engineer" }, traitsInfo: info.Traits);
 
+        [Obsolete]
         void ScientistsParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix: false, traitsFilter: new string[] { "Scientist" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix: false, all: false, traitsFilter: new string[] { "Scientist" }, traitsInfo: info.Traits);
 
+        [Obsolete]
         void ScientistsShortParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, traitsFilter: new string[] { "Scientist" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, all: false, traitsFilter: new string[] { "Scientist" }, traitsInfo: info.Traits);
 
+        [Obsolete]
         void ScientistsListParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, traitsFilter: new string[] { "Scientist" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, all: false, traitsFilter: new string[] { "Scientist" }, traitsInfo: info.Traits);
 
+        [Obsolete]
         void TouristsParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix: false, traitsFilter: new string[] { "Tourist" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix: false, all: false, traitsFilter: new string[] { "Tourist" }, traitsInfo: info.Traits);
 
+        [Obsolete]
         void TouristsShortParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, traitsFilter: new string[] { "Tourist" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, all: false, traitsFilter: new string[] { "Tourist" }, traitsInfo: info.Traits);
 
+        [Obsolete]
         void TouristsListParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, traitsFilter: new string[] { "Tourist" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, all: false, traitsFilter: new string[] { "Tourist" }, traitsInfo: info.Traits);
 
         void TargetParser(StringBuilder result, CommonInfo info, string[] args)
         {
@@ -656,14 +655,14 @@ namespace KSEA.Historian
             try
             {
                 if (info.Vessel.evaController.JetpackDeployed)
-                    result.Append( "Jetpack ");
+                    result.Append(Localizer.Format("#Historian_Jetpack"));
                 if (info.Vessel.evaController.JetpackIsThrusting)
-                    result.Append("thrusting ");
+                    result.Append(Localizer.Format("#Historian_Thrusting"));
                 result.Append(info.Vessel.evaController.fsm.currentStateName);
             }
             catch (Exception e)
             {
-                result.Append("Error: ");
+                result.Append(Localizer.Format("#Historian_Error"));
                 result.Append(e.Message);
             }
 
@@ -746,7 +745,7 @@ namespace KSEA.Historian
 
         // ############# Helper functions
 
-        void GenericCrewParser(StringBuilder result, Vessel vessel, bool isList, bool isShort, bool showSuffix, string[] traitsFilter, Dictionary<string, TraitInfo> traitsInfo)
+        void GenericCrewParser(StringBuilder result, Vessel vessel, bool isList, bool isShort, bool showSuffix, bool all, string[] traitsFilter, Dictionary<string, TraitInfo> traitsInfo)
         {
             if (vessel == null || vessel.isEVA || !vessel.isCommandable)
                 return;
@@ -761,7 +760,7 @@ namespace KSEA.Historian
             {
                 var crewMember = crew[i];
                 // allow filter to be either singular or plural
-                if (traitsFilter.Contains(crewMember.trait) || traitsFilter.Contains(crewMember.trait + "s"))
+                if (all || traitsFilter.Contains(crewMember.trait) || traitsFilter.Contains(crewMember.trait + "s") || traitsFilter.Contains(crewMember.experienceTrait.Title))
                 {
                     crewCount++;
                     if (isList)
@@ -783,7 +782,7 @@ namespace KSEA.Historian
                         result.Append(crewMember.name);
 
                     if (showSuffix)
-                        result.Append(" (").Append(trait.Suffix).Append(")");
+                        result.Append(trait.Suffix);
                     result.Append("</color>");
 
                     if (isList)
