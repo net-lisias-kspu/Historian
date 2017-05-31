@@ -4,26 +4,28 @@ The following pre-defined tags can be used inside a text element. These tags wil
 
 __Note that all tag names are case-sensitive.__
 
+Tags marked with a † will show localized values.
+
 ### Gemeral tags
 * `<N>` Inserts a new line.
 * `<Custom>` The current value of the Custom Text. You can set this value using the configuration window. If custom text is not persistent (default), it will be cleared after the next screenshot.
 
 ### Tags describing the vessel
-* `<Vessel>` Name of the active vessel or Kerbal (Only available in Flight Mode). Example: _Jebediah Kerman_, _Kerbal X_
-* `<VesselType>` the type of the current vessel. Will be one of `Base`, `Debris`, `EVA`, `Flag`, `Lander`, `Probe`, `Rover`, `Ship`, `SpaceObject`, `Station`, `Unknown`
-* `<Target>` Name of currently targeted vessel or body (if any)
-* `<Crew>` Name of all the crew members, separated by commas, on the active vessel (Only available in Flight Mode). If the vessel is a probe, it will display "Unmanned". If the vessel is space debris, it will display "N/A". Example: _Jebediah Kerman, Bill Kerman_
+* `<Vessel>` Name of the active vessel or Kerbal. Example: _Jebediah Kerman_, _Kerbal X_
+* `<VesselType>` † the type of the current vessel. Will be one of `Base`, `Debris`, `EVA`, `Flag`, `Lander`, `Probe`, `Rover`, `Ship`, `SpaceObject`, `Station`, `Plane`, `Relay`, `Unknown` 
+* `<Target>` † Name of currently targeted vessel or body (if any) 
+* `<Crew>` † Name of all the crew members, separated by commas, on the active vessel (Only available in Flight Mode). If the vessel is a probe, it will display "Unmanned". If the vessel is space debris, it will display "N/A". Example: _Jebediah Kerman, Bill Kerman_
 * `<StageNumber>` The number of the currently active stage. This will be the same as the number displayed in the staging controls at the bottom left of the flight screen UI.
 
 ### Location
-* `<Body>` Name of the main body (Only available in Flight Mode). Example: _Kerbin_
-* `<Situation>` Current situation of the active vessel (Only available in Flight Mode). Example: _Flying_, _Orbiting_
-* `<Biome>` Current biome of the active vessel based on its location (Only available in Flight Mode). Example: _Shores_
-* `<LandingZone>` The name of the current location the vessel is landed at (Only available in Flight Mode). Example: _Launchpad_
+* `<Body>` † Name of the main body (Only available in Flight Mode). Example: _Kerbin_ 
+* `<Situation>` † Current situation of the active vessel (Only available in Flight Mode). Example: _Flying_, _Orbiting_ 
+* `<Biome>` † Current biome of the active vessel based on its location (Only available in Flight Mode). Example: _Shores_ 
+* `<LandingZone>` † The name of the current location the vessel is landed at (Only available in Flight Mode). Example: _Launchpad_ 
 * `<Latitude>` Latitude of the active vessel relative to the main body expressed in decimal degrees e.g. _23.01245_ (Only available in Flight Mode)
-* `<LatitudeDMS>` Latitude of the active vessel relative to the main body expressed in degrees, minutes and seconds. e.g. _23° 05' 23" N_  (Only available in Flight Mode)
+* `<LatitudeDMS>` † Latitude of the active vessel relative to the main body expressed in degrees, minutes and seconds. e.g. _23° 05' 23" N_  (Only available in Flight Mode) 
 * `<Longitude>` Longitude of the active vessel relative to the main body expressed in decimal degrees e.g. _-17.15_ (Only available in Flight Mode)
-* `<LongitudeDMS>`Longitude of the active vessel relative to the main body expressed in degrees, minutes and seconds e.g. _17° 21' 10" W_  (Only available in Flight Mode)
+* `<LongitudeDMS>`† Longitude of the active vessel relative to the main body expressed in degrees, minutes and seconds e.g. _17° 21' 10" W_  (Only available in Flight Mode) 
 * `<Altitude>` Altitude of the active vessel relative to the sea level of the main body in the most appropriate unit (Only available in Flight Mode). The unit is also included as of version 1.0.1.
 
 ### Orbital parameters
