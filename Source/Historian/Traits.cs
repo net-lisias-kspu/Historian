@@ -51,16 +51,16 @@ namespace KSEA.Historian
                 AddLegacyTraits(traits, legacyColors);
                 return traits;
             }
-            Historian.Print($"Loading traits from file {traitConfigFileName}");
+           //  Historian.Print($"Loading traits from file {traitConfigFileName}");
 
             
             var nodes = ConfigNode.Load(traitConfigFileName).GetNodes("TRAIT");
-            return Load(traits, nodes, legacyColors);
+            return Load(traits, nodes, legacyColors, false);
         }
 
-        public static Dictionary<string, TraitInfo> Load(Dictionary<string, TraitInfo> traits, ConfigNode[] nodes, LegacyTraitColors legacyColors)
+        public static Dictionary<string, TraitInfo> Load(Dictionary<string, TraitInfo> traits, ConfigNode[] nodes, LegacyTraitColors legacyColors, bool addLegacy)
         {
-            Historian.Print($"Loading {nodes.Length} trait nodes");
+            // Historian.Print($"Loading {nodes.Length} trait nodes");
             for (int i = 0; i < nodes.Length; i++)
             {
                 var name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(nodes[i].GetString("Name", "Unknown").ToLower());
@@ -68,7 +68,7 @@ namespace KSEA.Historian
 
                 if (traits.ContainsKey(name))
                 {
-                    Historian.Print($"Update trait {name}");
+                    // Historian.Print($"Update trait {name}");
                     var t = traits[name];
                     t.DisplayName = nodes[i].GetString("DisplayName", t.DisplayName);
                     t.Suffix = nodes[i].GetString("Suffix", t.Suffix);
@@ -76,7 +76,7 @@ namespace KSEA.Historian
                 }
                 else
                 {
-                    Historian.Print($"New trait {name}");
+                    // Historian.Print($"New trait {name}");
                     var t = new TraitInfo
                     {
                         Name = name,
@@ -88,7 +88,7 @@ namespace KSEA.Historian
                 }
             }
 
-            Historian.Print($"Total traits = {traits.Count}");
+            // Historian.Print($"Total traits = {traits.Count}");
             AddLegacyTraits(traits, legacyColors);
 
             return traits;
