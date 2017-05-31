@@ -6,9 +6,17 @@ Orignal mod by [Zenobit](https://github.com/Zeenobit/). Extended development ver
 
 ## Installation
 
+### New installation
 1. Download the latest version of Historian from [GitHub](https://github.com/Aelfhe1m/Historian-Expanded/releases).
-2. Extract the archive and merge the `GameData/Historian` folder into your KSP installation's GameData folder.
+2. Extract the archive and merge the `GameData/Historian` folder into your KSP installation's `GameData` folder.
 3. Enjoy!
+
+### Upgrading from Historian version 1.2.8 or earlier
+1. Download the latest version of Historian from [GitHub](https://github.com/Aelfhe1m/Historian-Expanded/releases).
+2. Backup any custom layout files from your `GameData/KSEA/Historian/Layouts` folder (and optionally your `GameData/Historian/Plugins/Plugindata/Historian.cfg` settings file)
+3. **Delete the `GameData\KSEA` folder**
+4. Extract the archive and merge the `GameData/Historian` folder into your KSP installation's `GameData` folder.
+5. Copy your backed up custom layout files into the `GameData/Historian/Layouts` folder 
 
 ## Documentation
 
