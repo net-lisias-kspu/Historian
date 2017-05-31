@@ -133,13 +133,7 @@ namespace KSEA.Historian
                 dateFormat = CultureInfo.CurrentUICulture.DateTimeFormat.LongDatePattern;
             // looks like this doesn't work properly - CultuireInfo.*.name always returns en-US in KSP during my testing
 
-            // load crew traits from file
-            var traitsConfigFileName = node.GetString("TRAITDEFINITIONS", "default.traitsconfig");
-            Traits = TraitsLoader.Load(traitsConfigFileName, legacyColors);
-
-            // allow individual traits to be overwritten
-            var nodes = node.GetNodes("TRAIT");
-            Traits = TraitsLoader.Load(Traits, nodes, legacyColors);
+            Traits = TraitsLoader.Load(node, legacyColors);
 
             allTraits = Traits.Select(t => t.Key).ToArray();
 
@@ -782,7 +776,7 @@ namespace KSEA.Historian
                         result.Append(crewMember.name);
 
                     if (showSuffix)
-                        result.Append(trait.Suffix);
+                        result.Append(" ").Append(trait.Suffix);
                     result.Append("</color>");
 
                     if (isList)

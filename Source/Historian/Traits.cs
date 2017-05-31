@@ -39,44 +39,58 @@ namespace KSEA.Historian
 
     public static class TraitsLoader
     {
-        public static Dictionary<string, TraitInfo> Load(string traitConfigFileName, LegacyTraitColors legacyColors)
+        public static Dictionary<string, TraitInfo> Load(ConfigNode node, LegacyTraitColors legacyColors)
         {
             Dictionary<string, TraitInfo> traits = new Dictionary<string, TraitInfo>();
+            AddLegacyTraits(traits, legacyColors);
 
+            // load crew traits from file
+            var traitsConfigFileName = node.GetString("TRAITDEFINITIONS", "");
+            if (!string.IsNullOrEmpty(traitsConfigFileName))
+                traits = LoadFile(traits, traitsConfigFileName);
+
+            // allow individual traits to be overwritten
+            var nodes = node.GetNodes("TRAIT");
+            traits = LoadNodes(traits, nodes);
+
+            return traits;
+        }
+
+        private static Dictionary<string, TraitInfo> LoadFile(Dictionary<string, TraitInfo> traits, string traitConfigFileName)
+        {
             var path = Path.Combine(Historian.Instance.ModDirectory, "Layouts");
             traitConfigFileName = Path.Combine(path, traitConfigFileName);
             if (!System.IO.File.Exists(traitConfigFileName))
             {
-                Historian.Print($"ERROR: Unable to find traits config file '{traitConfigFileName}' in 'GameData/Historian/Layouts'");
-                AddLegacyTraits(traits, legacyColors);
+                Historian.Print($"ERROR: Unable to find traits config file 'GameData/Historian/Layouts/{traitConfigFileName}'");
                 return traits;
             }
-           //  Historian.Print($"Loading traits from file {traitConfigFileName}");
 
-            
+            Historian.Print($"Loading traits from '{traitConfigFileName}'");
             var nodes = ConfigNode.Load(traitConfigFileName).GetNodes("TRAIT");
-            return Load(traits, nodes, legacyColors, false);
+            return LoadNodes(traits, nodes);
         }
 
-        public static Dictionary<string, TraitInfo> Load(Dictionary<string, TraitInfo> traits, ConfigNode[] nodes, LegacyTraitColors legacyColors, bool addLegacy)
+        private static Dictionary<string, TraitInfo> LoadNodes(Dictionary<string, TraitInfo> traits, ConfigNode[] nodes)
         {
             // Historian.Print($"Loading {nodes.Length} trait nodes");
             for (int i = 0; i < nodes.Length; i++)
             {
-                var name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(nodes[i].GetString("Name", "Unknown").ToLower());
-                var suffix = name.Substring(0, 1);
+                var name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(nodes[i].GetString("Name", "?").ToLower());
+                var suffix = "(" + name.Substring(0, 1) + ")";
 
                 if (traits.ContainsKey(name))
                 {
-                    // Historian.Print($"Update trait {name}");
+                    // Historian.Print($"Update trait");
                     var t = traits[name];
                     t.DisplayName = nodes[i].GetString("DisplayName", t.DisplayName);
                     t.Suffix = nodes[i].GetString("Suffix", t.Suffix);
                     t.Colour = nodes[i].GetString("Color", t.Colour);
+                    traits[name] = t;
                 }
                 else
                 {
-                    // Historian.Print($"New trait {name}");
+                    // Historian.Print($"New trait");
                     var t = new TraitInfo
                     {
                         Name = name,
@@ -84,13 +98,12 @@ namespace KSEA.Historian
                         Suffix = nodes[i].GetString("Suffix", suffix),
                         Colour = nodes[i].GetString("Color", "clear")
                     };
+                    t.Debug();
                     traits.Add(name, t);
                 }
             }
 
             // Historian.Print($"Total traits = {traits.Count}");
-            AddLegacyTraits(traits, legacyColors);
-
             return traits;
         }
 
@@ -133,6 +146,11 @@ namespace KSEA.Historian
                     Suffix = "(?)",
                     Colour = "clear"
                 });
+        }
+
+        private static void Debug(this TraitInfo t)
+        {
+            Historian.Print($"Trait: {t.Name}, {t.DisplayName}, {t.Suffix}, {t.Colour}");
         }
     }
 }

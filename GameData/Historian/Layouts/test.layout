@@ -200,5 +200,13 @@ KSEA_HISTORIAN_LAYOUT
 			Suffix = (K)
 			Color = orange
 		}
+		
+		TRAIT
+		{
+			Name = Medic
+			DisplayName = MKS Medic
+			Suffix = (M)
+			Color = #ff9999
+		}
 	}
 }
