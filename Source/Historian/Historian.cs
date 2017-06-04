@@ -188,8 +188,8 @@ namespace KSEA.Historian
             feflectedMods.Add("switcherLoader", Reflect.GetExternalType("regexKSP.KSCLoader"));
 
             // Kerbal Konstructs
-            feflectedMods.Add("kkLaunchSiteManager", Reflect.GetExternalType("KerbalKonstructs.LaunchSites.LaunchSiteManager"));
-            feflectedMods.Add("kkSpaceCenterManager", Reflect.GetExternalType("KerbalKonstructs.SpaceCenters.SpaceCenterManager"));
+            feflectedMods.Add("kkLaunchSiteManager", Reflect.GetExternalType("KerbalKonstructs.Core.LaunchSiteManager"));
+            feflectedMods.Add("kkSpaceCenterManager", Reflect.GetExternalType("KerbalKonstructs.Core.SpaceCenterManager"));
         }
 
         void RemoveButton()

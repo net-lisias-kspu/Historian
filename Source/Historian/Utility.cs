@@ -131,7 +131,17 @@ namespace KSEA.Historian
             => parent.GetType().GetMethod(methodName).Invoke(parent, parameters);
 
         public static void StaticVoidMethod(Type type, string methodName, params object[] parameters)
-            => type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static).Invoke(null, parameters);
+        {
+            try
+            {
+                type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static).Invoke(null, parameters);
+            }
+            catch (Exception ex)
+            {
+                Historian.Print("Exception during reflection");
+                Debug.LogException(ex);
+            }
+        }
     }
 
     public static class ConfigNodeExtension

@@ -677,7 +677,7 @@ namespace KSEA.Historian
             float recoveryFactor = 0.0f;
             float recoveryRange = 0.0f;
             string baseName = null;
-            var args = new object[] { position, closestCenter, distance, recoveryFactor, recoveryRange, baseName };
+            var args = new object[] { info.Vessel, closestCenter, distance, recoveryFactor, recoveryRange, baseName };
             Reflect.StaticVoidMethod(scManager, "getClosestSpaceCenter", args);
             var kkInfo = new KerbalKonstructsInfo
             {
@@ -776,7 +776,7 @@ namespace KSEA.Historian
                         result.Append(crewMember.name);
 
                     if (showSuffix)
-                        result.Append(" ").Append(trait.Suffix);
+                        result.Append(" ").Append(trait.Label);
                     result.Append("</color>");
 
                     if (isList)
@@ -797,28 +797,6 @@ namespace KSEA.Historian
                         result.Append(" ").Append(Internationalisation.Kerman);
                 }
 
-
-            //var crew = vessel.GetVesselCrew()
-            //    .Where(c => traitsFilter.Contains(c.trait))
-            //    .Select(c => TraitColor(c.trait, traitColours) + nameFilter(c.name) + "</color>")
-            //    .ToArray();
-
-            //if (crew.Length <= 0)
-            //{
-            //    var cfg = Historian.Instance.GetConfiguration();
-            //    result.Append(isSingleTrait ? cfg.DefaultNoCrewLabel : cfg.DefaultUnmannedLabel);
-            //    return;
-            //}
-
-            //if (isList)
-            //{
-            //    result.Append("• ");
-            //    result.Append(string.Join(Environment.NewLine + "• ", crew));
-            //    return;
-            //}
-
-            //result.Append(string.Join(", ", crew));
-            //result.Append(isShort ? (isSingleTrait ? TraitColor(traitsFilter[0], traitColours) + " Kerman</color>" : " Kerman") : "");
         }
 
         public static double ClampTo180(double angle)

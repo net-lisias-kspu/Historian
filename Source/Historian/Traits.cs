@@ -24,8 +24,7 @@ namespace KSEA.Historian
     public struct TraitInfo
     {
         public string Name;
-        public string DisplayName;
-        public string Suffix;
+        public string Label;
         public string Colour;
     }
 
@@ -45,12 +44,12 @@ namespace KSEA.Historian
             AddLegacyTraits(traits, legacyColors);
 
             // load crew traits from file
-            var traitsConfigFileName = node.GetString("TRAITDEFINITIONS", "");
+            var traitsConfigFileName = node.GetString("TraitDefinitions", "");
             if (!string.IsNullOrEmpty(traitsConfigFileName))
                 traits = LoadFile(traits, traitsConfigFileName);
 
             // allow individual traits to be overwritten
-            var nodes = node.GetNodes("TRAIT");
+            var nodes = node.GetNodes("Trait");
             traits = LoadNodes(traits, nodes);
 
             return traits;
@@ -83,10 +82,10 @@ namespace KSEA.Historian
                 {
                     // Historian.Print($"Update trait");
                     var t = traits[name];
-                    t.DisplayName = nodes[i].GetString("DisplayName", t.DisplayName);
-                    t.Suffix = nodes[i].GetString("Suffix", t.Suffix);
+                    t.Label = nodes[i].GetString("Label", t.Label);
                     t.Colour = nodes[i].GetString("Color", t.Colour);
                     traits[name] = t;
+                    t.Debug("Edit");
                 }
                 else
                 {
@@ -94,11 +93,10 @@ namespace KSEA.Historian
                     var t = new TraitInfo
                     {
                         Name = name,
-                        DisplayName = nodes[i].GetString("DisplayName", name),
-                        Suffix = nodes[i].GetString("Suffix", suffix),
+                        Label = nodes[i].GetString("Label", suffix),
                         Colour = nodes[i].GetString("Color", "clear")
                     };
-                    t.Debug();
+                    t.Debug("Add");
                     traits.Add(name, t);
                 }
             }
@@ -113,44 +111,39 @@ namespace KSEA.Historian
             if (!traits.ContainsKey("Pilot"))
                 traits.Add("Pilot", new TraitInfo {
                     Name = "Pilot",
-                    DisplayName = Localizer.GetStringByTag("#autoLOC_500101"),
-                    Suffix = "(P)",
+                    Label = "(P)",
                     Colour = legacyColors.PilotColor
                 });
             if (!traits.ContainsKey("Engineer"))
                 traits.Add("Engineer", new TraitInfo {
                     Name = "Engineer",
-                    DisplayName = Localizer.GetStringByTag("#autoLOC_500103"),
-                    Suffix = "(E)",
+                    Label = "(E)",
                     Colour = legacyColors.EngineerColor
                 });
             if (!traits.ContainsKey("Scientist"))
                 traits.Add("Scientist", new TraitInfo {
                     Name = "Scientist",
-                    DisplayName = Localizer.GetStringByTag("#autoLOC_500105"),
-                    Suffix = "(S)",
+                    Label = "(S)",
                     Colour = legacyColors.ScientistColor
                 });
             if (!traits.ContainsKey("Tourist"))
                 traits.Add("Tourist", new TraitInfo {
                     Name = "Tourist",
-                    DisplayName = Localizer.GetStringByTag("#autoLOC_500107"),
-                    Suffix = "(T)",
+                    Label = "(T)",
                     Colour = legacyColors.TouristColor
                 });
 
             if (!traits.ContainsKey("Unknown"))
                 traits.Add("Unknown", new TraitInfo {
                     Name = "Unknown",
-                    DisplayName = "Unknown",
-                    Suffix = "(?)",
+                    Label = "(?)",
                     Colour = "clear"
                 });
         }
 
-        private static void Debug(this TraitInfo t)
+        private static void Debug(this TraitInfo t, string addOrEdit)
         {
-            Historian.Print($"Trait: {t.Name}, {t.DisplayName}, {t.Suffix}, {t.Colour}");
+            Historian.Print($"{addOrEdit} trait: {t.Name}, {t.Label}, {t.Colour}");
         }
     }
 }
