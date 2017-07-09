@@ -7,8 +7,8 @@ This element shares all of the properties of the `TEXT` element except for the `
 
 * `EvaOnly` Should this element be displayed only when there is a Kerbal on EVA. Possible values: True, False, Either. __Default__: Either
 
-## Text elements
-When a screen shot is taken, one of these properties will be evaluated and displayed based on the vessels status. These are all optional and if the appropriate one for the vessels status is not defined then `Default` will be used instead.
+## Formatted Text Properties
+When a screen shot is taken, one of these properties will be evaluated and displayed based on the vessels status. These are all optional and if the appropriate property for the vessel's status is not defined then `Default` will be used instead.
 * `Default` 
 * `Landed` Used when the vessel is landed.
 * `Splashed` Used when the vessel is splashed in water.
@@ -23,7 +23,7 @@ When a screen shot is taken, one of these properties will be evaluated and displ
 * `Clambering` Used when an EVA Kerbal is climbing over terrain or a vehicle in response to the 'F' climb key.
 * `OnLadder` Used when an EVA Kerbal is holding on to a ladder
 
-Note also that the special EVA values `RagDolled`, `Clambering` and `OnLadder` take precedence over the flight situations if they have a value specified. If no value is specified then the appropriate normal situation is used (e.g. `Flying`, `Landed` etc.)
+Note that if the special EVA values `RagDolled`, `Clambering` and `OnLadder` are defined that they take precedence over the flight situations. If no value is specified then the appropriate flight property is used (e.g. `Flying`, `Landed` etc.)
 
 --
 ### [Documentation Index](../README.md)

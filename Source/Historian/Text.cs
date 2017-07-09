@@ -532,59 +532,59 @@ namespace KSEA.Historian
              
         [Obsolete]
         void CrewShortParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, all: true, traitsFilter: allTraits, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showLabel: false, all: true, traitsFilter: allTraits, traitsInfo: info.Traits);
 
         [Obsolete]
         void CrewListParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, all: true, traitsFilter: allTraits, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showLabel: false, all: true, traitsFilter: allTraits, traitsInfo: info.Traits);
 
         [Obsolete]
         void PilotsParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix: false, all: true, traitsFilter: new string[] { "Pilot" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showLabel: false, all: true, traitsFilter: new string[] { "Pilot" }, traitsInfo: info.Traits);
 
         [Obsolete]
         void PilotsShortParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, all: false, traitsFilter: new string[] { "Pilot" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showLabel: false, all: false, traitsFilter: new string[] { "Pilot" }, traitsInfo: info.Traits);
 
         [Obsolete]
         void PilotsListParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, all: false, traitsFilter: new string[] { "Pilot" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showLabel: false, all: false, traitsFilter: new string[] { "Pilot" }, traitsInfo: info.Traits);
 
         [Obsolete]
         void EngineersParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix: false, all: false, traitsFilter: new string[] { "Engineer" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showLabel: false, all: false, traitsFilter: new string[] { "Engineer" }, traitsInfo: info.Traits);
 
         [Obsolete]
         void EngineersShortParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, all: false, traitsFilter: new string[] { "Engineer" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showLabel: false, all: false, traitsFilter: new string[] { "Engineer" }, traitsInfo: info.Traits);
 
         [Obsolete]
         void EngineersListParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, all: false, traitsFilter: new string[] { "Engineer" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showLabel: false, all: false, traitsFilter: new string[] { "Engineer" }, traitsInfo: info.Traits);
 
         [Obsolete]
         void ScientistsParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix: false, all: false, traitsFilter: new string[] { "Scientist" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showLabel: false, all: false, traitsFilter: new string[] { "Scientist" }, traitsInfo: info.Traits);
 
         [Obsolete]
         void ScientistsShortParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, all: false, traitsFilter: new string[] { "Scientist" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showLabel: false, all: false, traitsFilter: new string[] { "Scientist" }, traitsInfo: info.Traits);
 
         [Obsolete]
         void ScientistsListParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, all: false, traitsFilter: new string[] { "Scientist" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showLabel: false, all: false, traitsFilter: new string[] { "Scientist" }, traitsInfo: info.Traits);
 
         [Obsolete]
         void TouristsParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showSuffix: false, all: false, traitsFilter: new string[] { "Tourist" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: false, showLabel: false, all: false, traitsFilter: new string[] { "Tourist" }, traitsInfo: info.Traits);
 
         [Obsolete]
         void TouristsShortParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showSuffix: false, all: false, traitsFilter: new string[] { "Tourist" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: false, isShort: true, showLabel: false, all: false, traitsFilter: new string[] { "Tourist" }, traitsInfo: info.Traits);
 
         [Obsolete]
         void TouristsListParser(StringBuilder result, CommonInfo info, string[] args)
-            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showSuffix: false, all: false, traitsFilter: new string[] { "Tourist" }, traitsInfo: info.Traits);
+            => GenericCrewParser(result, info.Vessel, isList: true, isShort: false, showLabel: false, all: false, traitsFilter: new string[] { "Tourist" }, traitsInfo: info.Traits);
 
         void TargetParser(StringBuilder result, CommonInfo info, string[] args)
         {
@@ -739,7 +739,7 @@ namespace KSEA.Historian
 
         // ############# Helper functions
 
-        void GenericCrewParser(StringBuilder result, Vessel vessel, bool isList, bool isShort, bool showSuffix, bool all, string[] traitsFilter, Dictionary<string, TraitInfo> traitsInfo)
+        void GenericCrewParser(StringBuilder result, Vessel vessel, bool isList, bool isShort, bool showLabel, bool all, string[] traitsFilter, Dictionary<string, TraitInfo> traitsInfo)
         {
             if (vessel == null || vessel.isEVA || !vessel.isCommandable)
                 return;
@@ -775,7 +775,7 @@ namespace KSEA.Historian
                     else
                         result.Append(crewMember.name);
 
-                    if (showSuffix)
+                    if (showLabel)
                         result.Append(" ").Append(trait.Label);
                     result.Append("</color>");
 
