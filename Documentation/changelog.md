@@ -1,6 +1,13 @@
 # Changelog
 
-#### 1.3 for KSP 1.3
+#### 1.3.1 fpr KSP 1.3.1
+* Recompiled for KSP 1.3.1
+* Add text tags:
+    * <Mass> - total mass of active vessel in kg
+	* <Cost> - total cost of active vessel
+	* <PartCount> - number of parts in active vessel
+
+#### 1.3 for KSP 1.3 (Dev build)
 * Recompiled for KSP 1.3 - __NOT compatible with KSP 1.2.2__
 
 __BREAKING CHANGE__
