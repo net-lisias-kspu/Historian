@@ -344,7 +344,15 @@ namespace KSEA.Historian
 
         void VesselParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Vessel?.vesselName);
 
-        void VesselMassParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Vessel?.totalMass);
+        void VesselMassParser(StringBuilder result, CommonInfo info, string[] args)
+        {
+            if (info.Vessel != null)
+            {
+                result.Append((info.Vessel.totalMass * 1000).ToString("N0"));
+                result.Append(" kg");
+            }
+        }
+        
 
         void VesselCostParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Vessel?.parts.Sum(p => p.partInfo.cost));
 
