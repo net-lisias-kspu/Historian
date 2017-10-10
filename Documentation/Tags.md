@@ -13,6 +13,9 @@ Tags marked with a # will show localized values. Tag names are __NOT__ localised
 ### Tags describing the vessel
 * `<Vessel>` Name of the active vessel or Kerbal. Example: _Jebediah Kerman_, _Kerbal X_
 * `<VesselType>` # the type of the current vessel. Will be one of `Base`, `Debris`, `EVA`, `Flag`, `Lander`, `Probe`, `Rover`, `Ship`, `SpaceObject`, `Station`, `Plane`, `Relay`, `Unknown` 
+* `<Mass>` Total mass of the active vessel
+* `<Cost>` Total cost of the active vessel
+* `<PartCount>` Number of parts in the active vessel
 * `<Target>` # Name of currently targeted vessel or body (if any) 
 * `<Crew>` # Name of all the crew members, separated by commas, on the active vessel (Only available in Flight Mode). If the vessel is a probe, it will display "Unmanned". If the vessel is space debris, it will display "N/A". Example: _Jebediah Kerman, Bill Kerman_
 * `<StageNumber>` The number of the currently active stage. This will be the same as the number displayed in the staging controls at the bottom left of the flight screen UI.

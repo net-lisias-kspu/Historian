@@ -1,5 +1,12 @@
 # Changelog
 
+#### 1.3.1 for KSP 1.3.1
+* Recompiled for KSP 1.3.1
+* Add richtext tags:
+    * `<Mass>` - the mass of the vessel
+	* `<Cost>` - the cost of the vessel
+	* `<PartCount>` - total number of parts in vessel
+
 #### 1.3 for KSP 1.3
 * Recompiled for KSP 1.3 - __NOT compatible with KSP 1.2.2__
 
