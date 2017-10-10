@@ -1,14 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿/**
+ * This file is part of Historian.
+ * 
+ * Historian is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Historian is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Historian. If not, see <http://www.gnu.org/licenses/>.
+ **/
+
 using static KSPUtil;
 
 namespace KSEA.Historian
 {
     public class SplitDateTimeValue
     {
-        public static DefaultDateTimeFormatter dateFormatter = new DefaultDateTimeFormatter();
+        // public static DefaultDateTimeFormatter dateFormatter = new DefaultDateTimeFormatter();
         public int[] TimeParts = new int[] { 0, 0, 0, 0, 0 };
         public int Years
         {
@@ -38,8 +51,8 @@ namespace KSEA.Historian
 
         public SplitDateTimeValue(double ut)
         {
-            this.Years = (int)ut / dateFormatter.Year;
-            this.Days = (int)ut % dateTimeFormatter.Year / dateFormatter.Day;
+            this.Years = (int)ut / dateTimeFormatter.Year;
+            this.Days = (int)ut % dateTimeFormatter.Year / dateTimeFormatter.Day;
             this.Hours = (int)ut % dateTimeFormatter.Day / dateTimeFormatter.Hour;
             this.Minutes = (int)ut % dateTimeFormatter.Hour / dateTimeFormatter.Minute;
             this.Seconds = (int)ut % dateTimeFormatter.Minute;

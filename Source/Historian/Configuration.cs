@@ -15,7 +15,9 @@
  * along with Historian. If not, see <http://www.gnu.org/licenses/>.
  **/
 
+using KSP.Localization;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -43,12 +45,12 @@ namespace KSEA.Historian
             PersistentCustomText = false,
             AutoHideUI = true,
             TimeToRememberLastAction = 2000, // 2000ms = 2s
-            DefaultSpaceCenterName = "KSC",
+            DefaultSpaceCenterName = Localizer.GetStringByTag("#autoLOC_300900"), // #autoLOC_300900 = KSC
             KerbinMonthNames = new string[] { "Unnam", "Dosnam", "Trenam", "Cuatnam", "Cinqnam", "Seinam", "Sietnam", "Ocnam", "Nuevnam", "Diznam", "Oncnam", "Docenam" },
             KerbinDayNames = new string[] { "Akant", "Brant", "Casant", "Dovant", "Esant", "Flant" },
             RightClickAction = RightClickAction.Suppress,
-            DefaultNoCrewLabel = "None",
-            DefaultUnmannedLabel = "Unmanned"
+            DefaultNoCrewLabel = Localizer.GetStringByTag("#autoLOC_258911"), // #autoLOC_258911 = none
+            DefaultUnmannedLabel = Localizer.GetStringByTag("#autoLOC_286382") // #autoLOC_286382 = unmanned
         };
 
         public Configuration(bool fromDefaults = false)
@@ -100,6 +102,8 @@ namespace KSEA.Historian
         public string[] KerbinMonthNames;
         public string[] KerbinDayNames;
 
+        public List<Token> TokenizedCustomText;
+
         public static Configuration Load(string file)
         {
             try
@@ -137,6 +141,9 @@ namespace KSEA.Historian
                     = node.GetString("DefaultNoCrewLabel", Defaults.DefaultNoCrewLabel);
                 configuration.DefaultUnmannedLabel
                     = node.GetString("DefaultUnmannedLabel", Defaults.DefaultUnmannedLabel);
+
+                if (!String.IsNullOrEmpty(configuration.CustomText))
+                    configuration.TokenizedCustomText = Parser.GetTokens(configuration.CustomText);
 
                 if (version != CurrentVersion)
                 {

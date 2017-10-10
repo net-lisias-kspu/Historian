@@ -1,5 +1,3 @@
-
-
 /**
 * This file is part of Historian.
 * 
@@ -16,6 +14,7 @@
 * You should have received a copy of the GNU General Public License
 * along with Historian. If not, see <http://www.gnu.org/licenses/>.
 **/
+
 using UnityEngine;
 using KSP.UI.Screens;
 
@@ -34,8 +33,8 @@ namespace KSEA.Historian
 
         public LauncherButton()
         {
-            normalTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Launcher", false);
-            suppressedTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Launcher_Suppressed", false);
+            normalTexture = GameDatabase.Instance.GetTexture("Historian/Historian_Launcher", false);
+            suppressedTexture = GameDatabase.Instance.GetTexture("Historian/Historian_Launcher_Suppressed", false);
         }
 
         public void Register()

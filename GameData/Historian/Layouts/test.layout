@@ -1,0 +1,212 @@
+KSEA_HISTORIAN_LAYOUT
+{
+	RECTANGLE
+	{
+		// left panel
+		Anchor = 0.0,0.0
+		Size = 1.0,1.0
+		Position = 0.8,0.0
+		Color = 0.0,0.0,0.0,0.6
+	}
+	
+	RECTANGLE
+	{
+		// lower panel
+		Anchor = 0.0,1.0
+		Size = 0.8,0.05
+		Position = 0.0,1.0
+		Color = 0.0,0.0,0.0,0.5
+	}
+
+	FLAG
+	{
+		Anchor = 0.0,1.0
+		Position = 0.0,1.0
+		Scale = 0.3,0.3
+		DefaultTexture = Squad/Flags/default
+		BackgroundTexture = Squad/Flags/minimalistic
+	}
+	
+	// always displayed
+	SITUATION_TEXT {
+		Anchor = 0.0,1.0
+		Size = 1.0,0.05
+		Position = 0.1,1.0
+		TextAnchor = UpperLeft
+		FontSize = 12
+
+		Default = Undefined
+		Landed = Landed
+		Splashed = Splashed
+		Prelaunch = Prelaunch
+		Flying = Flying
+		SubOrbital = SubOrbital
+		Orbiting = Orbiting
+		Escaping = Escaping
+		Docked = Docked
+	}
+	
+	// only displayed when a Kerbal is on EVA
+	SITUATION_TEXT {
+		EvaOnly = True
+	
+		Anchor = 0.0,1.0
+		Size = 1.0,0.05
+		Position = 0.1,1.0
+		TextAnchor = MiddleLeft
+		FontSize = 12
+		Color = 1.0, 0.8, 0.0, 1.0
+
+		Default = EVA Undefined
+		Landed = EVA Landed
+		Splashed = EVA Splashed
+		Prelaunch = EVA Prelaunch
+		Flying = EVA Flying
+		SubOrbital = EVA SubOrbital
+		Orbiting = EVA Orbiting
+		Escaping = EVA Escaping
+		Docked = EVA Docked
+		
+		RagDolled = Ouch!
+		Climbing = EVA Climbing
+	}
+	
+	// only displayed when a Kerbal is NOT on EVA
+	SITUATION_TEXT {
+		EvaOnly = False
+		
+		Anchor = 0.0,1.0
+		Size = 1.0,0.05
+		Position = 0.1,1.0
+		TextAnchor = LowerLeft
+		FontSize = 12
+		Color = 0.0, 0.8, 0.8, 1.0
+
+		Default = Undefined
+		Landed = VESSEL Landed
+		Splashed = VESSEL Splashed
+		Prelaunch = VESSEL Prelaunch - Поехали!
+		Flying = VESSEL Flying
+		SubOrbital = VESSEL SubOrbital
+		Orbiting = VESSEL Orbiting
+		Escaping = VESSEL Escaping
+		Docked = VESSEL Docked
+	}
+	
+	// Display a message when a specific action occurs
+	ACTION_TEXT
+	{
+		Anchor = 0.0,0.05
+		Position = 0.3,0.3
+		Size = 0.6,0.24
+		Color = 1.0,0.0,0.0,1.0
+		TextAnchor = UpperLeft
+		FontSize = 30
+		FontStyle = Bold
+		
+		Abort = Aborted <MET>!
+		AG1 = Action group 1
+		AG2 = Action group 2
+		AG10 = Hey you pressed 0!
+		Stage = Stage <StageNumber>
+	}
+	
+	TEXT_LIST
+	{
+		Anchor = 0.0,0.05
+		Position = 0.3,0.4
+		Size = 0.6,0.24
+		Color = 1.0,0,1.0,1.0
+		TextAnchor = UpperLeft
+		FontSize = 20
+		FontStyle = Italic
+		Font = Comic Sans MS
+		Random = false // should the texts in each list be displayed in random order.
+		ResetOnLaunch = true
+		
+		Default 
+		{
+			Text = First message
+			Text = Message number two
+			Text = Message three
+			Text = Fourth
+			Text = 5
+			Text = Six
+			Text = Sieben
+			Text = 八 (はち)
+			Text = Neuf
+		}
+		
+		Prelaunch
+		{
+			Text = Поехали!
+			Text = Let's go!
+		}
+		
+		Landed 
+		{
+			Text = The Eagle has landed
+			Text = Is it safe now?
+		}
+		
+		Flying 
+		{
+			Text = Flying 1
+			Text = Flying 2
+		}
+		
+		RagDolled
+		{
+			Text = I think I broke something
+			Text = Is that meant to bend like that?
+			Text = Ouch!
+			Text = 痛い!
+		}
+		
+		Clambering
+		{
+			Text = Ever upward
+			Text = I think I'm slipping
+		}
+		
+		OnLadder
+		{
+			Text = I think I'm slipping
+			Text = This ladder's a bit slippery!
+		}
+	}
+	
+	TEXT
+	{
+		Anchor = 0.0,0.0
+		Position = 0.81,0.05
+		Size = 0.9,1.0
+		Color = 1.0,1.0,1.0,1.0
+		Text = <size=24><b>Test</b></size><N><N>Altitude: <Altitude><N>Ap: <Ap><N>ArgPe: <ArgPe><N>Biome: <Biome><N>Body: <Body><N>Crew: <Crew><N>Crew(true, false, true, Pilot, Kolonist, Medic):<N><Crew(true, false, true, Pilot, Kolonist, Medic)><N>Crew(false, true, false, ALL):<N><Crew(false, true, false, All)><N>Custom: <Custom><N>Date: <Date><N>DateKAC: <DateKAC><N>Day: <Day><N>Ecc: <Ecc><N>Heading: <Heading><N>Hour: <Hour><N>Inc: <Inc><N>KK-Distance: <KK-Distance><N>KK-SpaceCenter: <KK-SpaceCenter><N>LAN: <LAN><N>LandingZone: <LandingZone><N>Latitude: <Latitude><N>LatitudeDMS: <LatitudeDMS><N>LaunchSite: <LaunchSite><N>Longitude: <Longitude><N>LongitudeDMS: <LongitudeDMS><N>Mach: <Mach><N>Minute: <Minute><N>Orbit: <Orbit><N>OrbSpeed: <OrbSpeed><N>Pe: <Pe><N>Period: <Period><N>RealDate: <RealDate><N>Second: <Second><N>Situation: <Situation><N>Speed: <Speed><N>SrfSpeed: <SrfSpeed><N>T+ <T+><N>Target: <Target><N>UT: <UT><N>Vessel: <Vessel><N>VesselType: <VesselType><N>Year: <Year><N><N>StageNumber: <StageNumber><N>LastAction: <LastAction><N>EvaState: <EvaState><N>ListTraits: <ListTraits>
+		
+		TextAnchor = UpperLeft
+		FontSize = 12
+		FontStyle = Normal
+		
+		BaseYear = 1951
+		DateFormat = yyyy-MM-dd
+		
+		TRAITDEFINITIONS = colouredTest.traitsconfig
+		
+		TRAIT
+		{
+			Name = Kolonist
+			DisplayName = MKS Kolonist
+			Suffix = (K)
+			Color = orange
+		}
+		
+		TRAIT
+		{
+			Name = Medic
+			DisplayName = MKS Medic
+			Suffix = (M)
+			Color = #ff9999
+		}
+	}
+}

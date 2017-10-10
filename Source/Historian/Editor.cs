@@ -14,6 +14,9 @@
 * You should have received a copy of the GNU General Public License
 * along with Historian. If not, see <http://www.gnu.org/licenses/>.
 **/
+
+using KSP.Localization;
+using System;
 using UnityEngine;
 
 namespace KSEA.Historian
@@ -44,8 +47,8 @@ namespace KSEA.Historian
             position = new Rect(0.5f * Screen.width - windowWidth / 2, 0.5f * Screen.height - windowHeight / 2, windowWidth, windowHeight);
             windowId = (new System.Random()).Next(876543210, 987654321); // 9 digit random number
 
-            nextButtonTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Button_Next", false);
-            previousButtonTexture = GameDatabase.Instance.GetTexture("KSEA/Historian/Historian_Button_Previous", false);
+            nextButtonTexture = GameDatabase.Instance.GetTexture("Historian/Historian_Button_Next", false);
+            previousButtonTexture = GameDatabase.Instance.GetTexture("Historian/Historian_Button_Previous", false);
 
             enableLauncherButton = configuration.EnableLauncherButton;
             enableToolberButton = configuration.EnableToolbarButton;
@@ -98,21 +101,21 @@ namespace KSEA.Historian
                 using (var col = new GUILayout.VerticalScope())
                 {
                     GUILayout.Space(20);
-                    historian.Suppressed = GUILayout.Toggle(historian.Suppressed, "Suppressed");
-                    historian.AlwaysActive = GUILayout.Toggle(historian.AlwaysActive, "Always Active");
-                    historian.AutoHideUI = GUILayout.Toggle(historian.AutoHideUI, "Auto hide UI");
+                    historian.Suppressed = GUILayout.Toggle(historian.Suppressed, Localizer.GetStringByTag("#Historian_Suppressed"));
+                    historian.AlwaysActive = GUILayout.Toggle(historian.AlwaysActive, Localizer.GetStringByTag("#Historian_AlwaysActive"));
+                    historian.AutoHideUI = GUILayout.Toggle(historian.AutoHideUI, Localizer.GetStringByTag("#Historian_AutoHideUI"));
                     configuration.AutoHideUI = historian.AutoHideUI;
 
-                    configuration.PersistentConfigurationWindow = GUILayout.Toggle(configuration.PersistentConfigurationWindow, "Always Display Configuration Window");
-                    enableLauncherButton = GUILayout.Toggle(enableLauncherButton, "Use Stock Launcher");
-                    enableToolberButton = GUILayout.Toggle(enableToolberButton, "Use Blizzy's Toolbar");
+                    configuration.PersistentConfigurationWindow = GUILayout.Toggle(configuration.PersistentConfigurationWindow, Localizer.GetStringByTag("#Historian_AlwaysShowConfigWindow"));
+                    enableLauncherButton = GUILayout.Toggle(enableLauncherButton, Localizer.GetStringByTag("#Historian_UseAppLauncher"));
+                    enableToolberButton = GUILayout.Toggle(enableToolberButton, Localizer.GetStringByTag("#Historian_UseToolbar"));
                     GUILayout.Space(10);
 
                     using (var layout = new GUILayout.HorizontalScope())
                     {
                         var rightClickOptionsCount = 4;
                         //GUILayout.Space(40);
-                        GUILayout.Label("Right click action");
+                        GUILayout.Label(Localizer.GetStringByTag("#Historian_RightClickAction"));
                         GUILayout.Space(10);
                         if (GUILayout.Button(previousButtonTexture, GUILayout.Width(20), GUILayout.Height(GUI.skin.label.lineHeight)))
                         {
@@ -131,7 +134,7 @@ namespace KSEA.Historian
                     GUILayout.Space(10);
                     using (var layout = new GUILayout.HorizontalScope())
                     {
-                        GUILayout.Label("Layout");
+                        GUILayout.Label(Localizer.GetStringByTag("#Historian_Layout"));
                         GUILayout.Space(10);
                         var layouts = historian.GetLayoutNames();
                         if (GUILayout.Button(previousButtonTexture, GUILayout.Width(20), GUILayout.Height(GUI.skin.label.lineHeight)))
@@ -149,23 +152,23 @@ namespace KSEA.Historian
                     GUILayout.Space(10);
                     using (var customHead = new GUILayout.HorizontalScope())
                     {
-                        GUILayout.Label("Custom Text:");
+                        GUILayout.Label(Localizer.GetStringByTag("#Historian_CustomText"));
                         GUILayout.FlexibleSpace();
-                        configuration.PersistentCustomText = GUILayout.Toggle(configuration.PersistentCustomText, "Persistent", GUILayout.Width(120));
+                        configuration.PersistentCustomText = GUILayout.Toggle(configuration.PersistentCustomText, Localizer.GetStringByTag("#Historian_Persistent"), GUILayout.Width(120));
                     }
                     configuration.CustomText = GUILayout.TextArea(configuration.CustomText, GUI.skin.textArea, GUILayout.Height(60));
 
                     GUILayout.Space(10);
                     using (var spaceCentre = new GUILayout.HorizontalScope())
                     {
-                        GUILayout.Label("Default Space Center Name:");
+                        GUILayout.Label(Localizer.GetStringByTag("#Historian_DefaultSpaceCenterLabel"));
                         GUILayout.FlexibleSpace();
                         configuration.DefaultSpaceCenterName = GUILayout.TextField(configuration.DefaultSpaceCenterName, GUI.skin.textArea, GUILayout.Width(150));
                     }
 
 
                     GUILayout.Space(10);
-                    GUILayout.Label($"Time to remember action key press: {configuration.TimeToRememberLastAction} ms");
+                    GUILayout.Label($"{Localizer.GetStringByTag("#Historian_LastActionTime")}: {configuration.TimeToRememberLastAction} ms");
                     configuration.TimeToRememberLastAction = (int)GUILayout.HorizontalSlider(configuration.TimeToRememberLastAction, 250, 10000, GUILayout.ExpandWidth(true));
 
                 }
@@ -177,7 +180,7 @@ namespace KSEA.Historian
                 using (var col = new GUILayout.VerticalScope())
                 {
                     GUILayout.Space(20);
-                    GUILayout.Label("Kerbin calendar day names:");
+                    GUILayout.Label(Localizer.GetStringByTag("#Historian_DayNames"));
                     for (int i = 0; i < configuration.KerbinDayNames.Length; i++)
                     {
                         using (var item = new GUILayout.HorizontalScope())
@@ -189,17 +192,17 @@ namespace KSEA.Historian
                     }
 
                     GUILayout.Space(50);
-                    GUILayout.Label("Default empty crew slot labels:");
+                    GUILayout.Label(Localizer.GetStringByTag("#Historian_DefaultEmptyCrewSlot"));
                     GUILayout.Space(10);
                     using (var noCrewLabel = new GUILayout.HorizontalScope())
                     {
-                        GUILayout.Label("Crewed:");
+                        GUILayout.Label(Localizer.GetStringByTag("#Historian_CrewedLabel"));
                         GUILayout.FlexibleSpace();
                         configuration.DefaultNoCrewLabel = GUILayout.TextField(configuration.DefaultNoCrewLabel, GUI.skin.textArea, GUILayout.Width(120));
                     }
                     using (var noCrewLabel = new GUILayout.HorizontalScope())
                     {
-                        GUILayout.Label("Uncrewed:");
+                        GUILayout.Label(Localizer.GetStringByTag("#Historian_UncrewedLabel"));
                         GUILayout.FlexibleSpace();
                         configuration.DefaultUnmannedLabel = GUILayout.TextField(configuration.DefaultUnmannedLabel, GUI.skin.textArea, GUILayout.Width(120));
                     }
@@ -213,7 +216,7 @@ namespace KSEA.Historian
                 using (var col = new GUILayout.VerticalScope())
                 {
                     GUILayout.Space(20);
-                    GUILayout.Label("Kerbin calendar month names:");
+                    GUILayout.Label(Localizer.GetStringByTag("#Historian_MonthNames"));
                     for (int i = 0; i < configuration.KerbinMonthNames.Length; i++)
                     {
                         using (var item = new GUILayout.HorizontalScope())
@@ -232,11 +235,11 @@ namespace KSEA.Historian
                 using (var layout = new GUILayout.HorizontalScope())
                 {
                     GUILayout.FlexibleSpace();
-                    if (GUILayout.Button("Load", GUILayout.Width(100.0f)))
+                    if (GUILayout.Button(Localizer.GetStringByTag("#autoLOC_900539"), GUILayout.Width(100.0f))) // #autoLOC_900539 = Load
                     {
                         historian.Reload();
                     }
-                    if (GUILayout.Button("Save", GUILayout.Width(100.0f)))
+                    if (GUILayout.Button(Localizer.GetStringByTag("#autoLOC_174778"), GUILayout.Width(100.0f))) // #autoLOC_174778 = Save
                     {
                         configuration.Layout = historian.GetCurrentLayoutName();
                         configuration.EnableLauncherButton = enableLauncherButton;
@@ -244,6 +247,9 @@ namespace KSEA.Historian
 
                         historian.SetConfiguration(configuration);
                         if (!configuration.PersistentConfigurationWindow) Toggle();
+
+                        if (!String.IsNullOrEmpty(configuration.CustomText))
+                            configuration.TokenizedCustomText = Parser.GetTokens(configuration.CustomText);
                     }
                     GUILayout.Space(20);
                     // GUILayout.FlexibleSpace();

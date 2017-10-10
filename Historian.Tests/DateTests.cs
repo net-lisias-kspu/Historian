@@ -119,7 +119,12 @@ namespace Historian.Tests
             Debug.Write(input);
             
             var result = new SplitDateTimeValue(input);
+<<<<<<< HEAD
             Debug.Write(SplitDateTimeValue.dateFormatter.PrintDate(input, true));
+=======
+            Debug.Write($"Y:{KSPUtil.dateTimeFormatter.Year}, D:{KSPUtil.dateTimeFormatter.Day}, H:{KSPUtil.dateTimeFormatter.Hour}");
+            Debug.Write(KSPUtil.dateTimeFormatter.PrintDate(input, true));
+>>>>>>> Dev
             Assert.That(result.Years, Is.EqualTo(0));
         }
     }
