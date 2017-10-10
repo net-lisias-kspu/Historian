@@ -3,9 +3,9 @@
 #### 1.3.1 fpr KSP 1.3.1
 * Recompiled for KSP 1.3.1
 * Add text tags:
-    * <Mass> - total mass of active vessel in kg
-	* <Cost> - total cost of active vessel
-	* <PartCount> - number of parts in active vessel
+    * `<Mass>` - total mass of active vessel in kg
+	* `<Cost>` - total cost of active vessel
+	* `<PartCount>` - number of parts in active vessel
 
 #### 1.3 for KSP 1.3 (Dev build)
 * Recompiled for KSP 1.3 - __NOT compatible with KSP 1.2.2__
@@ -23,11 +23,11 @@ __BREAKING CHANGE__
 	* `<Crew(isList, isShort, showSuffix, traits)>` replaces the existing `<Crew>`, `<CrewShort>`, `<CrewList>`, `<Pilots>`, `<PilotsShort>` etc. with a single configurable tag (previous tags are retained for backwards compatibility but are now deprecated and support may be dropped in a future version).
 		* `isList` - if true displays crew names in a verticle bulleted list. If false names are displayed inline separated by commas
 		* `isShort` - if true the surname (Kerman or localised equivalent) is displayed only once at end of list.  __This setting is ignored if `isList=true`.__
-		* `showSuffix` - if true then a trait abbreviation will be shown after each name e.g. *Jebediah Kerman (P), Bill Kerman (E)`. The abbreviations can be defined in the new `[TRAIT](Traits.md)` block or `[TRAITDEFINITIONS](Traits.md)` file.
+		* `showSuffix` - if true then a trait abbreviation will be shown after each name e.g. *Jebediah Kerman (P), Bill Kerman (E)`. The abbreviations can be defined in the new [`TRAIT`](Traits.md) block or [`TRAITDEFINITIONS`](Traits.md) file.
 		* `traits` - a comma separated list of which types of crew should be listed or ALL to list everyone
 		* Example: `<Crew(false, true, true, Pilots, Scouts)>` will be a comma separated list of the first names of all piots or scouts on the current vessel. See [the documentation](Tags-Crew.md) for full details and more examples.
 * The `TEXT` element property `DateFormat` is now deprecated in favour of the parameterised `<Date>` tag described above
-* The `TEXT` element properties `PilotColor`, `ScientistColor`, `EngineerColor` and `TouristColor` are now deprecated in favour of using `[TRAIT](Traits.md)` or `[TRAITDEFINITIONS](Traits.md)`. See [documentation](Traits.md) for details.
+* The `TEXT` element properties `PilotColor`, `ScientistColor`, `EngineerColor` and `TouristColor` are now deprecated in favour of using [`TRAIT`](Traits.md) or [`TRAITDEFINITIONS`](Traits.md). See [documentation](Traits.md) for details.
 * Fix: -ve values were always displayed in base units instead of most appropriate unit (i.e. -99999m instead of -99.999km)
 * Revised and reformatted [documentation](../README.md)
 * Additional [example layouts](Example.md)
