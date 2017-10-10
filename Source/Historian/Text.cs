@@ -205,6 +205,9 @@ namespace KSEA.Historian
             parsers.Add("KK-SpaceCenter", KKSpaceCenterParser);
             parsers.Add("DateFormat", DateFormatParser);
             parsers.Add("ListTraits", ListTraitsParser);
+            parsers.Add("Mass", VesselMassParser);
+            parsers.Add("Cost", VesselCostParser);
+            parsers.Add("PartCount", PartCountParser);
 
             parsers.Add("StageNumber", StageNumberParser);
             parsers.Add("LastAction", LastActionParser);
@@ -340,6 +343,12 @@ namespace KSEA.Historian
         }
 
         void VesselParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Vessel?.vesselName);
+
+        void VesselMassParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Vessel?.totalMass);
+
+        void VesselCostParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Vessel?.parts.Sum(p => p.partInfo.cost));
+
+        void PartCountParser(StringBuilder result, CommonInfo info, string[] args) => result.Append(info.Vessel?.parts.Count);
 
         void BodyParser(StringBuilder result, CommonInfo info, string[] args)
         {
