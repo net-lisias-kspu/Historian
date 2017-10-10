@@ -23,7 +23,7 @@ __BREAKING CHANGE__
 	* `<Crew(isList, isShort, showSuffix, traits)>` replaces the existing `<Crew>`, `<CrewShort>`, `<CrewList>`, `<Pilots>`, `<PilotsShort>` etc. with a single configurable tag (previous tags are retained for backwards compatibility but are now deprecated and support may be dropped in a future version).
 		* `isList` - if true displays crew names in a verticle bulleted list. If false names are displayed inline separated by commas
 		* `isShort` - if true the surname (Kerman or localised equivalent) is displayed only once at end of list.  __This setting is ignored if `isList=true`.__
-		* `showSuffix` - if true then a trait abbreviation will be shown after each name e.g. *Jebediah Kerman (P), Bill Kerman (E)`. The abbreviations can be defined in the new [`TRAIT`](Traits.md) block or [`TRAITDEFINITIONS`](Traits.md) file.
+		* `showSuffix` - if true then a trait abbreviation will be shown after each name e.g. *Jebediah Kerman (P), Bill Kerman (E)*. The abbreviations can be defined in the new [`TRAIT`](Traits.md) block or [`TRAITDEFINITIONS`](Traits.md) file.
 		* `traits` - a comma separated list of which types of crew should be listed or ALL to list everyone
 		* Example: `<Crew(false, true, true, Pilots, Scouts)>` will be a comma separated list of the first names of all piots or scouts on the current vessel. See [the documentation](Tags-Crew.md) for full details and more examples.
 * The `TEXT` element property `DateFormat` is now deprecated in favour of the parameterised `<Date>` tag described above
