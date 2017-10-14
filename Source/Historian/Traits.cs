@@ -44,12 +44,12 @@ namespace KSEA.Historian
             AddLegacyTraits(traits, legacyColors);
 
             // load crew traits from file
-            var traitsConfigFileName = node.GetString("TraitDefinitions", "");
+            var traitsConfigFileName = node.GetString("TRAITDEFINITIONS", "");
             if (!string.IsNullOrEmpty(traitsConfigFileName))
                 traits = LoadFile(traits, traitsConfigFileName);
 
             // allow individual traits to be overwritten
-            var nodes = node.GetNodes("Trait");
+            var nodes = node.GetNodes("TRAIT");
             traits = LoadNodes(traits, nodes);
 
             return traits;
