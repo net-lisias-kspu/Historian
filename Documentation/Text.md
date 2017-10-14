@@ -8,15 +8,16 @@ A `TEXT` element renders a string of text. The text may contain [Unity formattin
 * `FontSize` Size of the font. Note that rich text format specifiers can override this. _Default: 10_
 * `FontStyle` Style of the font. Supports any one of these values: `Normal`, `Bold`, `Italic`, and `BoldAndItalic`. Note that rich text format specifiers can override this. _Default: Normal_
 * `Color` Color of the font. Note that rich text format specifiers can override this. _Default: 1.0,1.0,1.0,1.0_
-* `Trait` a block level property defining how to display crew information for a specific type of crew member (e.g. Pilot)
+* `TRAIT` a block level property defining how to display crew information for a specific type of crew member (e.g. Pilot)
     Example:
-	Trait
+	TRAIT
 	{
 		Name = Pilot // the name of the trait from the game's config files
 		Label = (P) // optional label to display after crew member's name
 		Color = red 
 	}
-* `TraitDefinitions` the name of a file inside the layouts folder that contains a list of `Trait` blocks (allows easily defining same settings for multiple TEXT type elements) _Example: TraitDefinitions = colored.traitsconfig_
+	See [Traits.md](Traits.md) for more details
+* `TRAITDEFINITIONS` the name of a file inside the layouts folder that contains a list of `TRAIT` blocks (allows easily defining same settings for multiple TEXT type elements) _Example: TRAITDEFINITIONS = colored.traitsconfig_. See [Traits.md](Traits.md) for more details
 * `BaseYear` Offset added to year values and formatted dates. _Default: 1 (Kerbin CalendarMode) or 1951 (Earth CalendarMode)_
 
 ### Deprecated properties
