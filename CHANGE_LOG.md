@@ -1,5 +1,13 @@
 # Historian-Expanded :: Change log
 
+* 2015-0524: 1.0 (Zeenobit) for KSP 0.90
+	+ Features
+		- New placeholder values `<Mach>`, `<LandingZone>`, `<Speed>`, and `<Custom>`
+		- Support for custom text to be displayed
+		- `SITUATION_TEXT` element to display different text values depending on current vessel situation
+	+ Fixes
+		- Fixed the missing name for Blizzy's Toolbar
+		- Adjusted the precision of some placeholder values to make them look nicer
 * 2015-0522: 0.2 (Zeenobit) for KSP 0.90 PRE-RELEASE
 	+ Features
 		- Layout support
