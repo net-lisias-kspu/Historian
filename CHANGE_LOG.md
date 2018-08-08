@@ -1,5 +1,7 @@
 # Historian-Expanded :: Change log
 
+* 2016-0407: 1.2.0.40 (Aelfhe1m) for KSP 1.1 Pre
+	+ Fix: regression fix for missing "Flying" situation trigger.
 * 2016-0407: 1.2.0.39 (Aelfhe1m) for KSP 1.1 Pre
 	+ Fix: Compatibility for Automatic Screenshots and Saves
 * 2016-0406: 1.2.0.38 (Aelfhe1m) for KSP 1.0.5
