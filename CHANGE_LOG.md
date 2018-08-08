@@ -1,5 +1,11 @@
 # Historian-Expanded :: Change log
 
+* 2017-0205: 1.2.7 (Aelfhe1m) for KSP 1.2.2
+	+ Fix issue #10 where configuration dialog would not show correctly if Historian.cfg file had to be created during start-up e.g. after first installing mod and add action to Visual Studio build sequence to automatically delete Historian.cfg so I don't overlook this breaking in the future
+		- Add configuration option to allow setting text to be shown for empty crew slots i.e. in `pilot`, `scientist`, `engineer` (and short or list variants) tags when no crew of that type are present in vessel. _Default = None (same as previous version)_
+	+ Add configuration option to allow setting text to be shown in `Crew`, `CrewShort` or `CrewList` tags for a vessel with no crew. _Default = unmanned (same as previous version)_.
+	+ Fix #13 Out by one error when displaying Kerbin formatted dates.
+	+ Modify text parsing routines to remove many temporary strings and to use cached stringbuilder if available. Should reduce garbage collection footprint.
 * 2016-1111: 1.2.6 (Aelfhe1m) for KSP 1.2.1
 	+ Update for KSP 1.2.1
 	+ Updated toolbar wrapper [Toolbar PR #39](https://github.com/blizzy78/ksp_toolbar/pull/39)
