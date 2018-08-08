@@ -1,5 +1,9 @@
 # Historian-Expanded :: Change log
 
+* 2015-0805: 1.1.1 (Zeenobit) for KSP 1.0.4 PRE-RELEASE
+	+ Features
+		- Contains the required compatibility for linuxgurugamer's Automated Screenshots mod (implemented by linuxgurugamer)
+	+ Note: This is a very minor update and required only if you plan on using the Automated Screenshots mod.
 * 2015-0627: 1.1.0 (Zeenobit) for KSP 1.0.4
 	+ Features
 		- Added option to Suppress Historian with the right mouse click on the Toolbar button (Only supported on Blizzy's Toolbar)
