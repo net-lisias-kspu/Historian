@@ -1,5 +1,13 @@
 # Historian-Expanded :: Change log
 
+* 2015-0602: 1.0.2 (Zeenobit) for KSP 0.90
+	+ Features
+		- `<Crew>` placeholder value
+		- Option to turn off the persistent configuration window
+	+ Fixes
+		- Fixed issue with empty configuration window shown when game was paused with it open
+		- Potential fix for "Persistent Custom Text" option not being saved
+		- Fixed problems with `<LandingZone>` not showing correct values in a few rare locations
 * 2015-0526: 1.0.1 (Zeenobit) for KSP 0.90
 	+ Fixes
 		- `<LandingZone>` should no longer show up as an empty value when landing on actual biomes
