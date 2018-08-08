@@ -1,5 +1,11 @@
 # Historian-Expanded :: Change log
 
+* 2016-0528: 1.2.4.12 (Aelfhe1m) for KSP 1.1.2
+	+ 1.2.4.12 for KSP 1.1.2
+		- Add settings window option to Auto Hide UI when taking screen shot. (Caution do not use this with other mods that also auto-hide the UI)
+		- Extend maximum configurable setting for `Time to remember action` to 10s following additional play testing.
+		- Fix [issue #5](https://github.com/Aelfhe1m/Historian-Expanded/issues/5) - Action text persists longer than configured
+		- Fix [issue #6](https://github.com/Aelfhe1m/Historian-Expanded/issues/6) - TEXT_LIST generating ArgumentOutOfRange exceptions just after lift-off
 * 2016-0527: 1.2.4 (Aelfhe1m) for KSP 1.1.2
 	+ Add new elements:
 		- ACTION_TEXT: conditional message when abort, stage or action group pressed
