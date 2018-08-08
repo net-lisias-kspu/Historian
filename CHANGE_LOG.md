@@ -1,5 +1,9 @@
 # Historian-Expanded :: Change log
 
+* 2016-0503: 1.2.0.41 (Aelfhe1m) for KSP 1.1.2
+	+ compile against KSP 1.1.2 binaries
+	+ update documentation
+	+ master branch updated to KSP 1.1.2
 * 2016-0407: 1.2.0.40 (Aelfhe1m) for KSP 1.1 Pre
 	+ Fix: regression fix for missing "Flying" situation trigger.
 * 2016-0407: 1.2.0.39 (Aelfhe1m) for KSP 1.1 Pre
