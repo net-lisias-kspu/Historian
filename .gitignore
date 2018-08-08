@@ -1,7 +1,10 @@
+.vs
 bin
 */obj
-GameData/KSEA/Historian/Layouts/Aelfheim.layout
-GameData/KSEA/Historian/Historian.cfg
+GameData/*/*.version
+GameData/*/*.dll
+GameData/*/LICENSE
+GameData/*/README.md
+GameData/*/CHANGE_LOG.md
 packages
 **/Version.cs
-.vs
