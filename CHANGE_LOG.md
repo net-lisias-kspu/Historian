@@ -1,5 +1,7 @@
 # Historian-Expanded :: Change log
 
+* 2016-0510: 1.2.2.11 (Aelfhe1m) for KSP 1.1.2
+	+ Change persistence model for configuration settings to use game save files rather than a config file in GameData. NOTE: Starting a new save will set configuration to default values. Reverting a flight or quickloading may load an older version of the configuration if you've made recent changes.
 * 2016-0509: 1.2.1.14 (Aelfhe1m) for KSP 1.1.2
 	+ Regression fix for `DateFormat` - same issue as with crew trait colouring
 * 2016-0509: 1.2.1.9 (Aelfhe1m) for KSP 1.1.2
