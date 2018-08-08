@@ -1,5 +1,10 @@
 # Historian-Expanded :: Change log
 
+* 2016-0113: 1.1.3 (Aelfhe1m) for KSP 1.3.1
+	+ Change log:
+		- Fix Pe not substituted
+		- Added Kerbin date formatting (alternating 35 and 36 day months). Names fixed currently but will be configurable in later version.
+		- All crew related parameters will be empty string if Kerbal on EVA.
 * 2015-0805: 1.1.1 (Zeenobit) for KSP 1.0.4 PRE-RELEASE
 	+ Features
 		- Contains the required compatibility for linuxgurugamer's Automated Screenshots mod (implemented by linuxgurugamer)
