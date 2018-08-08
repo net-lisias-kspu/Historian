@@ -57,8 +57,7 @@ namespace KSEA.Historian
 
         private static Dictionary<string, TraitInfo> LoadFile(Dictionary<string, TraitInfo> traits, string traitConfigFileName)
         {
-            var path = Path.Combine(Historian.Instance.ModDirectory, "Layouts");
-            traitConfigFileName = Path.Combine(path, traitConfigFileName);
+			traitConfigFileName = Path.Combine(Configuration.LayoutsDirectory, traitConfigFileName);
             if (!System.IO.File.Exists(traitConfigFileName))
             {
                 Historian.Print($"ERROR: Unable to find traits config file 'GameData/Historian/Layouts/{traitConfigFileName}'");

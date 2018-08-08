@@ -110,30 +110,12 @@ namespace KSEA.Historian
         public Type ReflectedClassType(string classNameKey)
             => feflectedMods.ContainsKey(classNameKey) ? feflectedMods[classNameKey] : null;
 
-        public string PluginDirectory
-        {
-            get
-            {
-                var path = Assembly.GetExecutingAssembly().Location;
-                return Path.Combine(Path.Combine(Path.GetDirectoryName(path), "Plugins"), "Plugindata");
-            }
-        }
-
-        public string ModDirectory
-        {
-            get
-            {
-                var path = Assembly.GetExecutingAssembly().Location;
-                return Path.GetDirectoryName(path);
-            }
-        }
-
         public string AssemblyFileVersion => assemblyVersion;
 
 
         public void Reload()
         {
-            configuration = Configuration.Load(Path.Combine(PluginDirectory, "Historian.cfg"));
+            configuration = Configuration.Load(Configuration.HISTORIANCFG);
             layouts.Clear();
             LoadLayouts();
             currentLayoutIndex = FindLayoutIndex(configuration.Layout);
@@ -150,16 +132,16 @@ namespace KSEA.Historian
         public void SetConfiguration(Configuration configuration)
         {
             this.configuration = configuration;
-            this.configuration.Save(Path.Combine(PluginDirectory, "Historian.cfg"));
+			this.configuration.Save(Configuration.HISTORIANCFG);
 
             actionTimeout = TimeSpan.FromMilliseconds(configuration.TimeToRememberLastAction);
         }
 
         void RemoveOldConfig()
         {
-            var fName = Path.Combine(ModDirectory, "Historian.cfg");
+            var fName = Path.Combine(Configuration.ModDirectory, "Historian.cfg");
             if (File.Exists(fName)) File.Delete(fName);
-            fName = Path.Combine(Path.Combine(ModDirectory, "Plugins"), "Historian.cfg");
+            fName = Path.Combine(Path.Combine(Configuration.ModDirectory, "Plugins"), "Historian.cfg");
             if (File.Exists(fName)) File.Delete(fName);
         }
 
@@ -167,7 +149,7 @@ namespace KSEA.Historian
         {
             DontDestroyOnLoad(this);
             RemoveOldConfig();
-            configuration = Configuration.Load(Path.Combine(PluginDirectory, "Historian.cfg"));
+			configuration = Configuration.Load(Configuration.HISTORIANCFG);
 
             LoadLayouts();
             currentLayoutIndex = FindLayoutIndex(configuration.Layout);
@@ -239,7 +221,8 @@ namespace KSEA.Historian
                     if (!configuration.PersistentCustomText && !string.IsNullOrEmpty(configuration.CustomText))
                     {
                         configuration.CustomText = "";
-                        configuration.Save(Path.Combine(PluginDirectory, "Historian.cfg"));
+						if (!Directory.Exists(Configuration.PLUGINDATA)) Directory.CreateDirectory(Configuration.PLUGINDATA);
+                        configuration.Save(Configuration.HISTORIANCFG);
                     }
 
                     if (!screenshotRequested) active = false;
@@ -339,7 +322,7 @@ namespace KSEA.Historian
         void LoadLayouts()
         {
             Print("Searching for layouts ...");
-            var files = Directory.GetFiles(Path.Combine(ModDirectory, "Layouts"), "*.layout");
+			var files = Directory.GetFiles(Configuration.LayoutsDirectory, "*.layout");
             foreach (var file in files)
             {
                 LoadLayout(file);
