@@ -1,5 +1,8 @@
 # Historian-Expanded :: Change log
 
+* 2016-0406: 1.2.0.37 (Aelfhe1m) for KSP 1.0.5
+	+ Fix: crew trait colours not showing correctly
+	+ Fix: `<UT>` incorrectly included base year now shows first year as Y1 etc.
 * 2016-0405: 1.2.0 (Aelfhe1m) for KSP 1.0.5
 	+ Initial KSP 1.1 release
 * 2016-0407: 1.1.18.1 (Aelfhe1m) for KSP 1.0.5
