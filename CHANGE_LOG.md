@@ -1,5 +1,9 @@
 # Historian-Expanded :: Change log
 
+* 2015-0627: 1.1.0 (Zeenobit) for KSP 1.0.4
+	+ Features
+		- Added option to Suppress Historian with the right mouse click on the Toolbar button (Only supported on Blizzy's Toolbar)
+		- Recompiled for KSP 1.0.4
 * 2015-0602: 1.0.2 (Zeenobit) for KSP 0.90
 	+ Features
 		- `<Crew>` placeholder value
