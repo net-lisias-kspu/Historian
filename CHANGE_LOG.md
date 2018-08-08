@@ -1,5 +1,7 @@
 # Historian-Expanded :: Change log
 
+* 2016-0407: 1.1.8 (Aelfhe1m) for KSP 1.0.5
+	+ Fix: compatibility with Automated Screenshots and Saves
 * 2016-0329: 1.1.7a (Aelfhe1m) for KSP 1.3.1 PRE-RELEASE
 	+ Earth dates can be specified in two formats. "Normal" fixed length 365d year used by game engine or "KAC compatible" variable length years. If using variable length years, the in-game day 1 of a year may not be 1 January.
 	+ Add text node parameters for date support:
