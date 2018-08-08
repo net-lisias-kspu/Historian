@@ -1,5 +1,10 @@
 # Historian-Expanded :: Change log
 
+* 2016-1111: 1.2.6 (Aelfhe1m) for KSP 1.2.1
+	+ Update for KSP 1.2.1
+	+ Updated toolbar wrapper [Toolbar PR #39](https://github.com/blizzy78/ksp_toolbar/pull/39)
+	+ Not tested with Kerbal Konstructs or KSCSwitcher
+	+ Edit: fixed version file
 * 2016-0606: 1.2.5 (Aelfhe1m) for KSP 1.1.2 (or 1.1.3)
 	+ add `Name` property to all elements
 	+ add new `INHERIT` element.
