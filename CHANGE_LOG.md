@@ -1,5 +1,9 @@
 # Historian-Expanded :: Change log
 
+* 2015-0526: 1.0.1 (Zeenobit) for KSP 0.90
+	+ Fixes
+		- `<LandingZone>` should no longer show up as an empty value when landing on actual biomes
+		- `<Altitude>` and `<Speed>` now convert the value to the proper unit instead of always using meters and showing huge values. The unit will be displayed as part of the value.
 * 2015-0524: 1.0 (Zeenobit) for KSP 0.90
 	+ Features
 		- New placeholder values `<Mach>`, `<LandingZone>`, `<Speed>`, and `<Custom>`
