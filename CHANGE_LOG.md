@@ -1,5 +1,13 @@
 # Historian-Expanded :: Change log
 
+* 2016-0527: 1.2.4 (Aelfhe1m) for KSP 1.1.2
+	+ Add new elements:
+		- ACTION_TEXT: conditional message when abort, stage or action group pressed
+		- TEXT_LIST: random or sequential list of messages to display based on situation
+	+ Added `EvaOnly` property toggle to `SITUATION_TEXT` and `TEXT_LIST`
+	+ Added `Clambering`, `OnLadder` and `RagDolled` situations to `SITUATION_TEXT` and `TEXT_LIST`.
+	+ Add settings window fields to customise Kerbal day and month names.
+	+ Add settings window slider for `Time to remember action`
 * 2016-0516: 1.2.3.1 (Aelfhe1m) for KSP 1.1.2
 	+ Revert persistence model to config file format and set save path to `GameData\KSEA\Historian\Plugins\PluginData`
 	+ Fix: BUG - multiple layouts overlaying each other
