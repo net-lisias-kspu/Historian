@@ -1,5 +1,7 @@
 # Historian-Expanded :: Change log
 
+* 2016-0406: 1.2.0.38 (Aelfhe1m) for KSP 1.0.5
+	+ Fix: remove debug message from crew names.
 * 2016-0406: 1.2.0.37 (Aelfhe1m) for KSP 1.0.5
 	+ Fix: crew trait colours not showing correctly
 	+ Fix: `<UT>` incorrectly included base year now shows first year as Y1 etc.
