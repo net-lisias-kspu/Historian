@@ -8,8 +8,8 @@ Small utility for adding information to KSP screenshots. Unofficial fork by Lisi
 Continuation of the Take Command - unofficial fork by Lisias.
 
 * [Latest Release](https://github.com/net-lisias-kspu/Historian-Expanded/releases)
+	+ [Binaries](https://github.com/net-lisias-kspu/Historian-Expanded/tree/Archive)
 * [Source](https://github.com/net-lisias-kspu/Historian-Expanded)
-* [Binaries](https://github.com/net-lisias-kspu/Historian-Expanded/tree/Archive)
 * [Change Log](./CHANGE_LOG.md)
 
 
