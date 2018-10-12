@@ -1,13 +1,13 @@
 {
-	"NAME":		"Historian Unofficial",
-	"URL":		"https://raw.githubusercontent.com/net-lisias-kspu/Historian-Expanded/master/GameData/Historian/Historian.version",
-	"CHANGE_LOG":	"https://raw.githubusercontent.com/net-lisias-kspu/Historian-Expanded/CHANGE_LOG.md",
-	"CHANGE_LOG_URL":"https://raw.githubusercontent.com/net-lisias-kspu/Historian-Expanded/master/CHANGES.md",
 	"GITHUB":{
 		"USERNAME": "net-lisias-kspu",
 		"REPOSITORY": "Historian-Expanded"
 		"ALLOW_PRE_RELEASE": false
 		},
+	"NAME"		: "Historian Unofficial",
+	"URL"		: "https://raw.githubusercontent.com/net-lisias-kspu/Historian-Expanded/master/GameData/Historian/Historian.version",
+	"CHANGE_LOG"	: "https://raw.githubusercontent.com/net-lisias-kspu/Historian-Expanded/CHANGE_LOG.md",
+	"CHANGE_LOG_URL": "https://raw.githubusercontent.com/net-lisias-kspu/Historian-Expanded/master/CHANGES.md",
 	"VERSION":{
 		"MAJOR":1,
 		"MINOR":3,
@@ -29,5 +29,4 @@
 		"MINOR":4,
 		"PATCH":99
 		}
-}
 }
