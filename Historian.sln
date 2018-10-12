@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Historian", "Source/Historian.csproj", "{5FF7C2FC-E31E-4952-BCA0-E51C329A1264}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Historian", "Source\Historian\Historian.csproj", "{5FF7C2FC-E31E-4952-BCA0-E51C329A1264}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Historian.Tests", "Historian.Tests/Historian.Tests.csproj", "{07CF5078-22F7-49BF-BC5B-83E40319EDC5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Historian.Tests", "Source\Historian.Tests\Historian.Tests.csproj", "{07CF5078-22F7-49BF-BC5B-83E40319EDC5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
