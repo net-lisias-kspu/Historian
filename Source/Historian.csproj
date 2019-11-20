@@ -91,6 +91,7 @@
     <Compile Include="Historian\Internationalisation.cs" />
     <Compile Include="Historian\KerbinDates.cs" />
     <Compile Include="Historian\LauncherButton.cs" />
+    <Compile Include="Historian\LaunchSiteVesselModule.cs" />
     <Compile Include="Historian\Layout.cs" />
     <Compile Include="Historian\Picture.cs" />
     <Compile Include="Historian\Rectangle.cs" />
