@@ -39,7 +39,7 @@ KSEA_HISTORIAN_LAYOUT
 		Prelaunch = Standing by to launch from <LaunchSite>
 		Flying = Flying at Mach <Mach> (<Speed>) at altitude of <Altitude> bearing <Heading>
 		SubOrbital = At <Altitude> on sub-orbital trajectory with maximum Ap: <Ap>, Inclination: <Inc>, Surface speed: <SrfSpeed>
-		Orbiting = <Orbit> at <Inc>° inclination. Altitude: <Altitude>. Speed: <OrbSpeed>
+		Orbiting = <Orbit> at <Inc> inclination. Altitude: <Altitude>. Speed: <OrbSpeed>
 		Escaping = Hyperbolic trajectory. Alt: <Altitude>, Pe: <Pe>, Inc: <Inc>, Speed: <OrbSpeed>
 		Docked = Docked
 		Text = [Ap:<Ap> Pe:<Pe> Inc:<Inc> Period:<Period> OrbSpeed:<OrbSpeed>] [Alt:<Altitude> Speed:<SrfSpeed> Mach:<Mach>]
