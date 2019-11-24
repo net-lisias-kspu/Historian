@@ -10,7 +10,7 @@ To open the configuration dialog window click on the Historian Icon in the main 
 * __Use Stock Launcher__: Display an Historian button in the stock app launcher toolbar
 * __Use Blizzy's Toolbar__: An Historian button will be available to be added to Blizzy's Toolbar.
     * __Right click action__: cycle through which option (Suppressed, AlwaysActive or AutoHideUI) to toggle when you right click on the Historian button in the Blizzy Toolbar. 
-* __Layout__: allows you to cycle through the available layouts (see [Layouts](layouts.md)) to choose which is active
+* __Layout__: allows you to cycle through the available layouts (see [Layouts](layout.md)) to choose which is active
 * __Custom Text__: A formatted text string used by the `<custom>` tag. (See [Tags](Tags.md)). The content will be cleared whenever a screenshot is taken unless the `Persistent` option is active.
 * __Default Space Center Name__: A preferred name to use when a [tag](Tags.md) returns "KSC"
 * __Time to remember action key press__: The time that pressing an action key (e.g. Space, 1, 2 etc.) will be remembered for use in an [`ACTION_TEXT`](Action_Text.md) element.
