@@ -1,5 +1,7 @@
 KSEA_HISTORIAN_LAYOUT
 {
+	Name = inherir_D
+	
 	INHERIT
 	{
 		LayoutName = inherit_B.layout

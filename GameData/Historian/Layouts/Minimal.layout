@@ -1,5 +1,7 @@
 KSEA_HISTORIAN_LAYOUT
 {
+	Name = Minimal
+	
 	RECTANGLE
 	{
 		Anchor = 0.0,1.0
