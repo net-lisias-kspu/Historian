@@ -1,20 +1,20 @@
-/**
- * This file is part of Historian.
- * 
- * Historian is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * Historian is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with Historian. If not, see <http://www.gnu.org/licenses/>.
- **/
+ï»¿/*
+	This file is part of Historian /L Unleashed
+		Â© 2018-2021 Lisias T : http://lisias.net <support@lisias.net>
+		Â© 2016-2018 Aelfhe1n
+		Â© 2015-2016 Zeenobit
 
+	Historian /L Unleashed is licensed as follows:
+		* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+
+	Historian /L Unleashed is distributed in the hope that it will be
+	useful, but WITHOUT ANY WARRANTY; without even the implied
+	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+	You should have received a copy of the GNU General Public License 3.0 along
+	with Historian /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+*/
 using KSP.Localization;
 using System;
 using System.Collections.Generic;
@@ -469,7 +469,7 @@ namespace KSEA.Historian
             if (info.Orbit != null)
             {
                 result.Append(info.Orbit.inclination.ToString("F2"));
-                result.Append("°");
+                result.Append("ï¿½");
             }
         }
 
@@ -484,7 +484,7 @@ namespace KSEA.Historian
             if (info.Orbit != null)
             {
                 result.Append(info.Orbit.LAN.ToString("F1"));
-                result.Append("°");
+                result.Append("ï¿½");
             }
         }
 
@@ -493,7 +493,7 @@ namespace KSEA.Historian
             if (info.Orbit != null)
             {
                 result.Append(info.Orbit.argumentOfPeriapsis.ToString("F1"));
-                result.Append("°");
+                result.Append("ï¿½");
             }
         }
 
@@ -763,7 +763,7 @@ namespace KSEA.Historian
                 {
                     crewCount++;
                     if (isList)
-                        result.Append("• ");
+                        result.Append("ï¿½ ");
                     else
                     {
                         if (crewCount > 1)
