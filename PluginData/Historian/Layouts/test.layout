@@ -1,5 +1,7 @@
 KSEA_HISTORIAN_LAYOUT
 {
+	Name = Test
+	
 	RECTANGLE
 	{
 		// left panel

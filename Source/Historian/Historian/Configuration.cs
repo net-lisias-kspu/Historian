@@ -15,12 +15,10 @@
  * along with Historian. If not, see <http://www.gnu.org/licenses/>.
  **/
 
+using KSP.Localization;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
-using UnityEngine;
-using KSP.Localization;
 
 namespace KSEA.Historian
 {
@@ -34,17 +32,10 @@ namespace KSEA.Historian
 
     public class Configuration
     {
-		public static readonly string PLUGINDATA = Path.Combine(
-			Path.Combine(KSPUtil.ApplicationRootPath, "PluginData"),
-			"Historian"
-		);
-		public static readonly string LayoutsDirectory = Path.Combine(PLUGINDATA, "Layouts");
-		public static readonly string ModDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-		public static readonly string HISTORIANCFG = Path.Combine(PLUGINDATA, "Historian.cfg");
-		static readonly Version CurrentVersion = new Version(PluginVersion.Number);
+        // defaults
+        static readonly Version CurrentVersion = new Version("1.2.7");
 
-		// defaults
-		public static Configuration Defaults = new Configuration {
+        public static Configuration Defaults = new Configuration {
             Layout = "Default",
             EnableLauncherButton = true,
             EnableToolbarButton = true,

@@ -55,7 +55,8 @@ The following tags are also available mainly for debug purposes or when developi
 * `<EvaState>` The current animation state of an EVA Kerbal.
 
 ### Third party mod integration
-* `<LaunchSite>` If [KSCSwitcher](http://forum.kerbalspaceprogram.com/index.php?/topic/106206-105-regexs-useful-mod-emporium/) is installed will display the name of the current active space center (e.g. _Cape Canaveral_). If [Kerbal Konstructs](http://forum.kerbalspaceprogram.com/index.php?/topic/94863-112-kerbal-konstructs-v0967_ex-holy-glowing-balls-batman/) is installed then the launchsite most recently set via the menu the VAB or SPH is used. If neither mod is present then the __Default Space Center Name__ is used.
+* `<LaunchSite>` If [KSCSwitcher](http://forum.kerbalspaceprogram.com/index.php?/topic/106206-105-regexs-useful-mod-emporium/) is installed will display the name of the current active space center (e.g. _Cape Canaveral_). If [Kerbal Konstructs](http://forum.kerbalspaceprogram.com/index.php?/topic/94863-112-kerbal-konstructs-v0967_ex-holy-glowing-balls-batman/) is installed then the launchsite most recently set via the menu the VAB or SPH is used. If neither mod is present then the __Default Space Center Name__ is used. __NOTE:__ Does not currently recognise alternate stock launch sites (e.g. Island Runway)
+
 * `<KK-SpaceCenter>` If [Kerbal Konstructs](http://forum.kerbalspaceprogram.com/index.php?/topic/94863-112-kerbal-konstructs-v0967_ex-holy-glowing-balls-batman/) is installed will return the BaseName of the closest open space center. If not installed then `NO KK` will be returned.
 * `<KK-Distance>` If [Kerbal Konstructs](http://forum.kerbalspaceprogram.com/index.php?/topic/94863-112-kerbal-konstructs-v0967_ex-holy-glowing-balls-batman/) is installed will return the distance to the closest open space center. If not installed then `NO KK` will be returned.
 

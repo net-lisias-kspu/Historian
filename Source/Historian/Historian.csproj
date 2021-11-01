@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>KSEA</RootNamespace>
     <AssemblyName>Historian</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -45,6 +47,50 @@
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\..\..\..\..\LIB\managed\1.4.1\UnityEngine.dll</HintPath>
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\KSP 1.8\KSP_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\KSP 1.8\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\KSP 1.8\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>..\..\KSP 1.8\KSP_x64_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\KSP 1.8\KSP_x64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>..\..\KSP 1.8\KSP_x64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>..\..\KSP 1.8\KSP_x64_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputModule">
+      <HintPath>..\..\KSP 1.8\KSP_x64_Data\Managed\UnityEngine.InputModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextCoreModule">
+      <HintPath>..\..\KSP 1.8\KSP_x64_Data\Managed\UnityEngine.TextCoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>..\..\KSP 1.8\KSP_x64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\KSP 1.8\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIElementsModule">
+      <HintPath>..\..\KSP 1.8\KSP_x64_Data\Managed\UnityEngine.UIElementsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>..\..\KSP 1.8\KSP_x64_Data\Managed\UnityEngine.UIModule.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -59,6 +105,7 @@
     <Compile Include="Historian\Internationalisation.cs" />
     <Compile Include="Historian\KerbinDates.cs" />
     <Compile Include="Historian\LauncherButton.cs" />
+    <Compile Include="Historian\LaunchSiteVesselModule.cs" />
     <Compile Include="Historian\Layout.cs" />
     <Compile Include="Historian\Picture.cs" />
     <Compile Include="Historian\Rectangle.cs" />
@@ -91,6 +138,23 @@
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent></PreBuildEvent>
+    <PostBuildEvent>copy "$(TargetDir)Historian.dll"  "$(SolutionDir)\..\GameData\Historian" /Y
+(robocopy "$(SolutionDir)\..\GameData\Historian" "$(SolutionDir)\..\..\KSP\GameData\Historian"   /E /V) 
+(robocopy "$(SolutionDir)\..\GameData\Historian" "$(SolutionDir)\..\..\KSP 1.8\GameData\Historian"   /E /V) 
+(robocopy "$(SolutionDir)\..\GameData\Historian" "$(SolutionDir)\..\..\KSP en\GameData\Historian"   /E /V) 
+(robocopy "$(SolutionDir)\..\GameData\Historian" "$(SolutionDir)\..\..\KSP es\GameData\Historian"   /E /V) 
+(robocopy "$(SolutionDir)\..\GameData\Historian" "$(SolutionDir)\..\..\KSP ru\GameData\Historian"   /E /V) 
+(robocopy "$(SolutionDir)\..\GameData\Historian" "$(SolutionDir)\..\..\KSP jp\GameData\Historian"   /E /V) 
+(robocopy "$(SolutionDir)\..\GameData\Historian" "$(SolutionDir)\..\..\KSP zh\GameData\Historian"   /E /V) ^&amp; exit 0</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>rd /s /q "$(SolutionDir)\..\..\KSP\GameData\Historian"
+rd /s /q "$(SolutionDir)\..\..\KSP en\GameData\Historian"
+rd /s /q "$(SolutionDir)\..\..\KSP es\GameData\Historian"
+rd /s /q "$(SolutionDir)\..\..\KSP ja\GameData\Historian"
+rd /s /q "$(SolutionDir)\..\..\KSP zh\GameData\Historian"
+rd /s /q "$(SolutionDir)\..\..\KSP ru\GameData\Historian"
+rd /s /q "$(SolutionDir)\..\..\KSP 1.8\GameData\Historian"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
