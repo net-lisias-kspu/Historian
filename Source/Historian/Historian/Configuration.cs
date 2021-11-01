@@ -32,9 +32,16 @@ namespace KSEA.Historian
 
     public class Configuration
     {
-        // defaults
-        static readonly Version CurrentVersion = new Version("1.2.7");
+		public static readonly string PLUGINDATA = Path.Combine(
+			Path.Combine(KSPUtil.ApplicationRootPath, "PluginData"),
+			"Historian"
+		);
+		public static readonly string LayoutsDirectory = Path.Combine(PLUGINDATA, "Layouts");
+		public static readonly string ModDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+		public static readonly string HISTORIANCFG = Path.Combine(PLUGINDATA, "Historian.cfg");
+		static readonly System.Version CurrentVersion = new System.Version(Version.Number);
 
+		// defaults
         public static Configuration Defaults = new Configuration {
             Layout = "Default",
             EnableLauncherButton = true,
@@ -110,7 +117,7 @@ namespace KSEA.Historian
                 var node = ConfigNode.Load(file).GetNode("KSEA_HISTORIAN_CONFIGURATION");
                 var configuration = new Configuration();
 
-                var version = node.GetVersion("Version", new Version());
+                System.Version version = node.GetVersion("Version", new System.Version());
 
                 configuration.Layout 
                     = node.GetString("Layout", Defaults.Layout);
