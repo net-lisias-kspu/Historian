@@ -59,15 +59,17 @@ None for while. :)
 
 ### License:
 
-Licensed under the [GPL-3](Documentation/LICENSE.md) .
+Licensed under the [GPL-3](Documentation/LICENSE) .
 
 
 ## UPSTREAM
 
-* [Aelfhe1m](https://forum.kerbalspaceprogram.com/index.php?/profile/142910-aelfhe1m/) CURRENT MAINTAINER
-	+ [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/138848-131-historian-expanded/&)
-	+ [SpaceDock](https://spacedock.info/mod/1545/Historian%20Expanded)
-	+ [GitHub](https://github.com/Aelfhe1m/Historian-Expanded)
 * [Zeenobit](https://forum.kerbalspaceprogram.com/index.php?/profile/125578-zeenobit/) ROOT
 	+ [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/109913-104-historian-v111-dynamic-screenshot-captions-august-5th-2015/)
+	+ [Imgur](https://imgur.com/a/w07sL) 
 	+ [GitHub](https://github.com/Zeenobit/Historian)
+* [Aelfhe1m](https://forum.kerbalspaceprogram.com/index.php?/profile/142910-aelfhe1m/) CURRENT MAINTAINER
+	+ [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/138848-131-historian-expanded/&)
+	+ [Imgur](https://imgur.com/a/W4hAp)
+	+ [SpaceDock](https://spacedock.info/mod/1545/Historian%20Expanded)
+	+ [GitHub](https://github.com/Aelfhe1m/Historian-Expanded)
