@@ -1,4 +1,4 @@
-# Historian-Expanded :: Change log
+# Historian /L Unleashed :: Change log
 
 * 2018-0808: 1.3.2.1 (lisias) for KSP 1.4.x
 	+ Moving configuation/layouts files to <KSP_ROOT>/PluginData . 

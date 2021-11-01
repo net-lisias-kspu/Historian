@@ -5,13 +5,13 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Historian-Expanded")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Historian /L Unleashed")]
+[assembly: AssemblyDescription("Small utility for adding information to KSP screenshots.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Historian")]
-[assembly: AssemblyCopyright("Copyright © 2015-2016")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCompany(KSEA.Historian.LegalMamboJambo.Company)]
+[assembly: AssemblyProduct(KSEA.Historian.LegalMamboJambo.Product)]
+[assembly: AssemblyCopyright(KSEA.Historian.LegalMamboJambo.Copyright)]
+[assembly: AssemblyTrademark(KSEA.Historian.LegalMamboJambo.Trademark)]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
@@ -32,7 +32,7 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion(KSEA.Historian.PluginVersion.Number)]
-[assembly: AssemblyFileVersion(KSEA.Historian.PluginVersion.Number)]
+[assembly: AssemblyVersion(KSEA.Historian.Version.Number)]
+[assembly: AssemblyFileVersion(KSEA.Historian.Version.Number)]
 
 

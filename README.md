@@ -1,15 +1,15 @@
-# Historian-Expanded Unofficial
+# Historian-Expanded /L Unleashed
 
-Small utility for adding information to KSP screenshots. Unofficial fork by Lisias.
+Small utility for adding information to KSP screenshots.
+
+[Unleashed](https://ksp.lisias.net/add-ons-unleashed/) fork by Lisias.
 
 
 ## In a Hurry
 
-Continuation of the Take Command - unofficial fork by Lisias.
-
-* [Latest Release](https://github.com/net-lisias-kspu/Historian-Expanded/releases)
-	+ [Binaries](https://github.com/net-lisias-kspu/Historian-Expanded/tree/Archive)
-* [Source](https://github.com/net-lisias-kspu/Historian-Expanded)
+* [Latest Release](https://github.com/net-lisias-kspu/Historian/releases)
+	+ [Binaries](https://github.com/net-lisias-kspu/Historian/tree/Archive)
+* [Source](https://github.com/net-lisias-kspu/Historian)
 * [Change Log](./CHANGE_LOG.md)
 
 
@@ -17,7 +17,7 @@ Continuation of the Take Command - unofficial fork by Lisias.
 
 Historian is a screenshot utility mod for Kerbal Space Program that adds fully configurable and dynamic captions and overlay graphics to screenshots to better describe the context of screenshots and record your Kerbal adventures.
 
-Orignal mod by [Zenobit](https://github.com/Zeenobit/). Extended development version by Aelfhe1m
+Orignal mod by [Zenobit](https://github.com/Zeenobit/). Extended development version by [Aelfhe1m](https://forum.kerbalspaceprogram.com/index.php?/profile/142910-aelfhe1m/)
 
 ### Installation
 
@@ -55,11 +55,26 @@ Orignal mod by [Zenobit](https://github.com/Zeenobit/). Extended development ver
 
 ### Dependencies
 
-None for while. :)
+* Hard Dependencies
+	* [KSP API Extensions/L](https://github.com/net-lisias-ksp/KSPAPIExtensions) 2.4 or newer 
 
-### License:
+### Licensing
 
-Licensed under the [GPL-3](Documentation/LICENSE) .
+This work is licensed under the [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.txt). See [here](./LICENSE)
+
++ You are free to:
+	- Use : unpack and use the material in any computer or device
+	- Redistribute : redistribute the original package in any medium
+	- Adapt : Reuse, modify or incorporate source code into your works (and redistribute it!) 
++ Under the following terms:
+	- You retain any copyright notices
+	- You recognize and respect any trademarks
+	- You don't impersonate the authors, neither redistribute a derivative that could be misrepresented as theirs.
+	- You credit the author and republish the copyright notices on your works where the code is used.
+	- You relicense (and fully comply) your works using GPL 3.0
+	- You don't mix your work with GPL incompatible works.
+
+See [NOTICE](./NOTICE) for further copyright and trademarks notices.
 
 
 ## UPSTREAM
