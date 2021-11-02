@@ -32,12 +32,19 @@ namespace KSEA.Historian
 
     public class Configuration
     {
-		private static readonly string PLUGINDATA = Path.Combine(
+		public static readonly string ModDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+		private static readonly string USERDATA = Path.Combine(
 			Path.Combine(KSPUtil.ApplicationRootPath, "PluginData"),
 			"Historian"
 		);
-		private static readonly string LayoutsDirectory = Path.Combine(PLUGINDATA, "Layouts");
-		private static readonly string HISTORIANCFG = Path.Combine(PLUGINDATA, "Historian.cfg");
+		private static readonly string PLUGINDATA = Path.Combine(
+			Path.Combine(ModDirectory, "PluginData"),
+			"Historian"
+		);
+        private const string LAYOUTS_DIR = "Layouts";
+		private static readonly string LayoutsDirectoryDefault = Path.Combine(PLUGINDATA, LAYOUTS_DIR);
+		private static readonly string LayoutsDirectoryUser = Path.Combine(USERDATA, LAYOUTS_DIR);
+		private static readonly string HISTORIANCFG = Path.Combine(USERDATA, "Historian.cfg");
 		static readonly System.Version CurrentVersion = new System.Version(Version.Number);
 
 		private static Configuration instance = null;
@@ -172,6 +179,7 @@ namespace KSEA.Historian
                 // ensure save directory exists.
                 string dir = Path.GetDirectoryName(HISTORIANCFG);
                 Directory.CreateDirectory(dir);
+                Directory.CreateDirectory(Path.Combine(dir, LAYOUTS_DIR));
 
                 if (File.Exists(HISTORIANCFG))
                     File.Delete(HISTORIANCFG);
@@ -229,7 +237,13 @@ namespace KSEA.Historian
 		internal void LoadLayouts(List<Layout> layouts)
 		{
 			Log.trace("Searching for layouts ...");
-			string[] files = Directory.GetFiles(Configuration.LayoutsDirectory, "*.layout");
+			this.LoadLayouts(layouts, LayoutsDirectoryDefault);
+			this.LoadLayouts(layouts, LayoutsDirectoryUser);
+		}
+
+		internal void LoadLayouts(List<Layout> layouts, string dir)
+		{
+			string[] files = Directory.GetFiles(dir, "*.layout");
 			foreach (string file in files)
 			{
 				LoadLayout(file, layouts);
@@ -241,7 +255,7 @@ namespace KSEA.Historian
 			string layoutName = Path.GetFileNameWithoutExtension(file);
 			try
 			{
-                ConfigNode node = ConfigNode.Load(file).GetNode("KSEA_HISTORIAN_LAYOUT");
+				ConfigNode node = ConfigNode.Load(file).GetNode("KSEA_HISTORIAN_LAYOUT");
 
 				if (layouts.FindIndex(layout => layout.Name == layoutName) < 0)
 				{
@@ -263,16 +277,24 @@ namespace KSEA.Historian
 
 		internal ConfigNode[] LoadTraits(string traitConfigFileName)
 		{
-			traitConfigFileName = Path.Combine(Configuration.LayoutsDirectory, traitConfigFileName);
-			if (!System.IO.File.Exists(traitConfigFileName))
+			ConfigNode[] r = this.LoadTraits(Configuration.LayoutsDirectoryUser, traitConfigFileName);
+			r = r ?? this.LoadTraits(Configuration.LayoutsDirectoryDefault, traitConfigFileName);
+			if (null == r)
 			{
-				Historian.Print($"ERROR: Unable to find traits config file 'GameData/Historian/Layouts/{traitConfigFileName}'");
-				return new ConfigNode[0];
+				Historian.Print($"ERROR: Unable to find traits config file 'Historian/Layouts/{traitConfigFileName}' from GameData neither user's PluginData");
+				r = new ConfigNode[0];
 			}
+			return r;
+		}
+
+		private ConfigNode[] LoadTraits(string dir, string traitConfigFileName)
+		{
+			traitConfigFileName = Path.Combine(dir, traitConfigFileName);
+			if (!System.IO.File.Exists(traitConfigFileName))
+				return null;
 
 			Historian.Print($"Loading traits from '{traitConfigFileName}'");
-			ConfigNode[] r = ConfigNode.Load(traitConfigFileName).GetNodes("TRAIT");
-			return r;
+			return ConfigNode.Load(traitConfigFileName).GetNodes("TRAIT");
 		}
 
 	}
