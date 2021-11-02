@@ -21,6 +21,7 @@ using System.Linq;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
+using KSPe.Annotations;
 
 namespace KSEA.Historian
 {
@@ -31,7 +32,6 @@ namespace KSEA.Historian
         int currentLayoutIndex = -1;
         bool active = false;
         bool alwaysActive = false;
-        bool suppressed = false;
         bool autoHideUI = false;
         Editor editor = null;
         bool suppressEditorWindow = false;
@@ -44,73 +44,56 @@ namespace KSEA.Historian
         bool restoreUI;
         TimeSpan actionTimeout;
 
-        public LastAction LastAction {
-            get
-            {
-                return lastAction;
-            }
-            set
-            {
-                lastAction = value;
-            }
-        }
+		public LastAction LastAction
+		{
+			get => this.lastAction;
+			set
+			{
+				this.lastAction = value;
+			}
+		}
 
-        public bool Suppressed
-        {
-            get
-            {
-                return suppressed;
-            }
+		public bool Suppressed
+		{
+			get => ToolbarController.Instance.supressedStatus;
+			set
+			{
+				if (value == (bool)ToolbarController.Instance.supressedStatus) return;
+				ToolbarController.Instance.supressedStatus = value;
+				ToolbarController.Instance.UpdateButton();
+			}
+		}
 
-            set
-            {
-                suppressed = value;
-            }
-        }
+		public bool AlwaysActive
+		{
+			get => this.alwaysActive;
+			set
+			{
+				this.alwaysActive = value;
+			}
+		}
 
-        public bool AlwaysActive
-        {
-            get
-            {
-                return alwaysActive;
-            }
+		public bool AutoHideUI
+		{
+			get => this.autoHideUI;
+			set
+			{
+				this.autoHideUI = value;
+			}
+		}
 
-            set
-            {
-                alwaysActive = value;
-            }
-        }
+		public int CurrentLayoutIndex
+		{
+			get => this.currentLayoutIndex;
+			set
+			{
+				this.currentLayoutIndex = value;
+			}
+		}
 
-        public bool AutoHideUI
-        {
-            get
-            {
-                return autoHideUI;
-            }
-            set
-            {
-                autoHideUI = value;
-            }
-        }
-
-        public int CurrentLayoutIndex
-        {
-            get
-            {
-                return currentLayoutIndex;
-            }
-
-            set
-            {
-                currentLayoutIndex = value;
-            }
-        }
-
-        public Type ReflectedClassType(string classNameKey)
+		public Type ReflectedClassType(string classNameKey)
             => feflectedMods.ContainsKey(classNameKey) ? feflectedMods[classNameKey] : null;
-
         public string AssemblyFileVersion => assemblyVersion;
-
 
         public void Reload()
         {
@@ -149,9 +132,6 @@ namespace KSEA.Historian
             GameEvents.onGamePause.Add(Game_OnPause);
             GameEvents.onGameUnpause.Add(Game_OnUnpause);
 
-            GameEvents.onGUIApplicationLauncherReady.Add(AddButton);
-            GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveButton);
-
             // get reference to KSC switcher if installed
             feflectedMods.Add("switcher", Reflect.GetExternalType("regexKSP.LastKSC"));
             feflectedMods.Add("switcherLoader", Reflect.GetExternalType("regexKSP.KSCLoader"));
@@ -159,17 +139,24 @@ namespace KSEA.Historian
             // Kerbal Konstructs
             feflectedMods.Add("kkLaunchSiteManager", Reflect.GetExternalType("KerbalKonstructs.Core.LaunchSiteManager"));
             feflectedMods.Add("kkSpaceCenterManager", Reflect.GetExternalType("KerbalKonstructs.Core.SpaceCenterManager"));
+
+            GameEvents.onGUIApplicationLauncherReady.Add(this.OnGUIApplicationLauncherReady);
+            GameEvents.onGUIApplicationLauncherDestroyed.Add(this.OnGUIApplicationLauncherDestroyed);
         }
 
-        void RemoveButton()
-        {
-            if (editor != null)
-                editor.RemoveButton();
-        }
+		private void OnGUIApplicationLauncherReady()
+		{
+			GameEvents.onGUIApplicationLauncherReady.Remove(this.OnGUIApplicationLauncherReady);
+			this.editor = new Editor();
+		}
 
-        void AddButton() => editor = new Editor();
+		private void OnGUIApplicationLauncherDestroyed()
+		{
+			this.editor.RemoveButton();
+			this.editor = null;
+		}
 
-        public void set_m_Active()
+		public void set_m_Active()
         {
             active = true;
             screenshotRequested = true;
@@ -177,7 +164,7 @@ namespace KSEA.Historian
 
         void Update()
         {
-            if (!suppressed)
+            if (!this.Suppressed)
             {
                 if (lastAction != LastAction.None && (DateTime.Now - lastActionTime) > TimeSpan.FromSeconds(Configuration.Instance.TimeToRememberLastAction) )
                 {
@@ -267,11 +254,12 @@ namespace KSEA.Historian
             }
         }
 
+        [UsedImplicitly]
         void OnGUI()
         {
-            ScreenShot s = new ScreenShot();
-            
-            if (!suppressed && (active || alwaysActive))
+            _ = new ScreenShot();
+
+            if (!this.Suppressed && (active || alwaysActive))
             {
                 Layout layout = GetCurrentLayout();
                 layout.Draw();

@@ -20,6 +20,7 @@ using UnityEngine;
 using KSP.Localization;
 //using GUI = KSPe.UI.GUI;
 //using GUILayout = KSPe.UI.GUILayout;
+using Asset = KSPe.IO.Asset<KSEA.Historian.Startup>;
 
 namespace KSEA.Historian
 {
@@ -28,11 +29,9 @@ namespace KSEA.Historian
         bool isOpen = false;
         Rect position;
         int windowId;
-        Texture nextButtonTexture = null;
-        Texture previousButtonTexture = null;
-        bool enableLauncherButton = true;
-        bool enableToolberButton = true;
-        
+        static Texture2D nextButtonTexture = null;
+        static Texture2D previousButtonTexture = null;
+
 
         public Editor()
         {
@@ -44,20 +43,16 @@ namespace KSEA.Historian
             position = new Rect(0.5f * Screen.width - windowWidth / 2, 0.5f * Screen.height - windowHeight / 2, windowWidth, windowHeight);
             windowId = (new System.Random()).Next(876543210, 987654321); // 9 digit random number
 
-            nextButtonTexture = GameDatabase.Instance.GetTexture("Historian/Historian_Button_Next", false);
-            previousButtonTexture = GameDatabase.Instance.GetTexture("Historian/Historian_Button_Previous", false);
+            nextButtonTexture = nextButtonTexture ?? (nextButtonTexture = Asset.Texture2D.LoadFromFile(ToolbarController.ICON_DIR, "Historian_Button_Next"));
+            previousButtonTexture = previousButtonTexture ?? (previousButtonTexture = Asset.Texture2D.LoadFromFile(ToolbarController.ICON_DIR, "Historian_Button_Previous"));
 
-            enableLauncherButton = Configuration.Instance.EnableLauncherButton;
-            enableToolberButton = Configuration.Instance.EnableToolbarButton;
-
-            if (enableToolberButton || enableLauncherButton)
+            if (!ToolbarController.Instance.IsRegistered)
             {
                 ToolbarController.Instance.OnTrue += Toggle;
                 ToolbarController.Instance.OnFalse += Toggle;
                 ToolbarController.Instance.OnAlternateClick += Button_OnAlternateClick;
 
                 ToolbarController.Instance.Register();
-                ToolbarController.Instance.ButtonsActive(enableToolberButton, enableLauncherButton);
             }
         }
 
@@ -66,11 +61,8 @@ namespace KSEA.Historian
             if (isOpen)
             {
                 position = GUI.Window(windowId, position, OnWindowGUI, $"Historian: v {Historian.Instance.AssemblyFileVersion}", HighLogic.Skin.window);
-
-				if (enableLauncherButton || enableToolberButton)
-					ToolbarController.Instance.Update();
-			}
-		}
+            }
+        }
 
         void OnWindowGUI(int id)
         {
@@ -89,8 +81,8 @@ namespace KSEA.Historian
                     Configuration.Instance.AutoHideUI = historian.AutoHideUI;
 
                     Configuration.Instance.PersistentConfigurationWindow = GUILayout.Toggle(Configuration.Instance.PersistentConfigurationWindow, Localizer.GetStringByTag("#Historian_AlwaysShowConfigWindow"));
-                    enableLauncherButton = GUILayout.Toggle(enableLauncherButton, Localizer.GetStringByTag("#Historian_UseAppLauncher"));
-                    enableToolberButton = GUILayout.Toggle(enableToolberButton, Localizer.GetStringByTag("#Historian_UseToolbar"));
+                    Configuration.Instance.EnableLauncherButton = GUILayout.Toggle(Configuration.Instance.EnableLauncherButton, Localizer.GetStringByTag("#Historian_UseAppLauncher"));
+                    Configuration.Instance.EnableToolbarButton = GUILayout.Toggle(Configuration.Instance.EnableToolbarButton, Localizer.GetStringByTag("#Historian_UseToolbar"));
                     GUILayout.Space(10);
 
                     using (GUILayout.HorizontalScope layout = new GUILayout.HorizontalScope())
@@ -224,8 +216,6 @@ namespace KSEA.Historian
                     if (GUILayout.Button(Localizer.GetStringByTag("#autoLOC_174778"), GUILayout.Width(100.0f))) // #autoLOC_174778 = Save
                     {
                         Configuration.Instance.Layout = historian.GetCurrentLayoutName();
-                        Configuration.Instance.EnableLauncherButton = enableLauncherButton;
-                        Configuration.Instance.EnableToolbarButton = enableToolberButton;
 
                         historian.SetConfiguration(Configuration.Instance);
                         if (!Configuration.Instance.PersistentConfigurationWindow) Toggle();
@@ -243,7 +233,7 @@ namespace KSEA.Historian
 
         void ManageButtons()
         {
-            ToolbarController.Instance.ButtonsActive(enableToolberButton, enableToolberButton);
+            ToolbarController.Instance.ButtonsActive(Configuration.Instance.EnableToolbarButton, Configuration.Instance.EnableLauncherButton);
         }
 
         internal void RemoveButton() => ToolbarController.Instance.Unregister();
@@ -257,18 +247,21 @@ namespace KSEA.Historian
                 case RightClickAction.None:
                     break;
                 case RightClickAction.Suppress:
+                    Log.dbg("Button_OnAlternateClick : Supressed was {0}", Historian.Instance.Suppressed);
                     Historian.Instance.Suppressed = !Historian.Instance.Suppressed;
+                    Log.dbg("Button_OnAlternateClick : Supressed is now {0}", Historian.Instance.Suppressed);
                     break;
                 case RightClickAction.AlwaysActive:
                     Historian.Instance.AlwaysActive = !Historian.Instance.AlwaysActive;
+                    Log.dbg("Button_OnAlternateClick : AlwaysActive = {0}", Historian.Instance.AlwaysActive);
                     break;
                 case RightClickAction.AutoHideUI:
                     Historian.Instance.AutoHideUI = !Historian.Instance.AutoHideUI;
+                    Log.dbg("Button_OnAlternateClick : AutoHideUI = {0}", Historian.Instance.AutoHideUI);
                     break;
                 default:
                     break;
             }
-            
         } 
     }
 }
