@@ -39,7 +39,7 @@ namespace KSEA.Historian
 
         public void Register()
         {
-            var scenes = ApplicationLauncher.AppScenes.FLIGHT |
+            ApplicationLauncher.AppScenes scenes = ApplicationLauncher.AppScenes.FLIGHT |
                          ApplicationLauncher.AppScenes.MAPVIEW |
                          ApplicationLauncher.AppScenes.SPACECENTER |
                          ApplicationLauncher.AppScenes.SPH |

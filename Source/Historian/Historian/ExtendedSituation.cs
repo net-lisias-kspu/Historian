@@ -44,11 +44,11 @@ namespace KSEA.Historian
 
             if (isEva == TriState.True)
             {
-                var kerbal = FlightGlobals.ActiveVessel.evaController;
+                KerbalEVA kerbal = FlightGlobals.ActiveVessel.evaController;
 
-                var ragDolled = kerbal.isRagdoll;
-                var onLadder = kerbal.OnALadder;
-                var clambering = kerbal.fsm.currentStateName.StartsWith("Clamber", StringComparison.InvariantCulture);
+                bool ragDolled = kerbal.isRagdoll;
+                bool onLadder = kerbal.OnALadder;
+                bool clambering = NewMethod(kerbal);
 
                 // Historian.Print(kerbal.fsm.currentStateName);
                 if (!fallback)
@@ -66,6 +66,11 @@ namespace KSEA.Historian
                 return (ExtendedSituation)situation.Value;
 
             return ExtendedSituation.Default;
+        }
+
+        private static bool NewMethod(KerbalEVA kerbal)
+        {
+            return kerbal.fsm.currentStateName.StartsWith("Clamber", StringComparison.InvariantCulture);
         }
     }
 }

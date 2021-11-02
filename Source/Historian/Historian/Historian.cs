@@ -218,9 +218,9 @@ namespace KSEA.Historian
 
         void CheckForEvents()
         {
-            var temp = LastAction.None;
+            LastAction temp = LastAction.None;
 
-            var vessel = FlightGlobals.ActiveVessel;
+            Vessel vessel = FlightGlobals.ActiveVessel;
             if (GameSettings.AbortActionGroup.GetKeyDown())
                 temp = LastAction.Abort;
             if (GameSettings.LAUNCH_STAGES.GetKeyDown())
@@ -269,11 +269,11 @@ namespace KSEA.Historian
 
         void OnGUI()
         {
-            var s = new ScreenShot();
+            ScreenShot s = new ScreenShot();
             
             if (!suppressed && (active || alwaysActive))
             {
-                var layout = GetCurrentLayout();
+                Layout layout = GetCurrentLayout();
                 layout.Draw();
 
                 if (screenshotRequested) screenshotRequested = false;
@@ -307,7 +307,7 @@ namespace KSEA.Historian
 
         public Layout GetLayout(string name)
         {
-            var index = FindLayoutIndex(name);
+            int index = FindLayoutIndex(name);
             return (index < 0) ? Layout.Empty : GetLayout(index);
         }
 

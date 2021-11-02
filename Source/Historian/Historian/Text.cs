@@ -89,7 +89,7 @@ namespace KSEA.Historian
 
         protected override void OnDraw(Rect bounds)
         {
-            var style = new GUIStyle(GUI.skin.label)
+            GUIStyle style = new GUIStyle(GUI.skin.label)
             {
                 alignment = textAnchor
             };
@@ -100,7 +100,7 @@ namespace KSEA.Historian
             style.fontStyle = fontStyle;
             style.richText = true;
 
-            var content = new GUIContent()
+            GUIContent content = new GUIContent()
             {
                 text = ExpandTokens()
             };
@@ -219,13 +219,13 @@ namespace KSEA.Historian
         protected string ExpandTokens()
         {
             // get common data sources
-            var ut = Planetarium.GetUniversalTime();
+            double ut = Planetarium.GetUniversalTime();
 
-            var vessel = FlightGlobals.ActiveVessel;
-            var orbit = vessel?.GetOrbit();
-            var target = vessel?.targetObject;
+            Vessel vessel = FlightGlobals.ActiveVessel;
+            Orbit orbit = vessel?.GetOrbit();
+            ITargetable target = vessel?.targetObject;
 
-            var info = new CommonInfo
+            CommonInfo info = new CommonInfo
             {
                 Vessel = vessel,
                 Orbit = orbit,
@@ -236,7 +236,7 @@ namespace KSEA.Historian
                 Traits = Traits
             };
 
-            var result = StringBuilderCache.Acquire();
+            StringBuilder result = StringBuilderCache.Acquire();
             result.ExpandTokenizedText(TokenizedText, info, parsers, allowCustomTag: true);
             return result.ToStringAndRelease();
 
@@ -339,7 +339,7 @@ namespace KSEA.Historian
         {
             if (info.Vessel != null)
             {
-                var t = new SplitDateTimeValue(info.Vessel.missionTime);
+                SplitDateTimeValue t = new SplitDateTimeValue(info.Vessel.missionTime);
                 result.Append(KSPUtil.dateTimeFormatter.PrintTimeStampCompact(info.Vessel.missionTime, t.Days > 0, t.Years > 0));
             }
         }
@@ -381,7 +381,7 @@ namespace KSEA.Historian
         {
             if (info.Vessel != null)
             {
-                var landedAt = (string.IsNullOrEmpty(info.Vessel.landedAt))
+                string landedAt = (string.IsNullOrEmpty(info.Vessel.landedAt))
                     ? ScienceUtil.GetExperimentBiomeLocalized(info.Vessel.mainBody, info.Vessel.latitude, info.Vessel.longitude)
                     : Localizer.Format(info.Vessel.displaylandedAt); // http://forum.kerbalspaceprogram.com/threads/123896-Human-Friendly-Landing-Zone-Title
                 result.Append(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(landedAt.ToLower()));
@@ -414,7 +414,7 @@ namespace KSEA.Historian
         {
             if (info.Vessel != null)
             {
-                var longitude = ClampTo180(info.Vessel.longitude);
+                double longitude = ClampTo180(info.Vessel.longitude);
                 result.AppendAngleAsDMS(longitude);
                 result.Append(longitude > 0 ? Internationalisation.East : Internationalisation.West);
             }
@@ -504,8 +504,8 @@ namespace KSEA.Historian
             if (info.Orbit != null)
             {
 
-                var period = info.Orbit.period;
-                var t = new SplitDateTimeValue(period);
+                double period = info.Orbit.period;
+                SplitDateTimeValue t = new SplitDateTimeValue(period);
                 result.Append(KSPUtil.PrintTimeStampCompact(period, t.Days > 0, t.Years > 0));
 
             }
@@ -523,11 +523,11 @@ namespace KSEA.Historian
 
         void CrewParser(StringBuilder result, CommonInfo info, string[] args)
         {
-            var isList = false;
-            var isShort = false;
-            var showSuffix = false;
-            var all = true;
-            var traitsFilter = allTraits;
+            bool isList = false;
+            bool isShort = false;
+            bool showSuffix = false;
+            bool all = true;
+            string[] traitsFilter = allTraits;
 
             if (args != null)
             {
@@ -615,7 +615,7 @@ namespace KSEA.Historian
         {
             if (info.Vessel != null)
             {
-                var vm = info.Vessel.GetComponent<LaunchSiteVesselModule>();
+                LaunchSiteVesselModule vm = info.Vessel.GetComponent<LaunchSiteVesselModule>();
                 if (vm != null)
                     result.Append(vm.LaunchSiteName);
                 else
@@ -670,8 +670,8 @@ namespace KSEA.Historian
 
             string baseName = null;
             object kkLaunchSite = null;
-            var args = new object[] { position, baseName, distance, kkLaunchSite };
-            var kkInfo = new KerbalKonstructsInfo();
+            object[] args = new object[] { position, baseName, distance, kkLaunchSite };
+            KerbalKonstructsInfo kkInfo = new KerbalKonstructsInfo();
             try
             {
                 Reflect.StaticVoidMethod(scManager, "GetNearestOpenBase", args);
@@ -696,7 +696,7 @@ namespace KSEA.Historian
 
         void KKSpaceCenterParser(StringBuilder result, CommonInfo info, string[] args)
         {
-            var scManager = Historian.Instance.ReflectedClassType("kkLaunchSiteManager");
+            Type scManager = Historian.Instance.ReflectedClassType("kkLaunchSiteManager");
             if (scManager == null)
             {
                 result.Append(Localizer.GetStringByTag("#Historian_NoKerbalKonstructs"));
@@ -720,7 +720,7 @@ namespace KSEA.Historian
 
         void KKDistanceParser(StringBuilder result, CommonInfo info, string[] args)
         {
-            var scManager = Historian.Instance.ReflectedClassType("kkLaunchSiteManager");
+            Type scManager = Historian.Instance.ReflectedClassType("kkLaunchSiteManager");
             if (scManager == null)
             {
                 result.Append(Localizer.GetStringByTag("#Historian_NoKerbalKonstructs"));
@@ -751,15 +751,15 @@ namespace KSEA.Historian
             if (vessel == null || vessel.isEVA || !vessel.isCommandable)
                 return;
 
-            var isSingleTrait = traitsFilter.Length == 1;
+            bool isSingleTrait = traitsFilter.Length == 1;
 
-            var crewCount = 0;
-            var crew = vessel.GetVesselCrew();
+            int crewCount = 0;
+            List<ProtoCrewMember> crew = vessel.GetVesselCrew();
             TraitInfo trait;
 
             for (int i = 0; i < crew.Count; i++)
             {
-                var crewMember = crew[i];
+                ProtoCrewMember crewMember = crew[i];
                 // allow filter to be either singular or plural
                 if (all || traitsFilter.Contains(crewMember.trait) || traitsFilter.Contains(crewMember.trait + "s") || traitsFilter.Contains(crewMember.experienceTrait.Title))
                 {

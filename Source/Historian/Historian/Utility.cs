@@ -95,9 +95,9 @@ namespace KSEA.Historian
         {
             if (result == null)
                 Historian.Print("Result is null");
-            var degrees = (int)Math.Floor(Math.Abs(angle));
-            var minutes = (int)Math.Floor(60 * (Math.Abs(angle) - degrees));
-            var seconds = (int)Math.Floor(3600 * (Math.Abs(angle) - degrees - minutes / 60.0));
+            int degrees = (int)Math.Floor(Math.Abs(angle));
+            int minutes = (int)Math.Floor(60 * (Math.Abs(angle) - degrees));
+            int seconds = (int)Math.Floor(3600 * (Math.Abs(angle) - degrees - minutes / 60.0));
 
             result.Append($"{degrees:0}� {minutes:00}' {seconds:00}\"");
         }
@@ -153,7 +153,7 @@ namespace KSEA.Historian
             {
                 try
                 {
-                    var value = self.GetValue(name);
+                    string value = self.GetValue(name);
                     return ConfigNode.ParseColor(value);
                 }
                 catch
@@ -171,7 +171,7 @@ namespace KSEA.Historian
             {
                 try
                 {
-                    var value = self.GetValue(name);
+                    string value = self.GetValue(name);
                     return ConfigNode.ParseVector2(value);
                 }
                 catch
@@ -206,7 +206,7 @@ namespace KSEA.Historian
             {
                 try
                 {
-                    var value = self.GetValue(name);
+                    string value = self.GetValue(name);
 
                     return bool.Parse(value);
                 }
@@ -225,7 +225,7 @@ namespace KSEA.Historian
             {
                 try
                 {
-                    var value = self.GetValue(name);
+                    string value = self.GetValue(name);
                     return float.Parse(value);
                 }
                 catch
@@ -243,7 +243,7 @@ namespace KSEA.Historian
             {
                 try
                 {
-                    var value = self.GetValue(name);
+                    string value = self.GetValue(name);
                     return int.Parse(value);
                 }
                 catch
@@ -261,7 +261,7 @@ namespace KSEA.Historian
             {
                 try
                 {
-                    var value = self.GetValue(name);
+                    string value = self.GetValue(name);
                     return new System.Version(value);
                 }
                 catch
@@ -279,7 +279,7 @@ namespace KSEA.Historian
             {
                 try
                 {
-                    var value = self.GetValue(name);
+                    string value = self.GetValue(name);
                     return (T)(object)ConfigNode.ParseEnum(typeof(T), value);
                 }
                 catch
@@ -297,7 +297,7 @@ namespace KSEA.Historian
             {
                 try
                 {
-                    var values = self.GetValue(name).Split(';');
+                    string[] values = self.GetValue(name).Split(';');
                     if (fixedLength && values.Length != fallback.Length)
                     {
                         Historian.Print($"Wrong number of parameters for {name}. Expected {fallback.Length} but found {values.Length}");

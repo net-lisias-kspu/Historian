@@ -47,7 +47,7 @@ namespace KSEA.Historian
 
         protected override void OnDraw(Rect bounds)
         {
-            var action = Historian.Instance.LastAction;
+            LastAction action = Historian.Instance.LastAction;
             TokenizedText = actionMessages[action];
             base.OnDraw(bounds);
         }

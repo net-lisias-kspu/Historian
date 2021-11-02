@@ -41,13 +41,13 @@ namespace KSEA.Historian
 
             if (node.HasNode("EXCLUDE"))
             {
-                var exclude = node.GetNode("EXCLUDE");
+                ConfigNode exclude = node.GetNode("EXCLUDE");
                 excludedNodes = exclude.GetValues("Element");
             }
         }
         protected override void OnDraw(Rect bounds)
         {
-            var layout = Historian.Instance.GetLayout(layoutName);
+            Layout layout = Historian.Instance.GetLayout(layoutName);
             layout.DrawExcept(excludedNodes);
         }
     }

@@ -177,7 +177,7 @@ namespace KSEA.Historian
                     File.Delete(HISTORIANCFG);
 
                 Historian.Print("Creating configuration from default values");
-                var configuration = new Configuration(fromDefaults: true);
+                Configuration configuration = new Configuration(fromDefaults: true);
                 Historian.Print("Saving configuration file");
                 configuration.Save();
 
@@ -194,8 +194,8 @@ namespace KSEA.Historian
                 string dir = Path.GetDirectoryName(HISTORIANCFG);
                 Directory.CreateDirectory(dir);
 
-                var root = new ConfigNode();
-                var node = root.AddNode("KSEA_HISTORIAN_CONFIGURATION");
+                ConfigNode root = new ConfigNode();
+                ConfigNode node = root.AddNode("KSEA_HISTORIAN_CONFIGURATION");
 
                 node.AddValue("Version", CurrentVersion.ToString());
                 node.AddValue("Layout", Layout);
@@ -230,7 +230,7 @@ namespace KSEA.Historian
 		{
 			Log.trace("Searching for layouts ...");
 			string[] files = Directory.GetFiles(Configuration.LayoutsDirectory, "*.layout");
-			foreach (var file in files)
+			foreach (string file in files)
 			{
 				LoadLayout(file, layouts);
 			}
@@ -241,7 +241,7 @@ namespace KSEA.Historian
 			string layoutName = Path.GetFileNameWithoutExtension(file);
 			try
 			{
-				var node = ConfigNode.Load(file).GetNode("KSEA_HISTORIAN_LAYOUT");
+                ConfigNode node = ConfigNode.Load(file).GetNode("KSEA_HISTORIAN_LAYOUT");
 
 				if (layouts.FindIndex(layout => layout.Name == layoutName) < 0)
 				{

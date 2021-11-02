@@ -56,16 +56,16 @@ namespace KSEA.Historian
 
         void UpdateTexture()
         {
-            var vessel = FlightGlobals.ActiveVessel;
+            Vessel vessel = FlightGlobals.ActiveVessel;
 
             if (vessel != null)
             {
-                var flags = new List<string>();
+                List<string> flags = new List<string>();
                 flags.AddRange(vessel.Parts.Select(p => p.flagURL));
 
                 // Find the flag with the highest occurrance in the entire vessel
 
-                var url = flags.GroupBy(item => item).OrderByDescending(item => item.Count()).First().Key;
+                string url = flags.GroupBy(item => item).OrderByDescending(item => item.Count()).First().Key;
 
                 texture = (string.IsNullOrEmpty(url)) ? defaultTexture : GameDatabase.Instance.GetTexture(url, false);
             }

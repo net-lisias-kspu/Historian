@@ -31,5 +31,15 @@ Global
 		$0.TextStylePolicy = $2
 		$2.inheritsSet = null
 		$2.scope = application/t4-template
+		$0.DotNetNamingPolicy = $3
+		$3.DirectoryNamespaceAssociation = PrefixedHierarchical
+		$0.TextStylePolicy = $4
+		$4.inheritsSet = null
+		$4.scope = text/x-csharp
+		$0.CSharpFormattingPolicy = $5
+		$5.SpaceAfterColonInBaseTypeDeclaration = False
+		$5.SpaceAfterSemicolonsInForStatement = False
+		$5.SpaceBeforeColonInBaseTypeDeclaration = False
+		$5.scope = text/x-csharp
 	EndGlobalSection
 EndGlobal

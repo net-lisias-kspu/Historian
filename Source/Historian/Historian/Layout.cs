@@ -29,9 +29,9 @@ namespace KSEA.Historian
         {
             try
             {
-                var layout = new Layout(name);
+                Layout layout = new Layout(name);
 
-                foreach (var child in node.GetNodes())
+                foreach (ConfigNode child in node.GetNodes())
                 {
                     IElement element = Element.Create(child.name);
 
@@ -69,7 +69,7 @@ namespace KSEA.Historian
 
         public void Draw()
         {
-            foreach (var element in elements)
+            foreach (IElement element in elements)
             {
                 element.Draw();
             }
@@ -77,7 +77,7 @@ namespace KSEA.Historian
 
         public void DrawExcept(IEnumerable<string> names)
         {
-            foreach (var element in elements)
+            foreach (IElement element in elements)
             {
                 if (!names.Contains(element.Name))
                     element.Draw();

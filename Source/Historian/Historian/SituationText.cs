@@ -39,12 +39,12 @@ namespace KSEA.Historian
 
         protected override void OnDraw(Rect bounds)
         {
-            var isEva = (FlightGlobals.ActiveVessel?.isEVA).ToTriState();
+            TriState isEva = (FlightGlobals.ActiveVessel?.isEVA).ToTriState();
             if (evaOnly != TriState.UseDefault && evaOnly != isEva)
                 return;
 
-            var situation = SituationExtensions.Extend(FlightGlobals.ActiveVessel?.situation, isEva, false);
-            var fallback = SituationExtensions.Extend(FlightGlobals.ActiveVessel?.situation, isEva, true);
+            ExtendedSituation situation = SituationExtensions.Extend(FlightGlobals.ActiveVessel?.situation, isEva, false);
+            ExtendedSituation fallback = SituationExtensions.Extend(FlightGlobals.ActiveVessel?.situation, isEva, true);
 
             TokenizedText = (situations.ContainsKey(situation)) ? situations[situation] : situations[fallback];
             base.OnDraw(bounds);

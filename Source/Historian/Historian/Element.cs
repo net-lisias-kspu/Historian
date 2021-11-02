@@ -62,13 +62,13 @@ namespace KSEA.Historian
 
         public void Draw()
         {
-            var width = Size.x * Screen.width;
-            var height = Size.y * Screen.height;
+            float width = Size.x * Screen.width;
+            float height = Size.y * Screen.height;
 
-            var left = (Position.x * Screen.width) - (Anchor.x * width);
-            var top = (Position.y * Screen.height) - (Anchor.y * height);
+            float left = (Position.x * Screen.width) - (Anchor.x * width);
+            float top = (Position.y * Screen.height) - (Anchor.y * height);
 
-            var bounds = new Rect(left, top, width, height);
+            Rect bounds = new Rect(left, top, width, height);
 
             OnDraw(bounds);
         }

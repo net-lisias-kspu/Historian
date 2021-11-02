@@ -44,12 +44,12 @@ namespace KSEA.Historian
             AddLegacyTraits(traits, legacyColors);
 
             // load crew traits from file
-            var traitsConfigFileName = node.GetString("TRAITDEFINITIONS", "");
+            string traitsConfigFileName = node.GetString("TRAITDEFINITIONS", "");
             if (!string.IsNullOrEmpty(traitsConfigFileName))
                 traits = LoadFile(traits, traitsConfigFileName);
 
             // allow individual traits to be overwritten
-            var nodes = node.GetNodes("TRAIT");
+            ConfigNode[] nodes = node.GetNodes("TRAIT");
             traits = LoadNodes(traits, nodes);
 
             return traits;
@@ -66,13 +66,13 @@ namespace KSEA.Historian
             // Historian.Print($"Loading {nodes.Length} trait nodes");
             for (int i = 0; i < nodes.Length; i++)
             {
-                var name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(nodes[i].GetString("Name", "?").ToLower());
-                var suffix = "(" + name.Substring(0, 1) + ")";
+                string name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(nodes[i].GetString("Name", "?").ToLower());
+                string suffix = "(" + name.Substring(0, 1) + ")";
 
                 if (traits.ContainsKey(name))
                 {
                     // Historian.Print($"Update trait");
-                    var t = traits[name];
+                    TraitInfo t = traits[name];
                     t.Label = nodes[i].GetString("Label", t.Label);
                     t.Colour = nodes[i].GetString("Color", t.Colour);
                     traits[name] = t;
@@ -81,7 +81,7 @@ namespace KSEA.Historian
                 else
                 {
                     // Historian.Print($"New trait");
-                    var t = new TraitInfo
+                    TraitInfo t = new TraitInfo
                     {
                         Name = name,
                         Label = nodes[i].GetString("Label", suffix),

@@ -41,8 +41,8 @@ namespace KSEA.Historian
             //m_LauncherButton = new LauncherButton();
             toolbarButton = new ToolbarButton();
 
-            var windowHeight = 580f;
-            var windowWidth = 900f;
+            float windowHeight = 580f;
+            float windowWidth = 900f;
             //if (GameSettings.KERBIN_TIME)
             //    windowHeight += 100; // add extra height for Kerbin month/day name fields
 
@@ -94,12 +94,12 @@ namespace KSEA.Historian
         void OnWindowGUI(int id)
         {
             GUI.skin = HighLogic.Skin;
-            var historian = Historian.Instance;
+            Historian historian = Historian.Instance;
 
             // column one
-            using (var columnOne = new GUILayout.AreaScope(new Rect(15, 20, 380, 550)))
+            using (GUILayout.AreaScope columnOne = new GUILayout.AreaScope(new Rect(15, 20, 380, 550)))
             {
-                using (var col = new GUILayout.VerticalScope())
+                using (GUILayout.VerticalScope col = new GUILayout.VerticalScope())
                 {
                     GUILayout.Space(20);
                     historian.Suppressed = GUILayout.Toggle(historian.Suppressed, Localizer.GetStringByTag("#Historian_Suppressed"));
@@ -112,9 +112,9 @@ namespace KSEA.Historian
                     enableToolberButton = GUILayout.Toggle(enableToolberButton, Localizer.GetStringByTag("#Historian_UseToolbar"));
                     GUILayout.Space(10);
 
-                    using (var layout = new GUILayout.HorizontalScope())
+                    using (GUILayout.HorizontalScope layout = new GUILayout.HorizontalScope())
                     {
-                        var rightClickOptionsCount = 4;
+                        int rightClickOptionsCount = 4;
                         //GUILayout.Space(40);
                         GUILayout.Label(Localizer.GetStringByTag("#Historian_RightClickAction"));
                         GUILayout.Space(10);
@@ -133,11 +133,11 @@ namespace KSEA.Historian
                     ManageButtons();
 
                     GUILayout.Space(10);
-                    using (var layout = new GUILayout.HorizontalScope())
+                    using (GUILayout.HorizontalScope layout = new GUILayout.HorizontalScope())
                     {
                         GUILayout.Label(Localizer.GetStringByTag("#Historian_Layout"));
                         GUILayout.Space(10);
-                        var layouts = historian.GetLayoutNames();
+                        string[] layouts = historian.GetLayoutNames();
                         if (GUILayout.Button(previousButtonTexture, GUILayout.Width(20), GUILayout.Height(GUI.skin.label.lineHeight)))
                         {
                             historian.CurrentLayoutIndex = Mathf.Clamp(historian.CurrentLayoutIndex - 1, 0, layouts.Length - 1);
@@ -151,7 +151,7 @@ namespace KSEA.Historian
                     }
 
                     GUILayout.Space(10);
-                    using (var customHead = new GUILayout.HorizontalScope())
+                    using (GUILayout.HorizontalScope customHead = new GUILayout.HorizontalScope())
                     {
                         GUILayout.Label(Localizer.GetStringByTag("#Historian_CustomText"));
                         GUILayout.FlexibleSpace();
@@ -160,7 +160,7 @@ namespace KSEA.Historian
                     Configuration.Instance.CustomText = GUILayout.TextArea(Configuration.Instance.CustomText, GUI.skin.textArea, GUILayout.Height(60));
 
                     GUILayout.Space(10);
-                    using (var spaceCentre = new GUILayout.HorizontalScope())
+                    using (GUILayout.HorizontalScope spaceCentre = new GUILayout.HorizontalScope())
                     {
                         GUILayout.Label(Localizer.GetStringByTag("#Historian_DefaultSpaceCenterLabel"));
                         GUILayout.FlexibleSpace();
@@ -176,15 +176,15 @@ namespace KSEA.Historian
             }
 
             // column two
-            using (var columnTwo = new GUILayout.AreaScope(new Rect(410, 20, 220, 500)))
+            using (GUILayout.AreaScope columnTwo = new GUILayout.AreaScope(new Rect(410, 20, 220, 500)))
             {
-                using (var col = new GUILayout.VerticalScope())
+                using (GUILayout.VerticalScope col = new GUILayout.VerticalScope())
                 {
                     GUILayout.Space(20);
                     GUILayout.Label(Localizer.GetStringByTag("#Historian_DayNames"));
                     for (int i = 0; i < Configuration.Instance.KerbinDayNames.Length; i++)
                     {
-                        using (var item = new GUILayout.HorizontalScope())
+                        using (GUILayout.HorizontalScope item = new GUILayout.HorizontalScope())
                         {
                             GUILayout.Label($"{i + 1}:");
                             GUILayout.FlexibleSpace();
@@ -195,13 +195,13 @@ namespace KSEA.Historian
                     GUILayout.Space(50);
                     GUILayout.Label(Localizer.GetStringByTag("#Historian_DefaultEmptyCrewSlot"));
                     GUILayout.Space(10);
-                    using (var noCrewLabel = new GUILayout.HorizontalScope())
+                    using (GUILayout.HorizontalScope noCrewLabel = new GUILayout.HorizontalScope())
                     {
                         GUILayout.Label(Localizer.GetStringByTag("#Historian_CrewedLabel"));
                         GUILayout.FlexibleSpace();
                         Configuration.Instance.DefaultNoCrewLabel = GUILayout.TextField(Configuration.Instance.DefaultNoCrewLabel, GUI.skin.textArea, GUILayout.Width(120));
                     }
-                    using (var noCrewLabel = new GUILayout.HorizontalScope())
+                    using (GUILayout.HorizontalScope noCrewLabel = new GUILayout.HorizontalScope())
                     {
                         GUILayout.Label(Localizer.GetStringByTag("#Historian_UncrewedLabel"));
                         GUILayout.FlexibleSpace();
@@ -212,15 +212,15 @@ namespace KSEA.Historian
             }
 
             // column three
-            using (var columnThree = new GUILayout.AreaScope(new Rect(660, 20, 220, 480)))
+            using (GUILayout.AreaScope columnThree = new GUILayout.AreaScope(new Rect(660, 20, 220, 480)))
             {
-                using (var col = new GUILayout.VerticalScope())
+                using (GUILayout.VerticalScope col = new GUILayout.VerticalScope())
                 {
                     GUILayout.Space(20);
                     GUILayout.Label(Localizer.GetStringByTag("#Historian_MonthNames"));
                     for (int i = 0; i < Configuration.Instance.KerbinMonthNames.Length; i++)
                     {
-                        using (var item = new GUILayout.HorizontalScope())
+                        using (GUILayout.HorizontalScope item = new GUILayout.HorizontalScope())
                         {
                             GUILayout.Label($"{i + 1}:");
                             GUILayout.FlexibleSpace();
@@ -231,9 +231,9 @@ namespace KSEA.Historian
             }
 
             // bottom bar
-            using (var buttonBar = new GUILayout.AreaScope(new Rect(5, 525, 890, 30)))
+            using (GUILayout.AreaScope buttonBar = new GUILayout.AreaScope(new Rect(5, 525, 890, 30)))
             {
-                using (var layout = new GUILayout.HorizontalScope())
+                using (GUILayout.HorizontalScope layout = new GUILayout.HorizontalScope())
                 {
                     GUILayout.FlexibleSpace();
                     if (GUILayout.Button(Localizer.GetStringByTag("#autoLOC_900539"), GUILayout.Width(100.0f))) // #autoLOC_900539 = Load

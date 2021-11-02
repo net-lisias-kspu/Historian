@@ -41,12 +41,12 @@ namespace KSEA.Historian
         public static List<Token> GetTokens(string text)
         {
 
-            var tokens = new List<Token>();
-            var args = new List<string>();
+            List<Token> tokens = new List<Token>();
+            List<string> args = new List<string>();
             // scan template text string for parameter tokens
             int i = 0, ti = 0, pi = 0, tokenStart = 0, paramStart = 0;
 
-            var mode = ParseMode.Undefined;
+            ParseMode mode = ParseMode.Undefined;
 
             while (i < text.Length)
             {
@@ -70,7 +70,7 @@ namespace KSEA.Historian
                         if (mode == ParseMode.InToken)
                         {
                             // found end of token
-                            var token = new Token {
+                            Token token = new Token {
                                 IsLiteral = false,
                                 Key = text.Substring(tokenStart, ti)
                             };
@@ -137,7 +137,7 @@ namespace KSEA.Historian
 
         public static Token NewLiteral(string text, int start, int end)
         {
-            var token = new Token { IsLiteral = true, Args = null };
+            Token token = new Token { IsLiteral = true, Args = null };
             token.Key = text.Substring(start, end);
             return token;
         }
@@ -186,7 +186,7 @@ namespace KSEA.Historian
 
         public static void AddTokenizedRange(this List<List<Token>> target, IEnumerable<string> rawTexts)
         {
-            foreach (var text in rawTexts)
+            foreach (string text in rawTexts)
             {
                 target.Add(GetTokens(text));
             }

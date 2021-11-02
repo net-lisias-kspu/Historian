@@ -46,12 +46,12 @@ namespace KSEA.Historian
 
             evaOnly = node.GetEnum("EvaOnly", TriState.UseDefault);
 
-            foreach (var section in node.GetNodes())
+            foreach (ConfigNode section in node.GetNodes())
             {
-                var name = section.name;
+                string name = section.name;
                 try
                 {
-                    var situation = (ExtendedSituation)(object)ConfigNode.ParseEnum(typeof(ExtendedSituation), name);
+                    ExtendedSituation situation = (ExtendedSituation)(object)ConfigNode.ParseEnum(typeof(ExtendedSituation), name);
                     
                     if (!situationTokenizedTexts.ContainsKey(situation))
                     {
@@ -69,15 +69,15 @@ namespace KSEA.Historian
 
         protected override void OnDraw(Rect bounds)
         {
-            var isEva = (FlightGlobals.ActiveVessel?.isEVA).ToTriState();
+            TriState isEva = (FlightGlobals.ActiveVessel?.isEVA).ToTriState();
             if (evaOnly != TriState.UseDefault && evaOnly != isEva)
                 return;
 
-            var situation = SituationExtensions.Extend(FlightGlobals.ActiveVessel?.situation, isEva, false);
-            var fallback = SituationExtensions.Extend(FlightGlobals.ActiveVessel?.situation, isEva, true);
+            ExtendedSituation situation = SituationExtensions.Extend(FlightGlobals.ActiveVessel?.situation, isEva, false);
+            ExtendedSituation fallback = SituationExtensions.Extend(FlightGlobals.ActiveVessel?.situation, isEva, true);
 
-            var extendedSituation = situationTokenizedTexts.ContainsKey(situation) ? situation : fallback;
-            var texts = situationTokenizedTexts[extendedSituation];
+            ExtendedSituation extendedSituation = situationTokenizedTexts.ContainsKey(situation) ? situation : fallback;
+            List<List<Token>> texts = situationTokenizedTexts[extendedSituation];
 
             // debug
             // Historian.Print($"Random text: {isRandom}, Reset: {resetOnLaunch}, Index: {messageIndices[extendedSituation]}, isEva: {isEva}, situation: {extendedSituation}, #Messages: {texts.Count}");

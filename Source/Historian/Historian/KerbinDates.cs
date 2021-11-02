@@ -45,7 +45,7 @@ namespace KSEA.Historian
             return (index - pos);
         }
 
-        // var value = string.Format("Y{0}, D{1:D2}, {2}:{3:D2}:{4:D2}", time[4] + m_baseYear, time[3] + 1, time[2], time[1], time[0]);
+        // string value = string.Format("Y{0}, D{1:D2}, {2}:{3:D2}:{4:D2}", time[4] + m_baseYear, time[3] + 1, time[2], time[1], time[0]);
         enum TimePart
         {
             Second = 0,
@@ -59,7 +59,7 @@ namespace KSEA.Historian
 
         public static string FormattedDate(this int[] kerbinDate, string format, int baseYear = 1)
         {
-            var result = new StringBuilder();
+            StringBuilder result = new StringBuilder();
 
             int i = 0;
             int tokenLen;
@@ -146,7 +146,6 @@ namespace KSEA.Historian
 
         static string FormatMonth(int month, int tokenLen)
         {
-            //var config = Historian.Instance.GetConfiguration();
             switch (tokenLen)
             {
                 case 1:
@@ -163,7 +162,6 @@ namespace KSEA.Historian
 
         static string FormatDayOfWeek(int dayOfWeek, int tokenLen)
         {
-            //var config = Historian.Instance.GetConfiguration();
             switch (tokenLen)
             {
                 case 3:

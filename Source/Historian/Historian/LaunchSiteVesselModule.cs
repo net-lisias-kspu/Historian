@@ -56,11 +56,11 @@ namespace KSEA.Historian
                     Historian.Print(ex.Message);
                 }
 
-                var switcherSite = CheckKSCswitcher();
+                string switcherSite = CheckKSCswitcher();
                 if (switcherSite != kscDefaultName)
                     landedAt = switcherSite;
 
-                var kkSite = CheckKerbalKonstructs();
+                string kkSite = CheckKerbalKonstructs();
                 if (kkSite != kscDefaultName)
                     landedAt = kkSite;
 
@@ -73,7 +73,7 @@ namespace KSEA.Historian
 
         private string CheckKerbalKonstructs()
         {
-            var kkSiteManager = Historian.Instance.ReflectedClassType("kkLaunchSiteManager");
+            Type kkSiteManager = Historian.Instance.ReflectedClassType("kkLaunchSiteManager");
             string current = kscDefaultName;
             if (kkSiteManager != null)
             {
@@ -94,16 +94,16 @@ namespace KSEA.Historian
 
         private static string CheckKSCswitcher()
         {
-            var switcher = Historian.Instance.ReflectedClassType("switcherLoader");
+            Type switcher = Historian.Instance.ReflectedClassType("switcherLoader");
             string site = kscDefaultName;
             if (switcher != null)
             {
                 try
                 {
-                    var instance = Reflect.GetStaticField(switcher, "instance");
-                    var siteManager = Reflect.GetFieldValue(instance, "Sites");
-                    var lastSite = (string)Reflect.GetFieldValue(siteManager, "lastSite");
-                    var node = (ConfigNode)Reflect.GetMethodResult(siteManager, "getSiteByName", lastSite);
+                    object instance = Reflect.GetStaticField(switcher, "instance");
+                    object siteManager = Reflect.GetFieldValue(instance, "Sites");
+                    string lastSite = (string)Reflect.GetFieldValue(siteManager, "lastSite");
+                    ConfigNode node = (ConfigNode)Reflect.GetMethodResult(siteManager, "getSiteByName", lastSite);
 
 
                     if (node == null)
