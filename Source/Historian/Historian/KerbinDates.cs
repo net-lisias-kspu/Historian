@@ -22,11 +22,7 @@ namespace KSEA.Historian
 {
     public static class KerbinDates
     {
-#if DEBUG
-        public static Configuration config;
-#else
-        public static Configuration config = Historian.Instance.GetConfiguration();
-#endif
+        public static Configuration config => Configuration.Instance;
 
         public static string KerbinMonthName(this int dayNumber) => config.KerbinMonthNames[KerbinMonth(dayNumber) - 1];
 

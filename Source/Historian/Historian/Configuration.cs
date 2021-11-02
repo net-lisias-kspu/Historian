@@ -32,17 +32,24 @@ namespace KSEA.Historian
 
     public class Configuration
     {
-		public static readonly string PLUGINDATA = Path.Combine(
+		private static readonly string PLUGINDATA = Path.Combine(
 			Path.Combine(KSPUtil.ApplicationRootPath, "PluginData"),
 			"Historian"
 		);
-		public static readonly string LayoutsDirectory = Path.Combine(PLUGINDATA, "Layouts");
-		public static readonly string ModDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-		public static readonly string HISTORIANCFG = Path.Combine(PLUGINDATA, "Historian.cfg");
+		private static readonly string LayoutsDirectory = Path.Combine(PLUGINDATA, "Layouts");
+		private static readonly string HISTORIANCFG = Path.Combine(PLUGINDATA, "Historian.cfg");
 		static readonly System.Version CurrentVersion = new System.Version(Version.Number);
 
+		private static Configuration instance = null;
+		internal static Configuration Instance => instance ?? (instance = new Configuration());
+		internal static void Set(Configuration configuration)
+		{
+			instance = configuration;
+			instance.Save();
+		}
+
 		// defaults
-        public static Configuration Defaults = new Configuration {
+		public static readonly Configuration Defaults = new Configuration {
             Layout = "Default",
             EnableLauncherButton = true,
             EnableToolbarButton = true,
@@ -59,7 +66,7 @@ namespace KSEA.Historian
             DefaultUnmannedLabel = Localizer.GetStringByTag("#autoLOC_286382") // #autoLOC_286382 = unmanned
         };
 
-        public Configuration(bool fromDefaults = false)
+        private Configuration(bool fromDefaults = false)
         {
             if (fromDefaults)
             {
@@ -80,8 +87,8 @@ namespace KSEA.Historian
                 this.DefaultUnmannedLabel = Defaults.DefaultUnmannedLabel;
             }
         }
-        
-        public string Layout { get; set; }
+
+		public string Layout { get; set; }
 
         public string DefaultSpaceCenterName { get; set; }
 
@@ -110,12 +117,12 @@ namespace KSEA.Historian
 
         public List<Token> TokenizedCustomText;
 
-        public static Configuration Load(string file)
+        public static void Load()
         {
             try
             {
-                var node = ConfigNode.Load(file).GetNode("KSEA_HISTORIAN_CONFIGURATION");
-                var configuration = new Configuration();
+                ConfigNode node = ConfigNode.Load(HISTORIANCFG).GetNode("KSEA_HISTORIAN_CONFIGURATION");
+                Configuration configuration = new Configuration();
 
                 System.Version version = node.GetVersion("Version", new System.Version());
 
@@ -153,37 +160,38 @@ namespace KSEA.Historian
 
                 if (version != CurrentVersion)
                 {
-                    configuration.Save(file);
+                    configuration.Save();
                 }
 
-                return configuration;
+                instance = configuration;
             }
             catch
             {
-                Historian.Print($"Failed to load configuration file '{file}'. Attempting recovery ...");
+                Historian.Print($"Failed to load configuration file '{HISTORIANCFG}'. Attempting recovery ...");
 
                 // ensure save directory exists.
-                var dir = Path.GetDirectoryName(file);
+                string dir = Path.GetDirectoryName(HISTORIANCFG);
                 Directory.CreateDirectory(dir);
 
-                if (File.Exists(file))
-                    File.Delete(file);
+                if (File.Exists(HISTORIANCFG))
+                    File.Delete(HISTORIANCFG);
 
                 Historian.Print("Creating configuration from default values");
                 var configuration = new Configuration(fromDefaults: true);
                 Historian.Print("Saving configuration file");
-                configuration.Save(file);
+                configuration.Save();
 
-                return configuration;
+                instance = configuration;
             }
         }
 
-        public void Save(string file)
+        public void Save()
         {
+			if (!Directory.Exists(PLUGINDATA)) Directory.CreateDirectory(PLUGINDATA);
             try
             {
                 // ensure save directory exists.
-                var dir = Path.GetDirectoryName(file);
+                string dir = Path.GetDirectoryName(HISTORIANCFG);
                 Directory.CreateDirectory(dir);
 
                 var root = new ConfigNode();
@@ -205,17 +213,67 @@ namespace KSEA.Historian
                 node.AddValue("DefaultNoCrewLabel", DefaultNoCrewLabel);
                 node.AddValue("DefaultUnmannedLabel", DefaultUnmannedLabel);
 
-                if (File.Exists(file))
-                    File.Delete(file);
+                if (File.Exists(HISTORIANCFG))
+                    File.Delete(HISTORIANCFG);
 
-                root.Save(file);
+                root.Save(HISTORIANCFG);
 
-                Historian.Print($"Configuration saved at '{file}'.");
+                Historian.Print($"Configuration saved at '{HISTORIANCFG}'.");
             }
             catch
             {
-                Historian.Print($"Failed to save configuration file '{file}'.");
+                Historian.Print($"Failed to save configuration file '{HISTORIANCFG}'.");
             }
         }
-    }
+
+		internal void LoadLayouts(List<Layout> layouts)
+		{
+			Log.trace("Searching for layouts ...");
+			string[] files = Directory.GetFiles(Configuration.LayoutsDirectory, "*.layout");
+			foreach (var file in files)
+			{
+				LoadLayout(file, layouts);
+			}
+		}
+
+		private void LoadLayout(string file, List<Layout> layouts)
+		{
+			string layoutName = Path.GetFileNameWithoutExtension(file);
+			try
+			{
+				var node = ConfigNode.Load(file).GetNode("KSEA_HISTORIAN_LAYOUT");
+
+				if (layouts.FindIndex(layout => layout.Name == layoutName) < 0)
+				{
+					Layout layout = KSEA.Historian.Layout.Load(layoutName, node);
+					layouts.Add(layout);
+
+					Log.trace("Found layout '{0}'.", layoutName);
+				}
+				else
+				{
+					Log.warn("Layout with name '{0}' already exists. Unable to load duplicate.", layoutName);
+				}
+			}
+			catch (Exception e)
+			{
+				Log.err("Failed to load layout '{0}' due {1}.", layoutName, e.Message);
+			}
+		}
+
+		internal ConfigNode[] LoadTraits(string traitConfigFileName)
+		{
+			traitConfigFileName = Path.Combine(Configuration.LayoutsDirectory, traitConfigFileName);
+			if (!System.IO.File.Exists(traitConfigFileName))
+			{
+				Historian.Print($"ERROR: Unable to find traits config file 'GameData/Historian/Layouts/{traitConfigFileName}'");
+				return new ConfigNode[0];
+			}
+
+			Historian.Print($"Loading traits from '{traitConfigFileName}'");
+			ConfigNode[] r = ConfigNode.Load(traitConfigFileName).GetNodes("TRAIT");
+			return r;
+		}
+
+	}
 }

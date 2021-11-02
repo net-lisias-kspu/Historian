@@ -248,7 +248,7 @@ namespace KSEA.Historian
 
         void CustomParser(StringBuilder result, CommonInfo info, string[] args)
         {
-            var config = Historian.Instance.GetConfiguration();
+            Configuration config = Configuration.Instance;
             if (!string.IsNullOrEmpty(config.CustomText))
             {
                 if (config.TokenizedCustomText == null)
@@ -619,11 +619,11 @@ namespace KSEA.Historian
                 if (vm != null)
                     result.Append(vm.LaunchSiteName);
                 else
-                    result.Append(Historian.Instance.GetConfiguration().DefaultSpaceCenterName);
+                    result.Append(Configuration.Instance.DefaultSpaceCenterName);
 
             }
             else
-                result.Append(Historian.Instance.GetConfiguration().DefaultSpaceCenterName);
+                result.Append(Configuration.Instance.DefaultSpaceCenterName);
 
         }
 
@@ -690,7 +690,7 @@ namespace KSEA.Historian
             }
             
             if (kkInfo.BaseName == "KSC")
-                kkInfo.BaseName = Historian.Instance.GetConfiguration().DefaultSpaceCenterName;
+                kkInfo.BaseName = Configuration.Instance.DefaultSpaceCenterName;
             return kkInfo;
         }
 
@@ -792,7 +792,7 @@ namespace KSEA.Historian
             }
             if (crewCount == 0)
             {
-                var cfg = Historian.Instance.GetConfiguration();
+                Configuration cfg = Configuration.Instance;
                 result.Append(isSingleTrait ? cfg.DefaultNoCrewLabel : cfg.DefaultUnmannedLabel);
             }
             else

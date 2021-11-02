@@ -36,7 +36,7 @@ namespace KSEA.Historian
         bool enableToolberButton = true;
         
 
-        public Editor(Configuration configuration)
+        public Editor()
         {
             //m_LauncherButton = new LauncherButton();
             toolbarButton = new ToolbarButton();
@@ -52,8 +52,8 @@ namespace KSEA.Historian
             nextButtonTexture = GameDatabase.Instance.GetTexture("Historian/Historian_Button_Next", false);
             previousButtonTexture = GameDatabase.Instance.GetTexture("Historian/Historian_Button_Previous", false);
 
-            enableLauncherButton = configuration.EnableLauncherButton;
-            enableToolberButton = configuration.EnableToolbarButton;
+            enableLauncherButton = Configuration.Instance.EnableLauncherButton;
+            enableToolberButton = Configuration.Instance.EnableToolbarButton;
 
             if (enableLauncherButton)
             {
@@ -95,7 +95,6 @@ namespace KSEA.Historian
         {
             GUI.skin = HighLogic.Skin;
             var historian = Historian.Instance;
-            var configuration = historian.GetConfiguration();
 
             // column one
             using (var columnOne = new GUILayout.AreaScope(new Rect(15, 20, 380, 550)))
@@ -106,9 +105,9 @@ namespace KSEA.Historian
                     historian.Suppressed = GUILayout.Toggle(historian.Suppressed, Localizer.GetStringByTag("#Historian_Suppressed"));
                     historian.AlwaysActive = GUILayout.Toggle(historian.AlwaysActive, Localizer.GetStringByTag("#Historian_AlwaysActive"));
                     historian.AutoHideUI = GUILayout.Toggle(historian.AutoHideUI, Localizer.GetStringByTag("#Historian_AutoHideUI"));
-                    configuration.AutoHideUI = historian.AutoHideUI;
+                    Configuration.Instance.AutoHideUI = historian.AutoHideUI;
 
-                    configuration.PersistentConfigurationWindow = GUILayout.Toggle(configuration.PersistentConfigurationWindow, Localizer.GetStringByTag("#Historian_AlwaysShowConfigWindow"));
+                    Configuration.Instance.PersistentConfigurationWindow = GUILayout.Toggle(Configuration.Instance.PersistentConfigurationWindow, Localizer.GetStringByTag("#Historian_AlwaysShowConfigWindow"));
                     enableLauncherButton = GUILayout.Toggle(enableLauncherButton, Localizer.GetStringByTag("#Historian_UseAppLauncher"));
                     enableToolberButton = GUILayout.Toggle(enableToolberButton, Localizer.GetStringByTag("#Historian_UseToolbar"));
                     GUILayout.Space(10);
@@ -121,14 +120,14 @@ namespace KSEA.Historian
                         GUILayout.Space(10);
                         if (GUILayout.Button(previousButtonTexture, GUILayout.Width(20), GUILayout.Height(GUI.skin.label.lineHeight)))
                         {
-                            configuration.RightClickAction = (RightClickAction)Mathf.Clamp((int)configuration.RightClickAction - 1, 0, rightClickOptionsCount - 1);
+                            Configuration.Instance.RightClickAction = (RightClickAction)Mathf.Clamp((int)Configuration.Instance.RightClickAction - 1, 0, rightClickOptionsCount - 1);
                         }
                         else if (GUILayout.Button(nextButtonTexture, GUILayout.Width(20), GUILayout.Height(GUI.skin.label.lineHeight)))
                         {
-                            configuration.RightClickAction = (RightClickAction)Mathf.Clamp((int)configuration.RightClickAction + 1, 0, rightClickOptionsCount - 1);
+                            Configuration.Instance.RightClickAction = (RightClickAction)Mathf.Clamp((int)Configuration.Instance.RightClickAction + 1, 0, rightClickOptionsCount - 1);
                         }
                         GUILayout.Space(5);
-                        GUILayout.Label(configuration.RightClickAction.ToString(), GUI.skin.textArea, GUILayout.ExpandWidth(true));
+                        GUILayout.Label(Configuration.Instance.RightClickAction.ToString(), GUI.skin.textArea, GUILayout.ExpandWidth(true));
                     }
 
                     ManageButtons();
@@ -156,22 +155,22 @@ namespace KSEA.Historian
                     {
                         GUILayout.Label(Localizer.GetStringByTag("#Historian_CustomText"));
                         GUILayout.FlexibleSpace();
-                        configuration.PersistentCustomText = GUILayout.Toggle(configuration.PersistentCustomText, Localizer.GetStringByTag("#Historian_Persistent"), GUILayout.Width(120));
+                        Configuration.Instance.PersistentCustomText = GUILayout.Toggle(Configuration.Instance.PersistentCustomText, Localizer.GetStringByTag("#Historian_Persistent"), GUILayout.Width(120));
                     }
-                    configuration.CustomText = GUILayout.TextArea(configuration.CustomText, GUI.skin.textArea, GUILayout.Height(60));
+                    Configuration.Instance.CustomText = GUILayout.TextArea(Configuration.Instance.CustomText, GUI.skin.textArea, GUILayout.Height(60));
 
                     GUILayout.Space(10);
                     using (var spaceCentre = new GUILayout.HorizontalScope())
                     {
                         GUILayout.Label(Localizer.GetStringByTag("#Historian_DefaultSpaceCenterLabel"));
                         GUILayout.FlexibleSpace();
-                        configuration.DefaultSpaceCenterName = GUILayout.TextField(configuration.DefaultSpaceCenterName, GUI.skin.textArea, GUILayout.Width(150));
+                        Configuration.Instance.DefaultSpaceCenterName = GUILayout.TextField(Configuration.Instance.DefaultSpaceCenterName, GUI.skin.textArea, GUILayout.Width(150));
                     }
 
 
                     GUILayout.Space(10);
-                    GUILayout.Label($"{Localizer.GetStringByTag("#Historian_LastActionTime")}: {configuration.TimeToRememberLastAction} ms");
-                    configuration.TimeToRememberLastAction = (int)GUILayout.HorizontalSlider(configuration.TimeToRememberLastAction, 250, 10000, GUILayout.ExpandWidth(true));
+                    GUILayout.Label($"{Localizer.GetStringByTag("#Historian_LastActionTime")}: {Configuration.Instance.TimeToRememberLastAction} ms");
+                    Configuration.Instance.TimeToRememberLastAction = (int)GUILayout.HorizontalSlider(Configuration.Instance.TimeToRememberLastAction, 250, 10000, GUILayout.ExpandWidth(true));
 
                 }
             }
@@ -183,13 +182,13 @@ namespace KSEA.Historian
                 {
                     GUILayout.Space(20);
                     GUILayout.Label(Localizer.GetStringByTag("#Historian_DayNames"));
-                    for (int i = 0; i < configuration.KerbinDayNames.Length; i++)
+                    for (int i = 0; i < Configuration.Instance.KerbinDayNames.Length; i++)
                     {
                         using (var item = new GUILayout.HorizontalScope())
                         {
                             GUILayout.Label($"{i + 1}:");
                             GUILayout.FlexibleSpace();
-                            configuration.KerbinDayNames[i] = GUILayout.TextField(configuration.KerbinDayNames[i], GUI.skin.textArea, GUILayout.Width(190f));
+                            Configuration.Instance.KerbinDayNames[i] = GUILayout.TextField(Configuration.Instance.KerbinDayNames[i], GUI.skin.textArea, GUILayout.Width(190f));
                         }
                     }
 
@@ -200,13 +199,13 @@ namespace KSEA.Historian
                     {
                         GUILayout.Label(Localizer.GetStringByTag("#Historian_CrewedLabel"));
                         GUILayout.FlexibleSpace();
-                        configuration.DefaultNoCrewLabel = GUILayout.TextField(configuration.DefaultNoCrewLabel, GUI.skin.textArea, GUILayout.Width(120));
+                        Configuration.Instance.DefaultNoCrewLabel = GUILayout.TextField(Configuration.Instance.DefaultNoCrewLabel, GUI.skin.textArea, GUILayout.Width(120));
                     }
                     using (var noCrewLabel = new GUILayout.HorizontalScope())
                     {
                         GUILayout.Label(Localizer.GetStringByTag("#Historian_UncrewedLabel"));
                         GUILayout.FlexibleSpace();
-                        configuration.DefaultUnmannedLabel = GUILayout.TextField(configuration.DefaultUnmannedLabel, GUI.skin.textArea, GUILayout.Width(120));
+                        Configuration.Instance.DefaultUnmannedLabel = GUILayout.TextField(Configuration.Instance.DefaultUnmannedLabel, GUI.skin.textArea, GUILayout.Width(120));
                     }
 
                 }
@@ -219,13 +218,13 @@ namespace KSEA.Historian
                 {
                     GUILayout.Space(20);
                     GUILayout.Label(Localizer.GetStringByTag("#Historian_MonthNames"));
-                    for (int i = 0; i < configuration.KerbinMonthNames.Length; i++)
+                    for (int i = 0; i < Configuration.Instance.KerbinMonthNames.Length; i++)
                     {
                         using (var item = new GUILayout.HorizontalScope())
                         {
                             GUILayout.Label($"{i + 1}:");
                             GUILayout.FlexibleSpace();
-                            configuration.KerbinMonthNames[i] = GUILayout.TextField(configuration.KerbinMonthNames[i], GUI.skin.textArea, GUILayout.Width(190f));
+                            Configuration.Instance.KerbinMonthNames[i] = GUILayout.TextField(Configuration.Instance.KerbinMonthNames[i], GUI.skin.textArea, GUILayout.Width(190f));
                         }
                     }
                 }
@@ -243,15 +242,15 @@ namespace KSEA.Historian
                     }
                     if (GUILayout.Button(Localizer.GetStringByTag("#autoLOC_174778"), GUILayout.Width(100.0f))) // #autoLOC_174778 = Save
                     {
-                        configuration.Layout = historian.GetCurrentLayoutName();
-                        configuration.EnableLauncherButton = enableLauncherButton;
-                        configuration.EnableToolbarButton = enableToolberButton;
+                        Configuration.Instance.Layout = historian.GetCurrentLayoutName();
+                        Configuration.Instance.EnableLauncherButton = enableLauncherButton;
+                        Configuration.Instance.EnableToolbarButton = enableToolberButton;
 
-                        historian.SetConfiguration(configuration);
-                        if (!configuration.PersistentConfigurationWindow) Toggle();
+                        historian.SetConfiguration(Configuration.Instance);
+                        if (!Configuration.Instance.PersistentConfigurationWindow) Toggle();
 
-                        if (!String.IsNullOrEmpty(configuration.CustomText))
-                            configuration.TokenizedCustomText = Parser.GetTokens(configuration.CustomText);
+                        if (!String.IsNullOrEmpty(Configuration.Instance.CustomText))
+                            Configuration.Instance.TokenizedCustomText = Parser.GetTokens(Configuration.Instance.CustomText);
                     }
                     GUILayout.Space(20);
                     // GUILayout.FlexibleSpace();
@@ -302,7 +301,7 @@ namespace KSEA.Historian
 
         void Button_OnAlternateClick()
         {
-            switch (Historian.Instance.GetConfiguration().RightClickAction)
+            switch (Configuration.Instance.RightClickAction)
             {
                 case RightClickAction.None:
                     break;

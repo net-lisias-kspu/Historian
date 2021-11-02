@@ -37,7 +37,7 @@ namespace KSEA.Historian
 
             if (string.IsNullOrEmpty(LaunchSiteName))
             {
-                var defaultSpaceCenter = Historian.Instance.GetConfiguration().DefaultSpaceCenterName;
+                string defaultSpaceCenter = Configuration.Instance.DefaultSpaceCenterName;
                 string landedAt = "";
 
                 try

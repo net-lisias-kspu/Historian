@@ -33,7 +33,6 @@ namespace KSEA.Historian
         bool alwaysActive = false;
         bool suppressed = false;
         bool autoHideUI = false;
-        Configuration configuration = null;
         Editor editor = null;
         bool suppressEditorWindow = false;
         Dictionary<string, Type> feflectedMods = new Dictionary<string, Type>();
@@ -115,13 +114,11 @@ namespace KSEA.Historian
 
         public void Reload()
         {
-            configuration = Configuration.Load(Configuration.HISTORIANCFG);
             layouts.Clear();
-            LoadLayouts();
-            currentLayoutIndex = FindLayoutIndex(configuration.Layout);
+            Configuration.Load();
+            Configuration.Instance.LoadLayouts(this.layouts);
+            currentLayoutIndex = FindLayoutIndex(Configuration.Instance.Layout);
         }
-
-        public Configuration GetConfiguration() => configuration;
 
         public string[] GetLayoutNames() => layouts.Select(item => item.Name).ToArray();
 
@@ -129,33 +126,23 @@ namespace KSEA.Historian
 
         public string GetCurrentLayoutName() => GetCurrentLayout().Name;
 
-        public void SetConfiguration(Configuration configuration)
-        {
-            this.configuration = configuration;
-			this.configuration.Save(Configuration.HISTORIANCFG);
+		public void SetConfiguration(Configuration configuration)
+		{
+			Configuration.Set(configuration);
+			actionTimeout = TimeSpan.FromMilliseconds(configuration.TimeToRememberLastAction);
+		}
 
-            actionTimeout = TimeSpan.FromMilliseconds(configuration.TimeToRememberLastAction);
-        }
-
-        void RemoveOldConfig()
-        {
-            var fName = Path.Combine(Configuration.ModDirectory, "Historian.cfg");
-            if (File.Exists(fName)) File.Delete(fName);
-            fName = Path.Combine(Path.Combine(Configuration.ModDirectory, "Plugins"), "Historian.cfg");
-            if (File.Exists(fName)) File.Delete(fName);
-        }
-
-        void Awake()
+		void Awake()
         {
             DontDestroyOnLoad(this);
-            RemoveOldConfig();
-			configuration = Configuration.Load(Configuration.HISTORIANCFG);
 
-            LoadLayouts();
-            currentLayoutIndex = FindLayoutIndex(configuration.Layout);
+			Configuration.Load();
+			Configuration.Instance.LoadLayouts(this.layouts);
+
+            currentLayoutIndex = FindLayoutIndex(Configuration.Instance.Layout);
             Print("Current Layout Index {0}", currentLayoutIndex);
 
-            actionTimeout = TimeSpan.FromMilliseconds(configuration.TimeToRememberLastAction);
+            actionTimeout = TimeSpan.FromMilliseconds(Configuration.Instance.TimeToRememberLastAction);
 
             GameEvents.onHideUI.Add(Game_OnHideGUI);
             GameEvents.onShowUI.Add(Game_OnShowGUI);
@@ -180,7 +167,7 @@ namespace KSEA.Historian
                 editor.RemoveButton();
         }
 
-        void AddButton() => editor = new Editor(configuration);
+        void AddButton() => editor = new Editor();
 
         public void set_m_Active()
         {
@@ -192,7 +179,7 @@ namespace KSEA.Historian
         {
             if (!suppressed)
             {
-                if (lastAction != LastAction.None && (DateTime.Now - lastActionTime) > TimeSpan.FromSeconds(configuration.TimeToRememberLastAction) )
+                if (lastAction != LastAction.None && (DateTime.Now - lastActionTime) > TimeSpan.FromSeconds(Configuration.Instance.TimeToRememberLastAction) )
                 {
                     lastAction = LastAction.None;
                 }
@@ -205,7 +192,7 @@ namespace KSEA.Historian
                     restoreUI = false;
                 }
 
-                if (GameSettings.TAKE_SCREENSHOT.GetKeyDown() && configuration.AutoHideUI && !UIHidden)
+                if (GameSettings.TAKE_SCREENSHOT.GetKeyDown() && Configuration.Instance.AutoHideUI && !UIHidden)
                 {
                     // Historian.Print("Hide UI");
                     restoreUI = true;
@@ -218,11 +205,10 @@ namespace KSEA.Historian
                 }
                 else
                 {
-                    if (!configuration.PersistentCustomText && !string.IsNullOrEmpty(configuration.CustomText))
+                    if (!Configuration.Instance.PersistentCustomText && !string.IsNullOrEmpty(Configuration.Instance.CustomText))
                     {
-                        configuration.CustomText = "";
-						if (!Directory.Exists(Configuration.PLUGINDATA)) Directory.CreateDirectory(Configuration.PLUGINDATA);
-                        configuration.Save(Configuration.HISTORIANCFG);
+                        Configuration.Instance.CustomText = "";
+                        Configuration.Instance.Save();
                     }
 
                     if (!screenshotRequested) active = false;
@@ -301,7 +287,7 @@ namespace KSEA.Historian
 
         void Game_OnHideGUI()
         {
-            suppressEditorWindow |= !configuration.PersistentConfigurationWindow;
+            suppressEditorWindow |= !Configuration.Instance.PersistentConfigurationWindow;
             UIHidden = true;
         }
 
@@ -318,41 +304,6 @@ namespace KSEA.Historian
         int FindLayoutIndex(string layoutName) => layouts.FindIndex(layout => layout.Name == layoutName);
 
         Layout FindLayout(string layoutName) => GetLayout(FindLayoutIndex(layoutName));
-
-        void LoadLayouts()
-        {
-            Print("Searching for layouts ...");
-			var files = Directory.GetFiles(Configuration.LayoutsDirectory, "*.layout");
-            foreach (var file in files)
-            {
-                LoadLayout(file);
-            }
-        }
-
-        void LoadLayout(string file)
-        {
-            string layoutName = Path.GetFileNameWithoutExtension(file); 
-            try
-            {
-                var node = ConfigNode.Load(file).GetNode("KSEA_HISTORIAN_LAYOUT");
-
-                if (layouts.FindIndex(layout => layout.Name == layoutName) < 0)
-                {
-                    var layout = Layout.Load(layoutName, node);
-                    layouts.Add(layout);
-
-                    Print($"Found layout '{layoutName}'.");
-                }
-                else
-                {
-                    Print($"Layout with name '{layoutName}' already exists. Unable to load duplicate.");
-                }
-            }
-            catch
-            {
-                Print($"Failed to load layout '{layoutName}'.");
-            }
-        }
 
         public Layout GetLayout(string name)
         {

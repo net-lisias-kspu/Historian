@@ -55,21 +55,13 @@ namespace KSEA.Historian
             return traits;
         }
 
-        private static Dictionary<string, TraitInfo> LoadFile(Dictionary<string, TraitInfo> traits, string traitConfigFileName)
-        {
-			traitConfigFileName = Path.Combine(Configuration.LayoutsDirectory, traitConfigFileName);
-            if (!System.IO.File.Exists(traitConfigFileName))
-            {
-                Historian.Print($"ERROR: Unable to find traits config file 'GameData/Historian/Layouts/{traitConfigFileName}'");
-                return traits;
-            }
+		private static Dictionary<string, TraitInfo> LoadFile(Dictionary<string, TraitInfo> traits, string traitConfigFileName)
+		{
+			ConfigNode[] nodes = Configuration.Instance.LoadTraits(traitConfigFileName);
+			return LoadNodes(traits, nodes);
+		}
 
-            Historian.Print($"Loading traits from '{traitConfigFileName}'");
-            var nodes = ConfigNode.Load(traitConfigFileName).GetNodes("TRAIT");
-            return LoadNodes(traits, nodes);
-        }
-
-        private static Dictionary<string, TraitInfo> LoadNodes(Dictionary<string, TraitInfo> traits, ConfigNode[] nodes)
+		private static Dictionary<string, TraitInfo> LoadNodes(Dictionary<string, TraitInfo> traits, ConfigNode[] nodes)
         {
             // Historian.Print($"Loading {nodes.Length} trait nodes");
             for (int i = 0; i < nodes.Length; i++)
