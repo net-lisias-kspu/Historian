@@ -26,8 +26,6 @@ namespace KSEA.Historian
     public class Editor
     {
         bool isOpen = false;
-        static LauncherButton appLauncherButton = new LauncherButton();
-        ToolbarButton toolbarButton = null;
         Rect position;
         int windowId;
         Texture nextButtonTexture = null;
@@ -38,9 +36,6 @@ namespace KSEA.Historian
 
         public Editor()
         {
-            //m_LauncherButton = new LauncherButton();
-            toolbarButton = new ToolbarButton();
-
             float windowHeight = 580f;
             float windowWidth = 900f;
             //if (GameSettings.KERBIN_TIME)
@@ -55,21 +50,14 @@ namespace KSEA.Historian
             enableLauncherButton = Configuration.Instance.EnableLauncherButton;
             enableToolberButton = Configuration.Instance.EnableToolbarButton;
 
-            if (enableLauncherButton)
+            if (enableToolberButton || enableLauncherButton)
             {
-                appLauncherButton.Click += Button_Click;
+                ToolbarController.Instance.OnTrue += Toggle;
+                ToolbarController.Instance.OnFalse += Toggle;
+                ToolbarController.Instance.OnAlternateClick += Button_OnAlternateClick;
 
-                if (!appLauncherButton.IsRegistered)
-                    appLauncherButton.Register();
-            }
-
-            if (enableToolberButton)
-            {
-                toolbarButton.OnTrue += Toggle;
-                toolbarButton.OnFalse += Toggle;
-                toolbarButton.OnAlternateClick += Button_OnAlternateClick;
-
-                toolbarButton.Register();
+                ToolbarController.Instance.Register();
+                ToolbarController.Instance.ButtonsActive(enableToolberButton, enableLauncherButton);
             }
         }
 
@@ -79,17 +67,10 @@ namespace KSEA.Historian
             {
                 position = GUI.Window(windowId, position, OnWindowGUI, $"Historian: v {Historian.Instance.AssemblyFileVersion}", HighLogic.Skin.window);
 
-                if (enableLauncherButton)
-                {
-                    appLauncherButton.Update();
-                }
-
-                if (enableToolberButton)
-                {
-                    toolbarButton.Update();
-                }
-            }
-        }
+				if (enableLauncherButton || enableToolberButton)
+					ToolbarController.Instance.Update();
+			}
+		}
 
         void OnWindowGUI(int id)
         {
@@ -262,40 +243,10 @@ namespace KSEA.Historian
 
         void ManageButtons()
         {
-            if (enableLauncherButton && !appLauncherButton.IsRegistered)
-            {
-                appLauncherButton.Click += Button_Click;
-                appLauncherButton.Register();
-            }
-            else if (!enableLauncherButton && appLauncherButton.IsRegistered)
-            {
-                appLauncherButton.Click -= Button_Click;
-                appLauncherButton.Unregister();
-            }
-
-            if (enableToolberButton && !toolbarButton.IsRegistered)
-            {
-                toolbarButton.OnTrue += Button_Click;
-                toolbarButton.OnFalse += Button_Click;
-
-                toolbarButton.SetState(isOpen);
-
-                toolbarButton.Register();
-            }
-            else if (!enableToolberButton && toolbarButton.IsRegistered)
-            {
-                toolbarButton.OnTrue -= Button_Click;
-                toolbarButton.OnFalse -= Button_Click;
-
-                toolbarButton.SetState(isOpen);
-
-                toolbarButton.Unregister();
-            }
+            ToolbarController.Instance.ButtonsActive(enableToolberButton, enableToolberButton);
         }
 
-        internal void RemoveButton() => appLauncherButton.Unregister();
-
-        void Button_Click() => Toggle();
+        internal void RemoveButton() => ToolbarController.Instance.Unregister();
 
         void Toggle() => isOpen = !isOpen;
 

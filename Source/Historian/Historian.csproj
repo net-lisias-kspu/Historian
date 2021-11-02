@@ -66,7 +66,6 @@
     <Compile Include="Historian\Historian.cs" />
     <Compile Include="Historian\Internationalisation.cs" />
     <Compile Include="Historian\KerbinDates.cs" />
-    <Compile Include="Historian\LauncherButton.cs" />
     <Compile Include="Historian\LaunchSiteVesselModule.cs" />
     <Compile Include="Historian\Layout.cs" />
     <Compile Include="Historian\Picture.cs" />
@@ -76,7 +75,6 @@
     <Compile Include="Historian\Text.cs" />
     <Compile Include="Historian\TextList.cs" />
     <Compile Include="Historian\Parser.cs" />
-    <Compile Include="Historian\ToolbarButton.cs" />
     <Compile Include="Historian\Traits.cs" />
     <Compile Include="Historian\Utility.cs" />
     <Compile Include="Historian\LastAction.cs" />
