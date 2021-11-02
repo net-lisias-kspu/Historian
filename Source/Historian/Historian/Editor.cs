@@ -15,9 +15,11 @@
 	with Historian /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
 
 */
-using KSP.Localization;
 using System;
 using UnityEngine;
+using KSP.Localization;
+//using GUI = KSPe.UI.GUI;
+//using GUILayout = KSPe.UI.GUILayout;
 
 namespace KSEA.Historian
 {
@@ -61,7 +63,7 @@ namespace KSEA.Historian
                     appLauncherButton.Register();
             }
 
-            if (ToolbarManager.ToolbarAvailable && enableToolberButton)
+            if (enableToolberButton)
             {
                 toolbarButton.OnTrue += Toggle;
                 toolbarButton.OnFalse += Toggle;
@@ -82,7 +84,7 @@ namespace KSEA.Historian
                     appLauncherButton.Update();
                 }
 
-                if (enableToolberButton && ToolbarManager.ToolbarAvailable)
+                if (enableToolberButton)
                 {
                     toolbarButton.Update();
                 }
@@ -272,7 +274,7 @@ namespace KSEA.Historian
                 appLauncherButton.Unregister();
             }
 
-            if (enableToolberButton && ToolbarManager.ToolbarAvailable && !toolbarButton.IsRegistered)
+            if (enableToolberButton && !toolbarButton.IsRegistered)
             {
                 toolbarButton.OnTrue += Button_Click;
                 toolbarButton.OnFalse += Button_Click;
@@ -281,7 +283,7 @@ namespace KSEA.Historian
 
                 toolbarButton.Register();
             }
-            else if (!enableToolberButton && ToolbarManager.ToolbarAvailable && toolbarButton.IsRegistered)
+            else if (!enableToolberButton && toolbarButton.IsRegistered)
             {
                 toolbarButton.OnTrue -= Button_Click;
                 toolbarButton.OnFalse -= Button_Click;

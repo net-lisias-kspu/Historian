@@ -255,14 +255,14 @@ namespace KSEA.Historian
             return fallback;
         }
 
-        public static Version GetVersion(this ConfigNode self, string name, Version fallback)
+        public static System.Version GetVersion(this ConfigNode self, string name, System.Version fallback)
         {
             if (self.HasValue(name))
             {
                 try
                 {
                     var value = self.GetValue(name);
-                    return new Version(value);
+                    return new System.Version(value);
                 }
                 catch
                 {

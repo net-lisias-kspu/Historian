@@ -16,11 +16,13 @@
 
 */
 using KSP.Localization;
+using Toolbar = KSPe.UI.Toolbar;
+using Asset = KSPe.IO.Asset<KSEA.Historian.Startup>;
 namespace KSEA.Historian
 {
     public class ToolbarButton
     {
-        IButton button = null;
+        Toolbar.Button button = null;
         bool state = false;
         public delegate void Callback();
 
@@ -32,79 +34,57 @@ namespace KSEA.Historian
 
         public void SetState(bool state) => this.state = state;
 
+        private static UnityEngine.Texture2D toolbar = null;
+        private static UnityEngine.Texture2D toolbarSupressed = null;
         public void Register()
         {
-            if (ToolbarManager.ToolbarAvailable)
-            {
-                var toolbar = ToolbarManager.Instance;
-
-                button = toolbar.add("KSEA_Historian", "Button");
-
-                button.Text = "Historian";
-                button.ToolTip = Localizer.Format("#Historian_ButtonToolTip");
-                button.TexturePath = "Historian/Historian_Toolbar";
-                button.OnClick += Button_OnClick;
-
-                IsRegistered = true;
-            }
+            if(null == toolbar) toolbar             = Asset.Texture2D.LoadFromFile("Historian_Toolbar");
+            if(null == toolbar) toolbarSupressed    = Asset.Texture2D.LoadFromFile("Historian_Toolbar_Suppressed");
+            this.button = Toolbar.Button.Create(this
+                    , KSP.UI.Screens.ApplicationLauncher.AppScenes.ALWAYS
+                    , toolbar, toolbarSupressed
+                    , toolbar, toolbarSupressed
+                    , Localizer.Format("#Historian_ButtonToolTip")
+                );
+            this.button.Mouse.Add(Toolbar.Button.MouseEvents.Kind.Left, this.Button_OnLeftClick);
+            this.button.Mouse.Add(Toolbar.Button.MouseEvents.Kind.Right, this.Button_OnRightClick);
+            ToolbarController.Instance.Add(this.button);
         }
 
         public void Unregister()
         {
             IsRegistered = false;
 
-            if (button != null)
-            {
-                button.Destroy();
-            }
+            ToolbarController.Instance.Destroy();
+            this.button = null;
         }
 
         public void Update()
         {
             if (!IsRegistered) return;
-            var historian = Historian.Instance;
-
-            if (historian.Suppressed)
-            {
-                button.TexturePath = "Historian/Historian_Toolbar_Suppressed";
-            }
-            else
-            {
-                button.TexturePath = "Historian/Historian_Toolbar";
-            }
+            Historian historian = Historian.Instance;
+            this.button.Enabled = !historian.Suppressed;
         }
 
-        public void Button_OnClick(ClickEvent e)
-        {
-            switch (e.MouseButton)
-            {
-                case 0: // Left Click
+		public void Button_OnLeftClick()
+		{
 
-                    state = !state;
+			state = !state;
 
-                    if (state)
-                    {
-                        OnTrue();
-                    }
-                    else
-                    {
-                        OnFalse();
-                    }
+			if (state)
+			{
+				OnTrue();
+			}
+			else
+			{
+				OnFalse();
+			}
+		}
 
-                    break;
-
-                case 1: // Right Click
-
-                    OnAlternateClick();
-                    Update();
-
-                    break;
-
-                case 2: // Middle Click
-                default:
-
-                    break;
-            }
-        }
+		public void Button_OnRightClick()
+		{
+			OnAlternateClick();
+			Update();
+		}
     }
 }

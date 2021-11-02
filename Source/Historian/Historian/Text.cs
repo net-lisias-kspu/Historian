@@ -15,13 +15,15 @@
 	with Historian /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
 
 */
-using KSP.Localization;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using KSP.Localization;
+using GUI = KSPe.UI.GUI;
+using GUILayout = KSPe.UI.GUILayout;
 
 namespace KSEA.Historian
 {
