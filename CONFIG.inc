@@ -2,7 +2,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 source ${SCRIPT_DIR}/../CONFIG.inc
 
 PACKAGE=Historian
-TARGETDIR="$PACKAGE/"
+TARGETDIR="net.lisias.ksp/${PACKAGE}/"
 TARGETBINDIR="$TARGETDIR/"
 PROJECTSDIR="$PACKAGE/"
 
