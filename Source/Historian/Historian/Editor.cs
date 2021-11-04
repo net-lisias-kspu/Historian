@@ -18,8 +18,8 @@
 using System;
 using UnityEngine;
 using KSP.Localization;
-//using GUI = KSPe.UI.GUI;
-//using GUILayout = KSPe.UI.GUILayout;
+using GUI = KSPe.UI.GUI;
+using GUILayout = KSPe.UI.GUILayout;
 using Asset = KSPe.IO.Asset<KSEA.Historian.Startup>;
 
 namespace KSEA.Historian

@@ -37,10 +37,7 @@ namespace KSEA.Historian
 			Path.Combine(KSPUtil.ApplicationRootPath, "PluginData"),
 			"Historian"
 		);
-		private static readonly string PLUGINDATA = Path.Combine(
-			Path.Combine(ModDirectory, "PluginData"),
-			"Historian"
-		);
+		private static readonly string PLUGINDATA = Path.Combine(ModDirectory, "PluginData");
         private const string LAYOUTS_DIR = "Layouts";
 		private static readonly string LayoutsDirectoryDefault = Path.Combine(PLUGINDATA, LAYOUTS_DIR);
 		private static readonly string LayoutsDirectoryUser = Path.Combine(USERDATA, LAYOUTS_DIR);
