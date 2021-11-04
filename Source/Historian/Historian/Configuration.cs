@@ -18,7 +18,14 @@
 using KSP.Localization;
 using System;
 using System.Collections.Generic;
-using System.IO;
+
+using PLUGINDATA = KSPe.IO.File<KSEA.Historian.Startup>.Asset;
+using USERDATA = KSPe.IO.File<KSEA.Historian.Startup>.Data;
+using CONFIGNODE = KSPe.IO.Data<KSEA.Historian.Startup>.ConfigNode;
+using DEFAULTLAYOUTS = KSPe.IO.Asset<KSEA.Historian.Startup>;
+using USERLAYOUTS = KSPe.IO.Data<KSEA.Historian.Startup>;
+using Directory = KSPe.IO.Directory;
+using Path = KSPe.IO.Path;
 
 namespace KSEA.Historian
 {
@@ -32,16 +39,11 @@ namespace KSEA.Historian
 
     public class Configuration
     {
-		public static readonly string ModDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-		private static readonly string USERDATA = Path.Combine(
-			Path.Combine(KSPUtil.ApplicationRootPath, "PluginData"),
-			"Historian"
-		);
-		private static readonly string PLUGINDATA = Path.Combine(ModDirectory, "PluginData");
-        private const string LAYOUTS_DIR = "Layouts";
-		private static readonly string LayoutsDirectoryDefault = Path.Combine(PLUGINDATA, LAYOUTS_DIR);
-		private static readonly string LayoutsDirectoryUser = Path.Combine(USERDATA, LAYOUTS_DIR);
-		private static readonly string HISTORIANCFG = Path.Combine(USERDATA, "Historian.cfg");
+		private const string LAYOUTS_DIR = "Layouts";
+		private const string LAYOUTS_MASK = "*.layout";
+
+		private static readonly CONFIGNODE HISTORIANCFG = CONFIGNODE.For("KSEA_HISTORIAN_CONFIGURATION", "Historian.cfg");
+
 		static readonly System.Version CurrentVersion = new System.Version(Version.Number);
 
 		private static Configuration instance = null;
@@ -123,9 +125,21 @@ namespace KSEA.Historian
 
         public static void Load()
         {
+			try
+			{
+				// Hack. I should had implemented a Directory<T> thingy already...
+				Directory.CreateDirectory(LayoutsDirectoryUser);
+				Log.dbg("{0} is assured to exist.", LayoutsDirectoryUser);
+			}
+			catch (Exception e)
+			{
+				Log.err("Could not initialise user data on {0} due {1}. Things will not work as expected!", LayoutsDirectoryUser, e.Message);
+			}
+
             try
             {
-                ConfigNode node = ConfigNode.Load(HISTORIANCFG).GetNode("KSEA_HISTORIAN_CONFIGURATION");
+                HISTORIANCFG.Clear();
+                ConfigNode node = (HISTORIANCFG.IsLoadable ? HISTORIANCFG.Load().Node : HISTORIANCFG.Node);
                 Configuration configuration = new Configuration();
 
                 System.Version version = node.GetVersion("Version", new System.Version());
@@ -174,14 +188,11 @@ namespace KSEA.Historian
                 Historian.Print($"Failed to load configuration file '{HISTORIANCFG}'. Attempting recovery ...");
 
                 // ensure save directory exists.
-                string dir = Path.GetDirectoryName(HISTORIANCFG);
-                Directory.CreateDirectory(dir);
+                string dir = HISTORIANCFG.KspPath;
                 Directory.CreateDirectory(Path.Combine(dir, LAYOUTS_DIR));
 
-                if (File.Exists(HISTORIANCFG))
-                    File.Delete(HISTORIANCFG);
-
                 Historian.Print("Creating configuration from default values");
+                HISTORIANCFG.Clear();
                 Configuration configuration = new Configuration(fromDefaults: true);
                 Historian.Print("Saving configuration file");
                 configuration.Save();
@@ -192,15 +203,9 @@ namespace KSEA.Historian
 
         public void Save()
         {
-			if (!Directory.Exists(PLUGINDATA)) Directory.CreateDirectory(PLUGINDATA);
             try
             {
-                // ensure save directory exists.
-                string dir = Path.GetDirectoryName(HISTORIANCFG);
-                Directory.CreateDirectory(dir);
-
-                ConfigNode root = new ConfigNode();
-                ConfigNode node = root.AddNode("KSEA_HISTORIAN_CONFIGURATION");
+                ConfigNode node = HISTORIANCFG.Node;
 
                 node.AddValue("Version", CurrentVersion.ToString());
                 node.AddValue("Layout", Layout);
@@ -218,12 +223,9 @@ namespace KSEA.Historian
                 node.AddValue("DefaultNoCrewLabel", DefaultNoCrewLabel);
                 node.AddValue("DefaultUnmannedLabel", DefaultUnmannedLabel);
 
-                if (File.Exists(HISTORIANCFG))
-                    File.Delete(HISTORIANCFG);
+                HISTORIANCFG.Save();
 
-                root.Save(HISTORIANCFG);
-
-                Historian.Print($"Configuration saved at '{HISTORIANCFG}'.");
+                Historian.Print($"Configuration saved at '{HISTORIANCFG.KspPath}'.");
             }
             catch
             {
@@ -234,22 +236,21 @@ namespace KSEA.Historian
 		internal void LoadLayouts(List<Layout> layouts)
 		{
 			Log.trace("Searching for layouts ...");
-			this.LoadLayouts(layouts, LayoutsDirectoryDefault);
-			this.LoadLayouts(layouts, LayoutsDirectoryUser);
+			// Another leaked abstraction. I should not be handling unabstracted file names anymore!
+			this.LoadLayouts(layouts, LayoutsDirectoryDefault, DEFAULTLAYOUTS.ConfigNode.ListFor(LAYOUTS_MASK, false, LAYOUTS_DIR));
+			this.LoadLayouts(layouts, LayoutsDirectoryUser, USERLAYOUTS.ConfigNode.ListFor(LAYOUTS_MASK, false, LAYOUTS_DIR));
 		}
 
-		internal void LoadLayouts(List<Layout> layouts, string dir)
+		internal void LoadLayouts(List<Layout> layouts, string dir, string[] files)
 		{
-			string[] files = Directory.GetFiles(dir, "*.layout");
 			foreach (string file in files)
-			{
-				LoadLayout(file, layouts);
-			}
+				LoadLayout(file, dir, layouts);
 		}
 
-		private void LoadLayout(string file, List<Layout> layouts)
+		private void LoadLayout(string file, string dir, List<Layout> layouts)
 		{
 			string layoutName = Path.GetFileNameWithoutExtension(file);
+			file = Path.Combine(dir, file); // Another leaked abstraction. I should not be handling unabstracted file names anymore!
 			try
 			{
 				ConfigNode node = ConfigNode.Load(file).GetNode("KSEA_HISTORIAN_LAYOUT");
@@ -272,13 +273,16 @@ namespace KSEA.Historian
 			}
 		}
 
+		// Hack. I should had implemented a Directory<T> thingy already...
+		private static readonly string LayoutsDirectoryDefault = PLUGINDATA.Solve(LAYOUTS_DIR);
+		private static readonly string LayoutsDirectoryUser = USERDATA.Solve(LAYOUTS_DIR);
 		internal ConfigNode[] LoadTraits(string traitConfigFileName)
 		{
 			ConfigNode[] r = this.LoadTraits(Configuration.LayoutsDirectoryUser, traitConfigFileName);
 			r = r ?? this.LoadTraits(Configuration.LayoutsDirectoryDefault, traitConfigFileName);
 			if (null == r)
 			{
-				Historian.Print($"ERROR: Unable to find traits config file 'Historian/Layouts/{traitConfigFileName}' from GameData neither user's PluginData");
+				Historian.Print($"ERROR: Unable to find traits config file '{traitConfigFileName}' from GameData neither user's PluginData");
 				r = new ConfigNode[0];
 			}
 			return r;
@@ -286,8 +290,9 @@ namespace KSEA.Historian
 
 		private ConfigNode[] LoadTraits(string dir, string traitConfigFileName)
 		{
+			// Leaked abstraction. I should not be using System.IO and real pathnames here...
 			traitConfigFileName = Path.Combine(dir, traitConfigFileName);
-			if (!System.IO.File.Exists(traitConfigFileName))
+			if (!System.IO.File.Exists(traitConfigFileName)) 
 				return null;
 
 			Historian.Print($"Loading traits from '{traitConfigFileName}'");
