@@ -207,21 +207,21 @@ namespace KSEA.Historian
             {
                 ConfigNode node = HISTORIANCFG.Node;
 
-                node.AddValue("Version", CurrentVersion.ToString());
-                node.AddValue("Layout", Layout);
-                node.AddValue("EnableLauncherButton", EnableLauncherButton);
-                node.AddValue("EnableToolbarButton", EnableToolbarButton);
-                node.AddValue("AutoHideUI", AutoHideUI);
-                node.AddValue("CustomText", CustomText);
-                node.AddValue("PersistentCustomText", PersistentCustomText);
-                node.AddValue("PersistentConfigurationWindow", PersistentConfigurationWindow);
-                node.AddValue("DefaultSpaceCenterName", DefaultSpaceCenterName);
-                node.AddValue("TimeToRememberLastAction", TimeToRememberLastAction);
-                node.AddValue("KerbinDayNames", string.Join(";", KerbinDayNames));
-                node.AddValue("KerbinMonthNames", string.Join(";", KerbinMonthNames));
-                node.AddValue("RightClickAction", RightClickAction);
-                node.AddValue("DefaultNoCrewLabel", DefaultNoCrewLabel);
-                node.AddValue("DefaultUnmannedLabel", DefaultUnmannedLabel);
+                node.SetValue("Version", CurrentVersion.ToString(), true);
+                node.SetValue("Layout", Layout, true);
+                node.SetValue("EnableLauncherButton", EnableLauncherButton, true);
+                node.SetValue("EnableToolbarButton", EnableToolbarButton, true);
+                node.SetValue("AutoHideUI", AutoHideUI, true);
+                node.SetValue("CustomText", CustomText, true);
+                node.SetValue("PersistentCustomText", PersistentCustomText, true);
+                node.SetValue("PersistentConfigurationWindow", PersistentConfigurationWindow, true);
+                node.SetValue("DefaultSpaceCenterName", DefaultSpaceCenterName, true);
+                node.SetValue("TimeToRememberLastAction", TimeToRememberLastAction, true);
+                node.SetValue("KerbinDayNames", string.Join(";", KerbinDayNames), true);
+                node.SetValue("KerbinMonthNames", string.Join(";", KerbinMonthNames), true);
+                node.SetValue("RightClickAction", RightClickAction.ToString(), true);
+                node.SetValue("DefaultNoCrewLabel", DefaultNoCrewLabel, true);
+                node.SetValue("DefaultUnmannedLabel", DefaultUnmannedLabel, true);
 
                 HISTORIANCFG.Save();
 
