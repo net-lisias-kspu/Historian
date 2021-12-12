@@ -1,5 +1,7 @@
 # Historian /L Unleashed :: Changes
 
+* 2021-1211: 1.8.1.1 (lisias) for KSP >= 1.3.1
+	+ Fix a mishap on handling the persistence of the Settings.
 * 2021-1104: 1.8.1.0 (lisias) for KSP >= 1.3.1
 	+ Updating KSPe facilities to v2.4 (including toolbar!)
 	+ Moving the thingy into the `net.lisias.ksp` "vendor" hierarchy
